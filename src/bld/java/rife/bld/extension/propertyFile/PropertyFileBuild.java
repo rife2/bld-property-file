@@ -20,7 +20,7 @@ public class PropertyFileBuild extends Project {
         javadocOptions.add("-Xdoclint:-missing");
         publishRepository = MAVEN_LOCAL;
         publishInfo = new PublishInfo().groupId("com.uwyn.rife2").artifactId("bld-property-file")
-                .description("Bld Extension to Edit or Create Properties Files")
+                .description("Bld Extension to Create or Modify Properties Files")
                 .url("https://github.com/rife2/bld-property-file")
                 .developer(new PublishDeveloper().id("ethauvin").name("Erik C. Thauvin").email("erik@thauvin.net")
                         .url("https://erik.thauvin.net/"))
