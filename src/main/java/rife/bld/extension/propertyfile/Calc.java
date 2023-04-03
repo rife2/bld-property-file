@@ -16,7 +16,12 @@
 
 package rife.bld.extension.propertyfile;
 
+import java.util.function.IntFunction;
+
 public final class Calc {
+    public static final IntFunction<Integer> ADD = Calc::add;
+    public static final IntFunction<Integer> SUB = Calc::sub;
+
     public static Integer add(int v) {
         return v + 1;
     }

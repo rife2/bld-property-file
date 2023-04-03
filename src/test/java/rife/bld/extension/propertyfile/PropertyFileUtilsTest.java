@@ -27,6 +27,7 @@ import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static rife.bld.extension.propertyfile.Calc.*;
 
 /**
  * PropertyFileUtilsTest class
@@ -167,7 +168,7 @@ class PropertyFileUtilsTest {
         entry.setValue(null);
         entry.setDefaultValue("0013");
         entry.setPattern("0000");
-        entry.setCalc(Calc::sub);
+        entry.setCalc(SUB);
         PropertyFileUtils.processInt(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processInt(entry.getKey(), 0039)").isEqualTo("0039");
     }
