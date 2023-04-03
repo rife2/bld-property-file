@@ -16,6 +16,8 @@
 
 package rife.bld.extension.propertyfile;
 
+import java.util.function.IntFunction;
+
 /**
  * <p>Declares the edits to be made to a {@link java.util.Properties Properties} file.</p>
  *
@@ -42,6 +44,7 @@ public class Entry {
     private Operations operation = Operations.SET;
     private String pattern = "";
     private Units unit = Units.DAY;
+    private IntFunction<Integer> calc = null;
 
     /**
      * Creates a new {@link Entry entry} Entry.
@@ -125,6 +128,10 @@ public class Entry {
         return operation;
     }
 
+    public IntFunction<Integer> getCalc() {
+        return calc;
+    }
+
     /**
      * Sets the {@link Operations Operation} to be performed on the {@link java.util.Properties property} value,
      *
@@ -167,6 +174,10 @@ public class Entry {
      */
     public void setUnit(Units unit) {
         this.unit = unit;
+    }
+
+    public void setCalc(IntFunction<Integer> calc) {
+        this.calc = calc;
     }
 
     /**
@@ -255,6 +266,11 @@ public class Entry {
     @SuppressWarnings("unused")
     public Entry unit(Units unit) {
         setUnit(unit);
+        return this;
+    }
+
+    public Entry calc(IntFunction<Integer> calc) {
+        setCalc(calc);
         return this;
     }
 

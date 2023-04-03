@@ -184,7 +184,10 @@ public final class PropertyFileUtils {
                 intValue = fmt.parse(value).intValue();
             }
 
-            if (entry.getOperation() != Entry.Operations.SET) {
+            if (entry.getCalc() != null) {
+                intValue = entry.getCalc().apply(intValue);
+            }
+            else if (entry.getOperation() != Entry.Operations.SET) {
                 var opValue = 1;
                 if (entry.getValue() != null) {
                     opValue = fmt.parse(entry.getValue()).intValue();
