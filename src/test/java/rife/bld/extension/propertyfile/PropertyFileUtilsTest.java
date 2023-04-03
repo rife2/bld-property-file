@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package rife.bld.extension.propertyFile;
+package rife.bld.extension.propertyfile;
 
 import org.junit.jupiter.api.Test;
 import rife.tools.Localization;
@@ -36,65 +36,52 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  */
 class PropertyFileUtilsTest {
     final Properties p = new Properties();
+    final String t = "test";
 
     @Test
     void currentValueTest() {
-        String prev;
-        String value;
-        String defaultValue = null;
+        String prev = "previous";
+        String value = "value";
+        String defaultValue = "defaultValue";
         var operation = Entry.Operations.SET;
 
         // If only value is specified, the property is set to it regardless of its previous value.
-        prev = "previous";
-        value = "value";
-        assertThat(PropertyFileUtils.currentValue(prev, value, defaultValue, operation)).as("currentValue(prev,value,defaultValue,operation)").isEqualTo(value);
+        assertThat(PropertyFileUtils.currentValue(prev, value, null, operation))
+                .as(String.format("currentValue(%s,%s,%s,%s)", prev, value, defaultValue, operation)).isEqualTo(value);
 
         // If only defaultValue is specified and the property previously existed, it is unchanged.
-        prev = "previous";
-        value = null;
-        defaultValue = "defaultValue";
-        assertThat(PropertyFileUtils.currentValue(prev, value, defaultValue, operation)).as("currentValue(prev,value,defaultValue,operation)").isEqualTo(prev);
+        assertThat(PropertyFileUtils.currentValue(prev, null, defaultValue, operation))
+                .as(String.format("currentValue(%s,%s,%s,%s)", prev, value, defaultValue, operation)).isEqualTo(prev);
 
         // If only defaultValue is specified and the property did not exist, the property is set to defaultValue.
-        prev = null;
-        defaultValue = "defaultValue";
-        assertThat(PropertyFileUtils.currentValue(prev, value, defaultValue, operation)).as("currentValue(prev,value,defaultValue,operation)").isEqualTo(defaultValue);
+        assertThat(PropertyFileUtils.currentValue(null, null, defaultValue, operation))
+                .as(String.format("currentValue(%s,%s,%s,%s)", prev, value, defaultValue, operation)).isEqualTo(defaultValue);
 
         // If value and defaultValue are both specified and the property previously existed, the property is set to value.
-        prev = "previous";
-        value = "value";
-        defaultValue = "defaultValue";
-        assertThat(PropertyFileUtils.currentValue(prev, value, defaultValue, operation)).as("currentValue(prev,value,defaultValue,operation)").isEqualTo(value);
+        assertThat(PropertyFileUtils.currentValue(prev, value, defaultValue, operation))
+                .as(String.format("currentValue(%s,%s,%s,%s)", prev, value, defaultValue, operation)).isEqualTo(value);
 
         // If value and defaultValue are both specified and the property did not exist, the property is set to defaultValue.
-        prev = null;
-        value = "value";
-        defaultValue = "defaultValue";
-        assertThat(PropertyFileUtils.currentValue(prev, value, defaultValue, operation)).as("currentValue(prev,value,defaultValue,operation)").isEqualTo(defaultValue);
+        assertThat(PropertyFileUtils.currentValue(null, value, defaultValue, operation))
+                .as(String.format("currentValue(%s,%s,%s,%s)", prev, value, defaultValue, operation)).isEqualTo(defaultValue);
 
         // ADD
         operation = Entry.Operations.ADD;
 
-        value = "value";
-        defaultValue = "defaultValue";
-        assertThat(PropertyFileUtils.currentValue(prev, value, defaultValue, operation)).as("currentValue(prev,value,defaultValue,operation)").isEqualTo(defaultValue);
+        assertThat(PropertyFileUtils.currentValue(null, value, defaultValue, operation))
+                .as(String.format("currentValue(%s,%s,%s,%s)", prev, value, defaultValue, operation)).isEqualTo(defaultValue);
 
-        prev = "prev";
-        value = "value";
-        defaultValue = null;
-        assertThat(PropertyFileUtils.currentValue(prev, value, defaultValue, operation)).as("currentValue(prev,value,defaultValue,operation)").isEqualTo(prev);
+        assertThat(PropertyFileUtils.currentValue(prev, value, null, operation))
+                .as(String.format("currentValue(%s,%s,%s,%s)", prev, value, defaultValue, operation)).isEqualTo(prev);
 
-        prev = null;
-        value = "value";
-        assertThat(PropertyFileUtils.currentValue(prev, value, defaultValue, operation)).as("currentValue(prev,value,defaultValue,operation)").isEqualTo("");
+        assertThat(PropertyFileUtils.currentValue(null, value, null, operation))
+                .as(String.format("currentValue(%s,%s,%s,%s)", prev, value, defaultValue, operation)).isEqualTo("");
 
-        value = "value";
-        defaultValue = "defaultValue";
-        assertThat(PropertyFileUtils.currentValue(prev, value, defaultValue, operation)).as("currentValue(prev,value,defaultValue,operation)").isEqualTo(defaultValue);
+        assertThat(PropertyFileUtils.currentValue(null, value, defaultValue, operation))
+                .as(String.format("currentValue(%s,%s,%s,%s)", prev, value, defaultValue, operation)).isEqualTo(defaultValue);
 
-        value = null;
-        defaultValue = null;
-        assertThat(PropertyFileUtils.currentValue(prev, value, defaultValue, operation)).as("currentValue(prev,value,defaultValue,operation)").isEqualTo("");
+        assertThat(PropertyFileUtils.currentValue(null, null, null, operation))
+                .as(String.format("currentValue(%s,%s,%s,%s)", prev, value, defaultValue, operation)).isEqualTo("");
     }
 
     @Test
@@ -115,38 +102,38 @@ class PropertyFileUtilsTest {
     @Test
     void processIntTest() {
         var entry = new Entry("version.patch").value("a").type(Entry.Types.INT);
-        assertThat(PropertyFileUtils.processInt(p, entry, false)).as("parseInt(entry.getKey(), a)");
+        assertThat(PropertyFileUtils.processInt(t, p, entry, false)).as("parseInt(entry.getKey(), a)");
 
         // ADD
         entry.setOperation(Entry.Operations.ADD);
 
         entry.setValue("1");
         entry.setDefaultValue("-1");
-        PropertyFileUtils.processInt(p, entry, true);
+        PropertyFileUtils.processInt(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processInt(entry.getKey(), 0)").isEqualTo("0");
 
         entry.setKey("anint");
         entry.setValue(null);
         entry.setDefaultValue("0");
-        PropertyFileUtils.processInt(p, entry, true);
+        PropertyFileUtils.processInt(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processInt(entry.getKey(), 1)").isEqualTo("1");
-        PropertyFileUtils.processInt(p, entry, true);
+        PropertyFileUtils.processInt(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processInt(entry.getKey(), 2)").isEqualTo("2");
 
         entry.setKey("formated.int");
         entry.setValue(null);
         entry.setDefaultValue("0013");
         entry.setPattern("0000");
-        PropertyFileUtils.processInt(p, entry, true);
+        PropertyFileUtils.processInt(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processInt(entry.getKey(), 0014)").isEqualTo("0014");
-        PropertyFileUtils.processInt(p, entry, true);
+        PropertyFileUtils.processInt(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processInt(entry.getKey(), 0015)").isEqualTo("0015");
 
         entry.setKey("formated.int");
         entry.setValue("2");
         entry.setDefaultValue("0013");
         entry.setPattern("0000");
-        PropertyFileUtils.processInt(p, entry, true);
+        PropertyFileUtils.processInt(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processInt(entry.getKey(), 0017)").isEqualTo("0017");
 
         // SUBTRACT
@@ -154,7 +141,7 @@ class PropertyFileUtilsTest {
         entry.setValue(null);
         entry.setDefaultValue("0013");
         entry.setPattern("0000");
-        PropertyFileUtils.processInt(p, entry, true);
+        PropertyFileUtils.processInt(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processInt(entry.getKey(), 0016)").isEqualTo("0016");
     }
 
@@ -165,36 +152,36 @@ class PropertyFileUtilsTest {
         var dayInt = Integer.parseInt(day);
 
         entry.setValue("a");
-        assertThat(PropertyFileUtils.processDate(p, entry, false)).as("processDate(entry.getKey(), a)").isFalse();
+        assertThat(PropertyFileUtils.processDate(t, p, entry, false)).as("processDate(entry.getKey(), a)").isFalse();
 
         entry.setValue("99");
-        PropertyFileUtils.processDate(p, entry, true);
+        PropertyFileUtils.processDate(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processDate(entry.getKey(), 99)").isEqualTo("99");
 
         entry.setValue("now");
-        PropertyFileUtils.processDate(p, entry, true);
+        PropertyFileUtils.processDate(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processDate(entry.getKey(), now)").isEqualTo(day);
 
         // ADD
         entry.setOperation(Entry.Operations.ADD);
 
         entry.setValue("1");
-        PropertyFileUtils.processDate(p, entry, true);
+        PropertyFileUtils.processDate(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processDate(entry.getKey(), now+1)").isEqualTo(String.valueOf(dayInt + 1));
 
         entry.setValue("2");
-        PropertyFileUtils.processDate(p, entry, true);
+        PropertyFileUtils.processDate(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processDate(entry.getKey(), now+3)").isEqualTo(String.valueOf(dayInt + 3));
 
         // SUBTRACT
         entry.setOperation(Entry.Operations.SUBTRACT);
         entry.setValue("3");
-        PropertyFileUtils.processDate(p, entry, true);
+        PropertyFileUtils.processDate(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processDate(entry.getKey(), now-3)").isEqualTo(String.valueOf(dayInt));
 
         entry.setOperation(Entry.Operations.SUBTRACT);
         entry.setValue("2");
-        PropertyFileUtils.processDate(p, entry, true);
+        PropertyFileUtils.processDate(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processDate(entry.getKey(), now-2)").isEqualTo(String.valueOf(dayInt - 2));
     }
 
@@ -210,7 +197,7 @@ class PropertyFileUtilsTest {
         assertThatCode(() -> PropertyFileUtils.saveProperties(tmp, "Generated file - do not modify!", p))
                 .as("save properties").doesNotThrowAnyException();
 
-        assertThat(PropertyFileUtils.loadProperties(tmp, p)).as("load properties").isTrue();
+        assertThat(PropertyFileUtils.loadProperties(t, tmp, p)).as("load properties").isTrue();
 
         assertThat(p.getProperty(test)).as("read property").isEqualTo(test);
 
