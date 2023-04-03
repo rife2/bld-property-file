@@ -152,6 +152,24 @@ class PropertyFileUtilsTest {
         entry.setCalc(v -> v + 23);
         PropertyFileUtils.processInt(t, p, entry, true);
         assertThat(p.getProperty(entry.getKey())).as("processInt(entry.getKey(), 0039)").isEqualTo("0039");
+
+        // CALC OP
+        entry.setOperation(Entry.Operations.SET);
+        entry.setValue(null);
+        entry.setDefaultValue("0013");
+        entry.setPattern("0000");
+        entry.setCalc(Calc::add);
+        PropertyFileUtils.processInt(t, p, entry, true);
+        assertThat(p.getProperty(entry.getKey())).as("processInt(entry.getKey(), 0040)").isEqualTo("0040");
+
+        // CALC OP
+        entry.setOperation(Entry.Operations.SET);
+        entry.setValue(null);
+        entry.setDefaultValue("0013");
+        entry.setPattern("0000");
+        entry.setCalc(Calc::sub);
+        PropertyFileUtils.processInt(t, p, entry, true);
+        assertThat(p.getProperty(entry.getKey())).as("processInt(entry.getKey(), 0039)").isEqualTo("0039");
     }
 
     @Test
