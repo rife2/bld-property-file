@@ -219,11 +219,13 @@ public final class PropertyFileUtils {
         var value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getValue(),
                 entry.getDefaultValue(), entry.getOperation());
 
-        if (entry.getOperation() == Entry.Operations.SET) {
+        if (entry.getModify() != null) {
+            p.setProperty(entry.getKey(), entry.getModify().apply(p.getProperty(entry.getKey()), entry.getValue()));
+        } else if (entry.getOperation() == Entry.Operations.SET) {
             p.setProperty(entry.getKey(), value);
         } else if (entry.getOperation() == Entry.Operations.ADD) {
             if (entry.getValue() != null) {
-                p.setProperty(entry.getValue(), "$value${entry.value}");
+                p.setProperty(entry.getKey(), p.getProperty(entry.getKey()) + entry.getValue());
             }
         }
 

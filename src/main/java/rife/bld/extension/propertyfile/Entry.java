@@ -16,6 +16,7 @@
 
 package rife.bld.extension.propertyfile;
 
+import java.util.function.BiFunction;
 import java.util.function.IntFunction;
 
 /**
@@ -45,6 +46,7 @@ public class Entry {
     private String pattern = "";
     private Units unit = Units.DAY;
     private IntFunction<Integer> calc = null;
+    private BiFunction<String, String, String> modify = null;
 
     /**
      * Creates a new {@link Entry entry} Entry.
@@ -132,6 +134,10 @@ public class Entry {
         return calc;
     }
 
+    public BiFunction<String, String, String> getModify() {
+        return modify;
+    }
+
     /**
      * Sets the {@link Operations Operation} to be performed on the {@link java.util.Properties property} value,
      *
@@ -178,6 +184,10 @@ public class Entry {
 
     public void setCalc(IntFunction<Integer> calc) {
         this.calc = calc;
+    }
+
+    public void setModify(BiFunction<String, String, String> modify) {
+        this.modify = modify;
     }
 
     /**
@@ -271,6 +281,11 @@ public class Entry {
 
     public Entry calc(IntFunction<Integer> calc) {
         setCalc(calc);
+        return this;
+    }
+
+    public Entry modify(BiFunction<String, String, String> modify) {
+        setModify(modify);
         return this;
     }
 
