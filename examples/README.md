@@ -2,10 +2,10 @@
 
 ## Compile
 
-First make sure the project is compiled, by issuing the following command:
+First make sure the project up-to-date and compiled:
 
 ```shell
-./bld compile
+./bld download compile
 ```
 ## Run
 
