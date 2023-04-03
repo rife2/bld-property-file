@@ -1,4 +1,4 @@
-package rife.bld.extension.propertyFile;
+package rife.bld.extension.propertyfile;
 
 import rife.bld.Project;
 import rife.bld.publish.PublishDeveloper;
@@ -35,7 +35,7 @@ public class PropertyFileBuild extends Project {
         downloadSources = true;
         repositories = List.of(MAVEN_CENTRAL, SONATYPE_SNAPSHOTS);
         scope(compile)
-                .include(dependency("com.uwyn.rife2", "rife2", version(1, 5, 11)));
+                .include(dependency("com.uwyn.rife2", "rife2", version(1, 5, 15)));
         scope(test)
                 .include(dependency("org.jsoup", "jsoup", version(1, 15, 4)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 9, 2)))

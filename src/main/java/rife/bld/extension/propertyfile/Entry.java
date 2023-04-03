@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package rife.bld.extension.propertyFile;
+package rife.bld.extension.propertyfile;
 
 /**
  * <p>Declares the edits to be made to a {@link java.util.Properties Properties} file.</p>
@@ -174,6 +174,8 @@ public class Entry {
      *
      * @param key the {@link java.util.Properties property} key
      */
+
+    @SuppressWarnings("unused")
     public Entry key(String key) {
         setKey(key);
         return this;
@@ -184,6 +186,7 @@ public class Entry {
      *
      * @param value the {@link java.util.Properties property} value
      */
+    @SuppressWarnings("unused")
     public Entry value(Object value) {
         if (value != null) {
             setValue(String.valueOf(value));
@@ -200,6 +203,7 @@ public class Entry {
      *
      * @param defaultValue the default value
      */
+    @SuppressWarnings("unused")
     public Entry defaultValue(Object defaultValue) {
         if (defaultValue != null) {
             setDefaultValue(String.valueOf(defaultValue));
@@ -224,6 +228,7 @@ public class Entry {
      *
      * @param operation the entry {@link Operations Operation}
      */
+    @SuppressWarnings("unused")
     public Entry operation(Operations operation) {
         setOperation(operation);
         return this;
@@ -247,6 +252,7 @@ public class Entry {
      *
      * @param unit the {@link Units unit}
      */
+    @SuppressWarnings("unused")
     public Entry unit(Units unit) {
         setUnit(unit);
         return this;

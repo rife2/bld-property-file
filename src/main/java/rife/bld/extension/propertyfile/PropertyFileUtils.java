@@ -14,10 +14,10 @@
  *  limitations under the License.
  */
 
-package rife.bld.extension.propertyFile;
+package rife.bld.extension.propertyfile;
 
-import rife.bld.extension.propertyFile.Entry.Operations;
-import rife.bld.extension.propertyFile.Entry.Units;
+import rife.bld.extension.propertyfile.Entry.Operations;
+import rife.bld.extension.propertyfile.Entry.Units;
 import rife.tools.Localization;
 
 import javax.imageio.IIOException;
@@ -62,11 +62,12 @@ public final class PropertyFileUtils {
     /**
      * Processes a date {@link Properties property}.
      *
-     * @param p     the {@link Properties property}
-     * @param entry the {@link Entry} containing the {@link Properties property} edits
+     * @param command the issuing command
+     * @param p       the {@link Properties property}
+     * @param entry   the {@link Entry} containing the {@link Properties property} edits
      * @return {@code true} if successful
      */
-    public static boolean processDate(Properties p, Entry entry, boolean failOnWarning) {
+    public static boolean processDate(String command, Properties p, Entry entry, boolean failOnWarning) {
         var success = true;
         var cal = Calendar.getInstance();
         var value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getValue(),
@@ -85,7 +86,8 @@ public final class PropertyFileUtils {
             try {
                 cal.setTime(fmt.parse(value));
             } catch (ParseException pe) {
-                warn("Date parse exception for: " + entry.getKey() + " --> " + pe.getMessage(), pe, failOnWarning);
+                warn(command, "Non-date value for \"" + entry.getKey() + "\" --> " + pe.getMessage(),
+                        pe, failOnWarning);
                 success = false;
             }
         }
@@ -99,10 +101,12 @@ public final class PropertyFileUtils {
                     offset *= -1;
                 }
             } catch (NumberFormatException nfe) {
-                warn("Non-integer value for: " + entry.getKey() + " --> " + nfe.getMessage(), nfe, failOnWarning);
+                warn(command, "Non-date value for \"" + entry.getKey() + "\" --> " + nfe.getMessage(), nfe,
+                        failOnWarning);
                 success = false;
             }
 
+            //noinspection MagicConstant
             cal.add(calendarFields.getOrDefault(entry.getUnit(), Calendar.DATE), offset);
         }
 
@@ -159,24 +163,14 @@ public final class PropertyFileUtils {
     }
 
     /**
-     * Ensure that the given value is an integer.
-     *
-     * @param value the value
-     * @return the parsed value
-     * @throws NumberFormatException if the value could not be parsed as an integer
-     */
-    static String parseInt(String value) throws NumberFormatException {
-        return String.valueOf(Integer.parseInt(value));
-    }
-
-    /**
      * Processes an integer {@link Properties property}.
      *
-     * @param p     the {@link Properties property}
-     * @param entry the {@link Entry} containing the {@link Properties property} edits
+     * @param command the issuing command
+     * @param p       the {@link Properties property}
+     * @param entry   the {@link Entry} containing the {@link Properties property} edits
      * @return {@code true} if successful
      */
-    public static boolean processInt(Properties p, Entry entry, boolean failOnWarning) {
+    public static boolean processInt(String command, Properties p, Entry entry, boolean failOnWarning) {
         var success = true;
         int intValue;
         try {
@@ -187,13 +181,13 @@ public final class PropertyFileUtils {
             if (value.isBlank()) {
                 intValue = fmt.parse("0").intValue();
             } else {
-                intValue = fmt.parse(parseInt(value)).intValue();
+                intValue = fmt.parse(value).intValue();
             }
 
             if (entry.getOperation() != Entry.Operations.SET) {
                 var opValue = 1;
                 if (entry.getValue() != null) {
-                    opValue = fmt.parse(parseInt(entry.getValue())).intValue();
+                    opValue = fmt.parse(entry.getValue()).intValue();
                 }
                 if (entry.getOperation() == Entry.Operations.ADD) {
                     intValue += opValue;
@@ -202,11 +196,9 @@ public final class PropertyFileUtils {
                 }
             }
             p.setProperty(entry.getKey(), fmt.format(intValue));
-        } catch (NumberFormatException nfe) {
-            warn("Number format exception for: " + entry.getKey() + " --> " + nfe.getMessage(), nfe, failOnWarning);
-            success = false;
-        } catch (ParseException pe) {
-            warn("Number parsing exception for: " + entry.getKey() + " --> " + pe.getMessage(), pe, failOnWarning);
+        } catch (NumberFormatException | ParseException e) {
+            warn(command, "Non-integer value for \"" + entry.getKey() + "\" --> " + e.getMessage(), e,
+                    failOnWarning);
             success = false;
         }
 
@@ -238,27 +230,29 @@ public final class PropertyFileUtils {
     /**
      * Logs a warning.
      *
+     * @param command the issuing command
      * @param message the message to log
      */
-    static void warn(String message) {
+    static void warn(String command, String message) {
         if (LOGGER.isLoggable(Level.WARNING)) {
-            LOGGER.warning(message);
+            LOGGER.warning('[' + command + "] " + message);
         }
     }
 
     /**
      * Logs a warning.
      *
+     * @param command       The command name
      * @param message       the message log
      * @param e             the related exception
      * @param failOnWarning skips logging the exception if set to {@code false}
      */
-    static void warn(String message, Exception e, boolean failOnWarning) {
+    static void warn(String command, String message, Exception e, boolean failOnWarning) {
         if (LOGGER.isLoggable(Level.WARNING)) {
             if (failOnWarning) {
-                LOGGER.log(Level.WARNING, message, e);
+                LOGGER.log(Level.WARNING, '[' + command + "] " + message, e);
             } else {
-                LOGGER.warning(message);
+                LOGGER.warning('[' + command + "] " + message);
             }
         }
     }
@@ -266,26 +260,24 @@ public final class PropertyFileUtils {
     /**
      * Loads a {@link Properties properties} file.
      *
-     * @param file the file location.
-     * @param p    the {@link Properties properties} to load into.
+     * @param command the issuing command
+     * @param file    the file location.
+     * @param p       the {@link Properties properties} to load into.
      * @return {@code true} if successful
      */
-    public static boolean loadProperties(File file, Properties p) {
+    public static boolean loadProperties(String command, File file, Properties p) {
         boolean success = true;
         if (file != null) {
             if (file.exists()) {
                 try (var propStream = Files.newInputStream(file.toPath(), StandardOpenOption.READ)) {
                     p.load(propStream);
                 } catch (IOException ioe) {
-                    warn("Could not load properties file: " + ioe.getMessage(), ioe, true);
+                    warn(command, "Could not load properties file: " + ioe.getMessage(), ioe, true);
                     success = false;
                 }
-            } else {
-                warn("The '" + file + "' properties file could not be found.");
-                success = false;
             }
         } else {
-            warn("Please specify the properties file location.");
+            warn(command, "Please specify the properties file location.");
             success = false;
         }
         return success;

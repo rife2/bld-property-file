@@ -14,11 +14,11 @@
  *  limitations under the License.
  */
 
-package rife.bld.extension.propertyFile;
+package rife.bld.extension.propertyfile;
 
 import rife.bld.Project;
-import rife.bld.extension.propertyFile.Entry.Operations;
-import rife.bld.extension.propertyFile.Entry.Types;
+import rife.bld.extension.propertyfile.Entry.Operations;
+import rife.bld.extension.propertyfile.Entry.Types;
 import rife.bld.operations.AbstractOperation;
 
 import java.io.File;
@@ -50,6 +50,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      *
      * @param entry the {@link Entry entry}
      */
+    @SuppressWarnings("unused")
     public PropertyFileOperation entry(Entry entry) {
         entries.add(entry);
         return this;
@@ -60,6 +61,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      *
      * @param file the file to be edited
      */
+    @SuppressWarnings("unused")
     public PropertyFileOperation file(String file) {
         this.file = new File(file);
         return this;
@@ -70,6 +72,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      *
      * @param file the file to be edited
      */
+    @SuppressWarnings("unused")
     public PropertyFileOperation file(File file) {
         this.file = file;
         return this;
@@ -80,6 +83,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      *
      * @param failOnWarning if set to {@code true}, the task will fail on any warnings.
      */
+    @SuppressWarnings("unused")
     public PropertyFileOperation failOnWarning(boolean failOnWarning) {
         this.failOnWarning = failOnWarning;
         return this;
@@ -90,14 +94,16 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      *
      * @param comment the header comment
      */
+    @SuppressWarnings("unused")
     public PropertyFileOperation comment(String comment) {
         this.comment = comment;
         return this;
     }
 
     /**
-     * Performs the edits to the {@link java.util.Properties properties} file.
+     * Performs the modification(s) to the {@link java.util.Properties properties} file.
      */
+    @Override
     public void execute() throws Exception {
         if (project == null) {
             throw new IOException("A project must be specified.");
@@ -105,13 +111,14 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
         if (file == null) {
             throw new IOException("A properties file location must be specified.");
         }
+        var commandName = project.getCurrentCommandName();
         var success = false;
         var properties = new Properties();
-        success = PropertyFileUtils.loadProperties(file, properties);
+        success = PropertyFileUtils.loadProperties(commandName, file, properties);
         if (success) {
             for (var entry : entries) {
                 if (entry.getKey().isBlank()) {
-                    PropertyFileUtils.warn("At least one entry key must specified.");
+                    PropertyFileUtils.warn(commandName, "At least one entry key must specified.");
                     success = false;
                 } else {
                     var key = entry.getKey();
@@ -119,17 +126,19 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
                     var defaultValue = entry.getDefaultValue();
                     if ((value == null || value.isBlank()) && (defaultValue == null || defaultValue.isBlank())
                             && entry.getOperation() != Operations.DELETE) {
-                        PropertyFileUtils.warn("An entry value or default must be specified: " + key);
+                        PropertyFileUtils.warn(commandName, "An entry value or default must be specified: " + key);
                         success = false;
                     } else if (entry.getType() == Types.STRING && entry.getOperation() == Operations.SUBTRACT) {
-                        PropertyFileUtils.warn("Subtraction is not supported for String properties: " + key);
+                        PropertyFileUtils.warn(commandName, "Subtraction is not supported for String properties: " + key);
                         success = false;
                     } else if (entry.getOperation() == Operations.DELETE) {
                         properties.remove(key);
                     } else {
                         switch (entry.getType()) {
-                            case DATE -> success = PropertyFileUtils.processDate(properties, entry, failOnWarning);
-                            case INT -> success = PropertyFileUtils.processInt(properties, entry, failOnWarning);
+                            case DATE ->
+                                    success = PropertyFileUtils.processDate(commandName, properties, entry, failOnWarning);
+                            case INT ->
+                                    success = PropertyFileUtils.processInt(commandName, properties, entry, failOnWarning);
                             default -> success = PropertyFileUtils.processString(properties, entry);
                         }
                     }
