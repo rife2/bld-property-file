@@ -11,7 +11,10 @@ public class PropertyFileExampleMain {
         final Path path = Paths.get("version.properties");
         if (Files.exists(path)) {
             final List<String> content = Files.readAllLines(path);
-            System.out.println("> cat " + path.getFileName());
+            System.out.println("""
+                    +---------------------------+
+                    | version.properties        |
+                    +---------------------------+""");
             for (final String line : content) {
                 System.out.println(line);
             }
