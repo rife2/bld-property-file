@@ -52,3 +52,5 @@ version.major=1
 version.minor=0
 version.patch=10
 ```
+
+[View the Examples Build](https://github.com/rife2/bld-property-file/blob/master/examples/src/bld/java/com/example/PropertyFileExampleBuild.java)

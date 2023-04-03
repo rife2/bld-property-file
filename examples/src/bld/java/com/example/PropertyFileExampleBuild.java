@@ -73,7 +73,7 @@ public class PropertyFileExampleBuild extends Project {
                 // set the minor version to 0 if it doesn't exist
                 .entry(new Entry("version.minor").defaultValue(0))
                 // set the patch version to 10 if it doesn't exist, increase by 10
-                .entry(new Entry("version.patch").defaultValue(0).type(Types.INT).operation(Operations.ADD).value(10))
+                .entry(new Entry("version.patch").value(10).defaultValue(0).type(Types.INT).operation(Operations.ADD))
                 // set the build date to the current date
                 .entry(buildDateEntry)
                 .execute();
