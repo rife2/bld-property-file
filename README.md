@@ -10,74 +10,80 @@ An extension for creating or modifying [property files](https://docs.oracle.com/
 public void updateMajor() throws Exception {
     new PropertyFileOperation(this)
             .file("version.properties")
-            .entry(new Entry("version.major").defaultValue(1).type(Types.INT).operation(Operations.ADD))
+            .entry(new Entry("version.major").defaultValue(0).type(Types.INT).operation(Operations.ADD))
             .entry(new Entry("version.minor").value(0))
             .entry(new Entry("version.patch").value(0))
+            .entry(new Entry("build.date").value("now").pattern("yyyy-MM-dd").type(Types.DATE))
             .execute();
 }
 
 ```
-Assuming the following `version.properties` file:
-
-```ini
-# version.properties
-version.major=1
-version.minor=0
-version.patch=1
-```
-
-Invoking the `updateMajor` command:
+Invoking the `updateMajor` command, will create the `version.propertees`file:
 
 ```sh
 ./bld updateMajor ...
 ```
 
-would update the properties to:
+```ini
+# version.properties
+build.date=2023-04-02
+version.major=1
+version.minor=0
+version.patch=0
+```
+
+Invoking the `updateMajor` command again, will increase the `version.major` property:
+
+```sh
+./bld updateMajor ...
+```
 
 ```ini
 # version.properties
+build.date=2023-04-02
 version.major=2
 version.minor=0
 version.patch=0
 ```
+
 - [View Examples](https://github.com/rife2/bld-property-file/tree/master/examples)
 
 ## Property File
 
 The `PropertyFileOperation` class is used to configure the [properties file](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html) location, etc.
 
-Attribute       | Description                                                      | Required
-:---------------|:-----------------------------------------------------------------|:--------
-`file`          | The location of the properties files to modify.                  | Yes
-`comment`       | Comment to be inserted at the top of the properties file.        | No
-`failOnWarning` | If set to `true`, will cause executiion to fail on any warnings. | No
+| Attribute       | Description                                                      | Required |
+|:----------------|:-----------------------------------------------------------------|:---------|
+| `file`          | The location of the properties files to modify.                  | Yes      |
+| `comment`       | Comment to be inserted at the top of the properties file.        | No       |       
+| `failOnWarning` | If set to `true`, will cause executiion to fail on any warnings. | No       |        
 
 ## Entry
 
 The `Entry` class is used to specify modifications to be made to the [properties file](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
 
-Attribute      | Description
-:--------------|:-----------------------------------------------------------------------------------------------------------------
-`key`          | The name of the property name/value pair.
-`value`        | The value of the property.
-`defaultVlaue` | The initial value to set for the property if not already defined. For `Type.DATE`, the `now` keyword can be used.
-`type`         | Tread the value as `Types.INT`, `Types.DATE`, or `Types.STRING`. If none specified, `Types.STRING` is assumed.
-`operation`    | See [operations](#operations).
-`pattern`      | For `Types.INT` and `Types.DATE` only. If present, will parse the value as [DecimalFormat](https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html) or [SimpleDateFormat](https://docs.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html) patterns, respectively.
-`unit`         | The unit value to be applied to `Operations.ADD` and `Operations.SUBTRACT` for `Types.DATE`. See [Units](#units).
+| Attribute      | Description                                                                                                                                                                                                                                                                                 |
+|:---------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `key`          | The name of the property name/value pair.                                                                                                                                                                                                                                                   |                                                                                                                                                                                                                                                   
+| `value`        | The value of the property.                                                                                                                                                                                                                                                                  |                                                                                                                                                                                                                                                                  
+| `defaultVlaue` | The initial value to set for the property if not already defined. For `Type.DATE`, the `now` keyword can be used.                                                                                                                                                                           |                                                                                                                                                                           
+| `type`         | Tread the value as `Types.INT`, `Types.DATE`, or `Types.STRING`. If none specified, `Types.STRING` is assumed.                                                                                                                                                                              |                                                                                                                                                                              
+| `operation`    | See [operations](#operations).                                                                                                                                                                                                                                                              |                                                                                                                                                                                                                                                              
+| `pattern`      | For `Types.INT` and `Types.DATE` only. If present, will parse the value as [DecimalFormat](https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html) or [SimpleDateFormat](https://docs.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html) patterns, respectively. |
+|  `unit`        | The unit value to be applied to `Operations.ADD` and `Operations.SUBTRACT` for `Types.DATE`. See [Units](#units).                                                                                                                                                                           |                                                                                                                                                                          
 
-`key` is required. `value` or `default` are required unless the `operation` is `Operations.DELETE`.
+`key` is required. `value` or `defaultValue` are required unless the `operation` is `Operations.DELETE`.
 
 ## Operations
 
 The following operations are available:
 
-Operation             | Description
-:---------------------|:-------------------------------------------------------------------------
-`Operations.ADD`      | Adds a value to an entry.
-`Operations.DELETE`   | Deletes an entry.
-`Operations.SET`      | Sets the entry value. This is the default operation.
-`Operations.SUBTRACT` | Subtracts a value from the entry. For `Types.INT` and `Types.DATE` only.
+| Operation              | Description                                                               |
+|:-----------------------|:--------------------------------------------------------------------------|
+| `Operations.ADD`       | Adds a value to an entry.                                                 |
+| `Operations.DELETE`    | Deletes an entry.                                                         |
+| `Operations.SET`       | Sets the entry value. This is the default operation.                      |
+|  `Operations.SUBTRACT` | Subtracts a value from the entry. For `Types.INT` and `Types.DATE` only.  |
 
 ## Units
 
