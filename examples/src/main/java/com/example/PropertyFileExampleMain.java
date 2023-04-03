@@ -21,7 +21,7 @@ public class PropertyFileExampleMain {
         }
     }
 
-    public String getMessage() {
+    String getMessage() {
         return "Hello World!";
     }
 }

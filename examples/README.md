@@ -16,11 +16,10 @@ To run the examples, issue one of the following command or combination there off
 ./bld updateMinor run
 ./bld updatePatch run
 ```
-Upon execution, the content of the `verison.properties` file will be displayed, reflecting the modification to the
-`version.major`, `version.minor` or `version.patch` properties.
+Upon execution, the `version.properties` file will be created and displayed:
 
 ```shell
-./bld updatePatch run
+./bld updateMajor run
 ```
 
 ```shell
@@ -28,8 +27,28 @@ Upon execution, the content of the `verison.properties` file will be displayed, 
 | version.properties        |
 +---------------------------+
 #
-#Sun Apr 02 17:19:10 PDT 2023
+#Sun Apr 02 23:51:39 PDT 2023
+build.date=2023-04-02
 version.major=1
 version.minor=0
-version.patch=1
+version.patch=0
+```
+
+Subsequent commands will reflect the modifications to the
+`version.major`, `version.minor` or `version.patch` properties:
+
+```shell
+./bld upatePatch run
+```
+
+```shell
++---------------------------+
+| version.properties        |
++---------------------------+
+#
+#Sun Apr 02 23:55:09 PDT 2023
+build.date=2023-04-02
+version.major=1
+version.minor=0
+version.patch=10
 ```

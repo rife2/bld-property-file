@@ -2,9 +2,9 @@ package com.example;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PropertyFileExampleTest {
+class PropertyFileExampleTest {
     @Test
     void verifyHello() {
         assertEquals("Hello World!", new PropertyFileExampleMain().getMessage());
