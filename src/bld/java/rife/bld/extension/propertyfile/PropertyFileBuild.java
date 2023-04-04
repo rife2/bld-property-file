@@ -21,7 +21,9 @@ public class PropertyFileBuild extends Project {
         javadocOptions
                 .docLint(NO_MISSING)
                 .link("https://rife2.github.io/rife2/");
-        publishRepository = MAVEN_LOCAL;
+        publishRepository = repository("https://repo.rife2.com/releases",
+                property("rife2.username"),
+                property("rife2.password"));
         publishInfo = new PublishInfo()
                 .groupId("com.uwyn.rife2")
                 .artifactId("bld-property-file")
@@ -35,7 +37,9 @@ public class PropertyFileBuild extends Project {
                         .url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
                 .scm(new PublishScm().connection("scm:git:https://github.com/rife2/bld-property-file.git")
                         .developerConnection("scm:git:git@github.com:rife2/bld-property-file.git")
-                        .url("https://github.com/rife2/bld-property-file"));
+                        .url("https://github.com/rife2/bld-property-file"))
+                .signKey(property("sign.key"))
+                .signPassphrase(property("sign.passphrase"));
 
         javaRelease = 17;
         downloadSources = true;
@@ -43,7 +47,7 @@ public class PropertyFileBuild extends Project {
         repositories = List.of(MAVEN_CENTRAL, RIFE2);
 
         scope(compile)
-                .include(dependency("com.uwyn.rife2", "rife2", version(1, 5, 15)));
+                .include(dependency("com.uwyn.rife2", "rife2", version(1, 5, 16)));
         scope(test)
                 .include(dependency("org.jsoup", "jsoup", version(1, 15, 4)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 9, 2)))

@@ -2,9 +2,10 @@
 
 [![License (3-Clause BSD)](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg?style=flat-square)](http://opensource.org/licenses/BSD-3-Clause)
 [![Java](https://img.shields.io/badge/java-17%2B-blue)](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
+[![Release](https://flat.badgen.net/maven/v/metadata-url/https:/repo.rife2.com/releases/com/uwyn/rife2/bld-property-file/maven-metadata.xml)](https://repo.rife2.com/#/releases/com/uwyn/rife2/bld-property-file)
 [![GitHub CI](https://github.com/rife2/bld-property-file/actions/workflows/bld.yml/badge.svg)](https://github.com/rife2/bld-property-file/actions/workflows/bld.yml)
 
-A `bld` extension for creating or modifying [property files](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html) with [bld](https://github.com/rife2/rife2/wiki/What-Is-Bld). It is inspired by the [ant PropertyFile task](https://ant.apache.org/manual/Tasks/propertyfile.html).
+An extension for creating or modifying [property files](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html) with [bld](https://github.com/rife2/rife2/wiki/What-Is-Bld). It is inspired by the [ant PropertyFile task](https://ant.apache.org/manual/Tasks/propertyfile.html).
 
 ```java
 @BuildCommand
@@ -71,7 +72,8 @@ The [Entry](https://rife2.github.io/bld-property-file/rife/bld/extension/propert
 | `unit()`         | The unit value to be used with [Types.DATE](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html) calculations. See [Units](#units).                                                                                                                                                                                                                                                                                                                             |                                                                                                                                                                          
 
 - For convenience the `key` (and optional `type`) is first set in the constructor.
-- `key` is required. `value` or `defaultValue` are required except when deleting.
+- The `key` is required.
+- A `set` value or `defaultValue` are required except when deleting.
 -  For [Types.DATE](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html), the `now` keyword can be used as the property value.
 
 ## Functions
