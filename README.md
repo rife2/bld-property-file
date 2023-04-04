@@ -50,7 +50,7 @@ version.patch=0
 
 ## Property File
 
-The `PropertyFileOperation` class is used to configure the [properties file](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html) location, etc.
+The [PropertyFileOperation](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/PropertyFileOperation.html) class is used to configure the [properties file](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html) location, etc.
 
 | Function          | Description                                                     | Required |
 |:------------------|:----------------------------------------------------------------|:---------|
@@ -60,20 +60,19 @@ The `PropertyFileOperation` class is used to configure the [properties file](htt
 
 ## Entry
 
-The `Entry` class is used to specify modifications to be made to the [properties file](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
+The [Entry](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.html) class is used to specify modifications to be made to the [properties file](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
 
-| Function         | Description                                                                                                                                                                                                                                                                                 |
-|:-----------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `key()`          | The name of the property name/value pair.                                                                                                                                                                                                                                                   |                                                                                                                                                                                                                                                   
-| `set()`          | The value to set the property to, regardless of its previous value.                                                                                                                                                                                                                         |                                                                                                                                                                                                                                                                  
-| `defaultValue()` | The initial value to set for the property to, if not already defined.                                                                                                                                                                                                                       |                                                                                                                                                                           
-| `type()`         | The value datatype, either `Types.INT`, `Types.DATE`, or `Types.STRING`. If none specified, `Types.STRING` is assumed.                                                                                                                                                                      |                                                                                                                                                                              
-| `pattern()`      | For `Types.INT` and `Types.DATE` only. If present, will parse the value as [DecimalFormat](https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html) or [SimpleDateFormat](https://docs.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html) patterns, respectively. |
-| `unit()`         | The unit value to be used with `Types.DATE` calculations. See [Units](#units).                                                                                                                                                                                                              |                                                                                                                                                                          
+| Function         | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+|:-----------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `key()`          | The name of the property name/value pair.                                                                                                                                                                                                                                                                                                                                                                                                                                                              |                                                                                                                                                                                                                                                   
+| `set()`          | The value to set the property to, regardless of its previous value.                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `type()`         | The value datatype, either [Types.INT](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html), [Types.DATE](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html), or [Types.STRING](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html). If none specified, [Types.STRING](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html) is assumed. |                                                                                                                                                                              
+| `pattern()`      | For [Types.INT](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html) and [Types.DATE](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html) only. If present, will parse the value as [DecimalFormat](https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html) or [SimpleDateFormat](https://docs.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html) patterns, respectively.                    |
+| `unit()`         | The unit value to be used with [Types.DATE](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html) calculations. See [Units](#units).                                                                                                                                                                                                                                                                                                                             |                                                                                                                                                                          
 
 - For convenience the `key` (and optional `type`) is first set in the constructor.
 - `key` is required. `value` or `defaultValue` are required except when deleting.
--  For `Type.DATE`, the `now` keyword can be used as the property value.
+-  For [Types.DATE](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html), the `now` keyword can be used as the property value.
 
 ## Functions
 
@@ -86,7 +85,7 @@ The following function are available:
 | `delete()` | `delete()`                                                                                              | Delete an entry.                           |
 ## Units
 
-The following units are available for `Types.DATE`:
+The following [Units](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Units.html) are available for [Types.DATE](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html):
 
 * `Units.MILLISECOND`
 * `Units.SECOND`
@@ -101,4 +100,4 @@ The following units are available for `Types.DATE`:
 
 * The comments and layout of the original property file will not be preserved.
 * The `jdkproperties` parameter is not implemented.
-* The default `Types.DATE` pattern is `yyyy-MM-dd HH:mm` and not `yyyy/MM/dd HH:mm`.
+* The default [Types.DATE](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html) pattern is `yyyy-MM-dd HH:mm` and not `yyyy/MM/dd HH:mm`.
