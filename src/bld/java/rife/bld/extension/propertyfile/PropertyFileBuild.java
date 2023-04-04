@@ -24,6 +24,8 @@ public class PropertyFileBuild extends Project {
                 .url("https://github.com/rife2/bld-property-file")
                 .developer(new PublishDeveloper().id("ethauvin").name("Erik C. Thauvin").email("erik@thauvin.net")
                         .url("https://erik.thauvin.net/"))
+                .developer(new PublishDeveloper().id("gbevin").name("Geert Bevin").email("geert@uwyn.com")
+                        .url("https://github.com/gbevin"))
                 .license(new PublishLicense().name("The Apache License, Version 2.0")
                         .url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
                 .scm(new PublishScm().connection("scm:git:https://github.com/rife2/bld-property-file.git")

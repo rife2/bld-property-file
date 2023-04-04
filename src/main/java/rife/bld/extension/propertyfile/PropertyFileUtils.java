@@ -16,7 +16,6 @@
 
 package rife.bld.extension.propertyfile;
 
-import rife.bld.extension.propertyfile.Entry.Operations;
 import rife.bld.extension.propertyfile.Entry.Units;
 import rife.tools.Localization;
 
@@ -45,7 +44,7 @@ import java.util.logging.Logger;
 public final class PropertyFileUtils {
     private final static Logger LOGGER = Logger.getLogger(PropertyFileUtils.class.getName());
 
-    private final static Map<Units, Integer> calendarFields =
+    private final static Map<Units, Integer> CALENDAR_FIELDS =
             Map.of(Units.MILLISECOND, Calendar.MILLISECOND,
                     Units.SECOND, Calendar.SECOND,
                     Units.MINUTE, Calendar.MINUTE,
@@ -70,8 +69,8 @@ public final class PropertyFileUtils {
     public static boolean processDate(String command, Properties p, Entry entry, boolean failOnWarning) {
         var success = true;
         var cal = Calendar.getInstance();
-        var value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getValue(),
-                entry.getDefaultValue(), entry.getOperation());
+        String value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(),
+                entry.getNewValue());
 
         var pattern = entry.getPattern();
         SimpleDateFormat fmt;
@@ -80,6 +79,7 @@ public final class PropertyFileUtils {
         } else {
             fmt = new SimpleDateFormat(entry.getPattern(), Localization.getLocale());
         }
+
         if ("now".equalsIgnoreCase(value) || value.isBlank()) {
             cal.setTime(new Date());
         } else {
@@ -92,23 +92,14 @@ public final class PropertyFileUtils {
             }
         }
 
-        if (entry.getOperation() != Entry.Operations.SET) {
-            var offset = 0;
+        var offset = 0;
 
-            try {
-                offset = Integer.parseInt(entry.getValue());
-                if (entry.getOperation() == Entry.Operations.SUBTRACT) {
-                    offset *= -1;
-                }
-            } catch (NumberFormatException nfe) {
-                warn(command, "Non-date value for \"" + entry.getKey() + "\" --> " + nfe.getMessage(), nfe,
-                        failOnWarning);
-                success = false;
-            }
-
-            //noinspection MagicConstant
-            cal.add(calendarFields.getOrDefault(entry.getUnit(), Calendar.DATE), offset);
+        if (entry.getCalc() != null) {
+            offset = entry.getCalc().apply(offset);
         }
+
+        //noinspection MagicConstant
+        cal.add(CALENDAR_FIELDS.getOrDefault(entry.getUnit(), Calendar.DATE), offset);
 
         p.setProperty(entry.getKey(), fmt.format(cal.getTime()));
 
@@ -116,50 +107,21 @@ public final class PropertyFileUtils {
     }
 
     /**
-     * Return the current value, new value or default value based on the specified {@link Operations operation}.
+     * Returns the new value, value or default value depending on which is specified.
      *
      * @param value        the value
      * @param newValue     the new value
      * @param defaultValue the default value
-     * @param operation    the {@link Operations operation}
      * @return the current value
      */
-    public static String currentValue(String value, String newValue, String defaultValue, Operations operation) {
-        String result = null;
-
-        if (operation == Entry.Operations.SET) {
-            if (newValue != null && defaultValue == null) {
-                result = newValue;
-            }
-            if (defaultValue != null) {
-                if (newValue == null && value != null) {
-                    result = value;
-                }
-
-                if (newValue == null && value == null) {
-                    result = defaultValue;
-                }
-
-                if (newValue != null && value != null) {
-                    result = newValue;
-                }
-
-                if (newValue != null && value == null) {
-                    result = defaultValue;
-                }
-            }
+    public static String currentValue(String value, String defaultValue, String newValue) {
+        if (newValue != null) {
+            return newValue;
+        } else if (value == null) {
+            return defaultValue;
         } else {
-            if (value == null) {
-                result = defaultValue;
-            } else {
-                result = value;
-            }
+            return value;
         }
-
-        if (result == null) {
-            result = "";
-        }
-        return result;
     }
 
     /**
@@ -172,28 +134,18 @@ public final class PropertyFileUtils {
      */
     public static boolean processInt(String command, Properties p, Entry entry, boolean failOnWarning) {
         var success = true;
-        int intValue;
+        int intValue = 0;
         try {
             var fmt = new DecimalFormat(entry.getPattern());
-            var value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getValue(),
-                    entry.getDefaultValue(), entry.getOperation());
+            String value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(),
+                    entry.getNewValue());
 
-            if (value.isBlank()) {
-                intValue = fmt.parse("0").intValue();
-            } else {
+            if (value != null) {
                 intValue = fmt.parse(value).intValue();
             }
 
-            if (entry.getOperation() != Entry.Operations.SET) {
-                var opValue = 1;
-                if (entry.getValue() != null) {
-                    opValue = fmt.parse(entry.getValue()).intValue();
-                }
-                if (entry.getOperation() == Entry.Operations.ADD) {
-                    intValue += opValue;
-                } else if (entry.getOperation() == Entry.Operations.SUBTRACT) {
-                    intValue -= opValue;
-                }
+            if (entry.getCalc() != null) {
+                intValue = entry.getCalc().apply(intValue);
             }
             p.setProperty(entry.getKey(), fmt.format(intValue));
         } catch (NumberFormatException | ParseException e) {
@@ -213,15 +165,13 @@ public final class PropertyFileUtils {
      * @return {@code true} if successful
      */
     public static boolean processString(Properties p, Entry entry) {
-        var value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getValue(),
-                entry.getDefaultValue(), entry.getOperation());
+        var value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(),
+                entry.getNewValue());
 
-        if (entry.getOperation() == Entry.Operations.SET) {
-            p.setProperty(entry.getKey(), value);
-        } else if (entry.getOperation() == Entry.Operations.ADD) {
-            if (entry.getValue() != null) {
-                p.setProperty(entry.getValue(), "$value${entry.value}");
-            }
+        p.setProperty(entry.getKey(), value);
+
+        if (entry.getModify() != null && entry.getModifyValue() != null) {
+            p.setProperty(entry.getKey(), entry.getModify().apply(p.getProperty(entry.getKey()), entry.getModifyValue()));
         }
 
         return true;

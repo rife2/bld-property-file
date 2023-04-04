@@ -2,12 +2,12 @@
   <library name="bld">
     <CLASSES>
       <root url="file://$PROJECT_DIR$/lib/bld" />
-      <root url="jar://$USER_HOME$/.rife2/dist/rife2-1.5.14.jar!/" />
+      <root url="jar://$USER_HOME$/.rife2/dist/rife2-1.5.16.jar!/" />
       <root url="file://$PROJECT_DIR$/lib/bld" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="jar://$USER_HOME$/.rife2/dist/rife2-1.5.14-sources.jar!/" />
+      <root url="jar://$USER_HOME$/.rife2/dist/rife2-1.5.16-sources.jar!/" />
       <root url="file://$PROJECT_DIR$/lib/bld" />
     </SOURCES>
     <jarDirectory url="file://$PROJECT_DIR$/lib/bld" recursive="false" />

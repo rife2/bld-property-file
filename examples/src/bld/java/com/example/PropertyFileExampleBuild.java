@@ -3,7 +3,6 @@ package com.example;
 import rife.bld.BuildCommand;
 import rife.bld.Project;
 import rife.bld.extension.propertyfile.Entry;
-import rife.bld.extension.propertyfile.Entry.Operations;
 import rife.bld.extension.propertyfile.Entry.Types;
 import rife.bld.extension.propertyfile.PropertyFileOperation;
 
@@ -12,9 +11,10 @@ import java.util.List;
 import static rife.bld.dependencies.Repository.MAVEN_CENTRAL;
 import static rife.bld.dependencies.Repository.SONATYPE_SNAPSHOTS;
 import static rife.bld.dependencies.Scope.test;
+import static rife.bld.extension.propertyfile.Calc.ADD;
 
 public class PropertyFileExampleBuild extends Project {
-    final Entry buildDateEntry = new Entry("build.date").value("now").pattern("yyyy-MM-dd").type(Types.DATE);
+    final Entry buildDateEntry = new Entry("build.date").set("now").pattern("yyyy-MM-dd").type(Types.DATE);
 
     public PropertyFileExampleBuild() {
         pkg = "com.example";
@@ -27,7 +27,6 @@ public class PropertyFileExampleBuild extends Project {
         scope(test)
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 9, 2)))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 9, 2)));
-
     }
 
     public static void main(String[] args) {
@@ -39,11 +38,11 @@ public class PropertyFileExampleBuild extends Project {
         new PropertyFileOperation(this)
                 .file("version.properties")
                 // set the major version to 1 if it doesn't exist, increase by 1
-                .entry(new Entry("version.major").defaultValue(0).type(Types.INT).operation(Operations.ADD))
+                .entry(new Entry("version.major").defaultValue(0).type(Types.INT).calc(ADD))
                 // set the minor version to 0
-                .entry(new Entry("version.minor").value(0))
+                .entry(new Entry("version.minor").set(0))
                 // set the patch version to 0
-                .entry(new Entry("version.patch").value(0))
+                .entry(new Entry("version.patch").set(0))
                 // set the build date to the current date
                 .entry(buildDateEntry)
                 .execute();
@@ -56,9 +55,9 @@ public class PropertyFileExampleBuild extends Project {
                 // set the major version to 1 if it doesn't exist
                 .entry(new Entry("version.major").defaultValue(1))
                 // set the minor version to 0 if it doesn't exist, increase by 1
-                .entry(new Entry("version.minor").defaultValue(-1).type(Types.INT).operation(Operations.ADD))
+                .entry(new Entry("version.minor").defaultValue(-1).type(Types.INT).calc(ADD))
                 // set the patch version to 0
-                .entry(new Entry("version.patch").value(0))
+                .entry(new Entry("version.patch").set(0))
                 // set the build date to the current date
                 .entry(buildDateEntry)
                 .execute();
@@ -73,9 +72,20 @@ public class PropertyFileExampleBuild extends Project {
                 // set the minor version to 0 if it doesn't exist
                 .entry(new Entry("version.minor").defaultValue(0))
                 // set the patch version to 10 if it doesn't exist, increase by 10
-                .entry(new Entry("version.patch").value(10).defaultValue(0).type(Types.INT).operation(Operations.ADD))
+                .entry(new Entry("version.patch").defaultValue(0).type(Types.INT).calc(v -> v + 10))
                 // set the build date to the current date
                 .entry(buildDateEntry)
+                .execute();
+    }
+
+    @BuildCommand(summary = "Delete version properties")
+    public void deleteVersion() throws Exception {
+        new PropertyFileOperation(this)
+                .file("version.properties")
+                .entry(new Entry("version.major").delete())
+                .entry(new Entry("version.minor").delete())
+                .entry(new Entry("version.patch").delete())
+                .entry(buildDateEntry.delete())
                 .execute();
     }
 }

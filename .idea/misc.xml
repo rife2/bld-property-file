@@ -6,6 +6,9 @@
     <pattern value="rife.bld.extension.propertyFile.Entry" method="key" />
     <pattern value="rife.bld.extension.propertyFile.Entry" method="operation" />
     <pattern value="rife.bld.extension.propertyFile.Entry" method="unit" />
+    <pattern value="rife.bld.extension.propertyfile.Entry" method="delete" />
+    <pattern value="rife.bld.extension.propertyfile.Entry" />
+    <pattern value="rife.bld.extension.propertyfile.Entry" method="setDelete" />
   </component>
   <component name="PDMPlugin">
     <option name="skipTestSources" value="false" />

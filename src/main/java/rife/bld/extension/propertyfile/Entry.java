@@ -16,35 +16,30 @@
 
 package rife.bld.extension.propertyfile;
 
+import java.util.function.BiFunction;
+import java.util.function.IntFunction;
+
 /**
- * <p>Declares the edits to be made to a {@link java.util.Properties Properties} file.</p>
- *
- * <p>The rules used when setting a {@link java.util.Properties property} value are:</p>
- *
- * <ul>
- * <li>If only value is specified, the property is set to it regardless of its previous value.</li>
- * <li>If only default value is specified and the property previously existed, it is unchanged.</li>
- * <li>If only default value is specified and the property did not exist, the property is set to the default value.</li>
- * <li>If value and default value are both specified and the property previously existed, the property is set to value.</li>
- * <li>If value and default value are both specified and the property did not exist, the property is set to the default value.</li>
- * </ul>
- *
- * <p>{@link Operations Operations} occur after the rules are evaluated.</p>
+ * Declares the modifications to be made to a {@link java.util.Properties Properties} file.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @author <a href="https://github.com/gbevin">Geert Bevin</a>
  * @since 1.0
  */
 public class Entry {
     private String key;
-    private String value;
     private String defaultValue;
+    private String newValue;
+    private String modifyValue;
+    private boolean isDelete;
     private Types type = Types.STRING;
-    private Operations operation = Operations.SET;
     private String pattern = "";
     private Units unit = Units.DAY;
+    private IntFunction<Integer> calc;
+    private BiFunction<String, String, String> modify;
 
     /**
-     * Creates a new {@link Entry entry} Entry.
+     * Creates a new {@link Entry entry}.
      *
      * @param key the required property key
      */
@@ -53,35 +48,121 @@ public class Entry {
     }
 
     /**
-     * Returns the name of the {@link java.util.Properties property} name/value pair.
+     * Creates a new {@link Entry entry}.
+     *
+     * @param key  the required property key
+     * @param type the value {@link Types Type}
+     */
+    public Entry(String key, Types type) {
+        this.key = key;
+        this.type = type;
+    }
+
+    /**
+     * Returns the value to be used in the {@link #modify} function.
+     */
+    public String getModifyValue() {
+        return modifyValue;
+    }
+
+    /**
+     * Returns the modify function.
+     */
+    public BiFunction<String, String, String> getModify() {
+        return modify;
+    }
+
+    /**
+     * Set the modify function.
+     */
+    public void setModify(BiFunction<String, String, String> modify) {
+        this.modify = modify;
+    }
+
+    /**
+     * Set the modify function.
+     *
+     * @param value the value to perform a modification with
+     */
+    public void setModify(String value, BiFunction<String, String, String> modify) {
+        this.modifyValue = value;
+        this.modify = modify;
+    }
+
+    /**
+     * Creates a new {@link Entry entry}.
+     *
+     * @param value  the value to perform a modification with
+     * @param modify the modification function
+     */
+    public Entry modify(String value, BiFunction<String, String, String> modify) {
+        modifyValue = value;
+        setModify(modify);
+        return this;
+    }
+
+    /**
+     * Creates a new {@link Entry entry}.
+     *
+     * @param modify the modification function
+     */
+    public Entry modify(BiFunction<String, String, String> modify) {
+        setModify(modify);
+        return this;
+    }
+
+    /**
+     * Returns {@code true} if the {@link Entry} is to be deleted.
+     */
+    public boolean isDelete() {
+        return isDelete;
+    }
+
+    /**
+     * Sets whether the {@link Entry} should be deleted.
+     */
+    public void setDelete(boolean delete) {
+        isDelete = delete;
+    }
+
+    /**
+     * Returns the calculation function.
+     */
+    public IntFunction<Integer> getCalc() {
+        return calc;
+    }
+
+    /**
+     * Sets the calculation function.
+     */
+    public void setCalc(IntFunction<Integer> calc) {
+        this.calc = calc;
+    }
+
+    /**
+     * Creates a new {@link Entry entry}.
+     *
+     * @param calc the calculation function.
+     */
+    public Entry calc(IntFunction<Integer> calc) {
+        setCalc(calc);
+        return this;
+    }
+
+    /**
+     * Returns the key of the {@link java.util.Properties property}.
      */
     public String getKey() {
         return key;
     }
 
     /**
-     * Sets the name of the {@link java.util.Properties property} name/value pair.
+     * Sets the key of the {@link java.util.Properties property}.
      *
      * @param key the {@link java.util.Properties property} key
      */
     public void setKey(String key) {
         this.key = key;
-    }
-
-    /**
-     * Returns the value of the {@link java.util.Properties property}.
-     */
-    public String getValue() {
-        return value;
-    }
-
-    /**
-     * Sets the value of the {@link java.util.Properties property}.
-     *
-     * @param value the {@link java.util.Properties property} value
-     */
-    public void setValue(String value) {
-        this.value = value;
     }
 
     /**
@@ -92,7 +173,7 @@ public class Entry {
     }
 
     /**
-     * <p>Sets the initial value to set for the {@link java.util.Properties property} if not already defined.</p>
+     * <p>Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.</p>
      *
      * <p>The {@code now} keyword can be used for {@link Types#DATE Types.DATE}</p>
      *
@@ -103,7 +184,7 @@ public class Entry {
     }
 
     /**
-     * Return the value {@link Types Type}/
+     * Return the value {@link Types Type}.
      */
     public Types getType() {
         return type;
@@ -119,22 +200,6 @@ public class Entry {
     }
 
     /**
-     * Return the {@link Operations Operation}.
-     */
-    public Operations getOperation() {
-        return operation;
-    }
-
-    /**
-     * Sets the {@link Operations Operation} to be performed on the {@link java.util.Properties property} value,
-     *
-     * @param operation the entry {@link Operations Operation}
-     */
-    public void setOperation(Operations operation) {
-        this.operation = operation;
-    }
-
-    /**
      * Returns the pattern.
      */
     public String getPattern() {
@@ -142,9 +207,8 @@ public class Entry {
     }
 
     /**
-     * <p>Parses the value of {@link Types#INT Types.INT} and {@link Types#DATE Types.DATE} to
-     * {@link java.text.DecimalFormat DecimalFormat} and {@link java.text.SimpleDateFormat SimpleDateFormat}
-     * respectively.</p>
+     * Sets the {@link java.text.DecimalFormat DecimalFormat} or {@link java.text.SimpleDateFormat SimpleDateFormat}
+     * pattern to be used with {@link Types#INT Types.INT} or {@link Types#DATE Types.DATE} respectively.
      *
      * @param pattern the pattern
      */
@@ -160,8 +224,8 @@ public class Entry {
     }
 
     /**
-     * Sets the {@link Units unit} value to apply to {@link Operations#ADD Operations.ADD}
-     * and {@link Operations#SUBTRACT Operations.SUBTRACT} for {@link Types#DATE Types.DATE}.
+     * Sets the {@link Units unit} value to apply to {@link Calc#ADD add} and {@link Calc#SUB subtract} calculations
+     * for {@link Types#DATE Types.DATE}.
      *
      * @param unit the {@link Units unit}
      */
@@ -170,11 +234,10 @@ public class Entry {
     }
 
     /**
-     * Sets the name of the {@link java.util.Properties property} name/value pair.
+     * Sets the key of the {@link java.util.Properties property}.
      *
      * @param key the {@link java.util.Properties property} key
      */
-
     @SuppressWarnings("unused")
     public Entry key(String key) {
         setKey(key);
@@ -182,22 +245,31 @@ public class Entry {
     }
 
     /**
-     * Sets the value of the {@link java.util.Properties property}.
+     * Returns the new value to set the {@link java.util.Properties property)} to.
+     */
+    public String getNewValue() {
+        return newValue;
+    }
+
+    /**
+     * Sets a new value to set the {@link java.util.Properties property} to, regardless of its previous value.
      *
-     * @param value the {@link java.util.Properties property} value
+     * <p>The {@code now} keyword can be used for {@link Types#DATE Types.DATE}</p>
+     *
+     * @param newValue the {@link java.util.Properties property} new value
      */
     @SuppressWarnings("unused")
-    public Entry value(Object value) {
-        if (value != null) {
-            setValue(String.valueOf(value));
+    public Entry set(Object newValue) {
+        if (newValue != null) {
+            this.newValue = String.valueOf(newValue);
         } else {
-            setValue(null);
+            this.newValue = null;
         }
         return this;
     }
 
     /**
-     * <p>Sets the initial value to set for the {@link java.util.Properties property} if not already defined.</p>
+     * <p>Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.</p>
      *
      * <p>The {@code now} keyword can be used for {@link Types#DATE Types.DATE}</p>
      *
@@ -224,18 +296,7 @@ public class Entry {
     }
 
     /**
-     * Sets the {@link Operations Operation} to be performed on the {@link java.util.Properties property} value,
-     *
-     * @param operation the entry {@link Operations Operation}
-     */
-    @SuppressWarnings("unused")
-    public Entry operation(Operations operation) {
-        setOperation(operation);
-        return this;
-    }
-
-    /**
-     * <p>Parses the value of {@link Types#INT Types.INT} and {@link Types#DATE Types.DATE} to
+     * <p>Sets the pattern for {@link Types#INT Types.INT} and {@link Types#DATE Types.DATE} to
      * {@link java.text.DecimalFormat DecimalFormat} and {@link java.text.SimpleDateFormat SimpleDateFormat}
      * respectively.</p>
      *
@@ -247,14 +308,22 @@ public class Entry {
     }
 
     /**
-     * Sets the {@link Units unit} value to apply to {@link Operations#ADD Operations.ADD}
-     * and {@link Operations#SUBTRACT Operations.SUBTRACT} for {@link Types#DATE Types.DATE}.
+     * Sets the {@link Units unit} value to apply to {@link Calc#ADD add} and {@link Calc#SUB subtract} calculations
+     * for {@link Types#DATE Types.DATE}.
      *
      * @param unit the {@link Units unit}
      */
     @SuppressWarnings("unused")
     public Entry unit(Units unit) {
         setUnit(unit);
+        return this;
+    }
+
+    /**
+     * Sets the {@link Entry entry} up for deletion.
+     */
+    public Entry delete() {
+        isDelete = true;
         return this;
     }
 
@@ -272,23 +341,8 @@ public class Entry {
     }
 
     /**
-     * The operations available for all {@link Types Types}.
-     *
-     * <uL>
-     * <li>{@link Operations#ADD ADD} adds a value to an {@link Entry entry}</li>
-     * <li>{@link Operations#DELETE DELETE} deletes an entry</li>
-     * <li>{@link Operations#SET SET} sets the entry value. This is the default operation</li>
-     * <li>{@link Operations#SUBTRACT SUBTRACT} subtracts a value from the {@link Entry entry}.
-     * For {@link Types#INT Types.INT} and {@link Types#DATE Types.DATE} only.</li>
-     * </uL>
-     */
-    public enum Operations {
-        ADD, DELETE, SET, SUBTRACT
-    }
-
-    /**
-     * The units available for {@link Types#DATE Type.DATE} with {@link Operations#ADD Operations>ADD}
-     * and {@link Operations#SUBTRACT Operations.SUBTRACT}.
+     * The units available for {@link Types#DATE Type.DATE} {@link Calc#ADD add}
+     * and {@link Calc#SUB subtract} calculations.
      *
      * <uL>
      * <li>{@link Units#SECOND SECOND}</li>

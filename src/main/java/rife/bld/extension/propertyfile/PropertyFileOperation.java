@@ -17,8 +17,6 @@
 package rife.bld.extension.propertyfile;
 
 import rife.bld.Project;
-import rife.bld.extension.propertyfile.Entry.Operations;
-import rife.bld.extension.propertyfile.Entry.Types;
 import rife.bld.operations.AbstractOperation;
 
 import java.io.File;
@@ -36,9 +34,9 @@ import java.util.Properties;
 public class PropertyFileOperation extends AbstractOperation<PropertyFileOperation> {
     private final List<Entry> entries = new ArrayList<>();
     private final Project project;
-    private File file = null;
+    private File file;
     private String comment = "";
-    private boolean failOnWarning = false;
+    private boolean failOnWarning;
 
     public PropertyFileOperation(Project project) {
         this.project = project;
@@ -122,17 +120,13 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
                     success = false;
                 } else {
                     var key = entry.getKey();
-                    var value = entry.getValue();
+                    var value = entry.getNewValue();
                     var defaultValue = entry.getDefaultValue();
-                    if ((value == null || value.isBlank()) && (defaultValue == null || defaultValue.isBlank())
-                            && entry.getOperation() != Operations.DELETE) {
-                        PropertyFileUtils.warn(commandName, "An entry value or default must be specified: " + key);
-                        success = false;
-                    } else if (entry.getType() == Types.STRING && entry.getOperation() == Operations.SUBTRACT) {
-                        PropertyFileUtils.warn(commandName, "Subtraction is not supported for String properties: " + key);
-                        success = false;
-                    } else if (entry.getOperation() == Operations.DELETE) {
+                    if (entry.isDelete()) {
                         properties.remove(key);
+                    } else if ((value == null || value.isBlank()) && (defaultValue == null || defaultValue.isBlank())) {
+                        PropertyFileUtils.warn(commandName, "An entry must be set or have a default value: " + key);
+                        success = false;
                     } else {
                         switch (entry.getType()) {
                             case DATE ->

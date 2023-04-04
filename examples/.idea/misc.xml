@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
+    <list size="1">
+      <item index="0" class="java.lang.String" itemvalue="rife.bld.BuildCommand" />
+    </list>
     <pattern value="com.example.PropertyFileExampleBuild" />
     <pattern value="com.example.PropertyFileExampleBuild" method="updateMajor" />
     <pattern value="com.example.PropertyFileExampleBuild" method="updateMinor" />
     <pattern value="com.example.PropertyFileExampleBuild" method="updatePatch" />
+    <pattern value="com.example.PropertyFileExampleBuild" method="deleteVersion" />
   </component>
   <component name="PDMPlugin">
     <option name="skipTestSources" value="false" />
