@@ -11,16 +11,21 @@ import java.util.List;
 import static rife.bld.dependencies.Repository.*;
 import static rife.bld.dependencies.Scope.compile;
 import static rife.bld.dependencies.Scope.test;
+import static rife.bld.operations.JavadocOptions.DocLinkOption.NO_MISSING;
 
 public class PropertyFileBuild extends Project {
     public PropertyFileBuild() {
         pkg = "rife.bld.extension";
         name = "bld-property-file";
         version = version(0, 9, 0);
-        javadocOptions.add("-Xdoclint:-missing");
+        javadocOptions
+                .docLint(NO_MISSING)
+                .link("https://rife2.github.io/rife2/");
         publishRepository = MAVEN_LOCAL;
-        publishInfo = new PublishInfo().groupId("com.uwyn.rife2").artifactId("bld-property-file")
-                .description("Bld Extension to Create or Modify Properties Files")
+        publishInfo = new PublishInfo()
+                .groupId("com.uwyn.rife2")
+                .artifactId("bld-property-file")
+                .description("bld Extension to Create or Modify Properties Files")
                 .url("https://github.com/rife2/bld-property-file")
                 .developer(new PublishDeveloper().id("ethauvin").name("Erik C. Thauvin").email("erik@thauvin.net")
                         .url("https://erik.thauvin.net/"))
@@ -33,9 +38,10 @@ public class PropertyFileBuild extends Project {
                         .url("https://github.com/rife2/bld-property-file"));
 
         javaRelease = 17;
-
         downloadSources = true;
-        repositories = List.of(MAVEN_CENTRAL, SONATYPE_SNAPSHOTS);
+        autoDownloadPurge = true;
+        repositories = List.of(MAVEN_CENTRAL, RIFE2);
+
         scope(compile)
                 .include(dependency("com.uwyn.rife2", "rife2", version(1, 5, 15)));
         scope(test)
