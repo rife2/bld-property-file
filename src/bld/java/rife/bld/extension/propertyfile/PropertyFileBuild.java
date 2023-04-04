@@ -17,13 +17,11 @@ public class PropertyFileBuild extends Project {
     public PropertyFileBuild() {
         pkg = "rife.bld.extension";
         name = "bld-property-file";
-        version = version(0, 9, 0);
+        version = version(0, 9, 1, "SNAPSHOT");
         javadocOptions
                 .docLint(NO_MISSING)
                 .link("https://rife2.github.io/rife2/");
-        publishRepository = repository("https://repo.rife2.com/releases",
-                property("rife2.username"),
-                property("rife2.password"));
+        publishRepository = repository("rife2");
         publishInfo = new PublishInfo()
                 .groupId("com.uwyn.rife2")
                 .artifactId("bld-property-file")
@@ -31,7 +29,7 @@ public class PropertyFileBuild extends Project {
                 .url("https://github.com/rife2/bld-property-file")
                 .developer(new PublishDeveloper().id("ethauvin").name("Erik C. Thauvin").email("erik@thauvin.net")
                         .url("https://erik.thauvin.net/"))
-                .developer(new PublishDeveloper().id("gbevin").name("Geert Bevin").email("geert@uwyn.com")
+                .developer(new PublishDeveloper().id("gbevin").name("Geert Bevin").email("gbevin@uwyn.com")
                         .url("https://github.com/gbevin"))
                 .license(new PublishLicense().name("The Apache License, Version 2.0")
                         .url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
