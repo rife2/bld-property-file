@@ -21,7 +21,7 @@ public class PropertyFileBuild extends Project {
         javadocOptions
                 .docLint(NO_MISSING)
                 .link("https://rife2.github.io/rife2/");
-        publishRepository = repository("rife2");
+        publishRepository = version.isSnapshot() ? repository("rife2-snapshot") : repository("rife2");
         publishInfo = new PublishInfo()
                 .groupId("com.uwyn.rife2")
                 .artifactId("bld-property-file")
