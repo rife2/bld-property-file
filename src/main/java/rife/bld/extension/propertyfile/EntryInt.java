@@ -16,27 +16,31 @@
 
 package rife.bld.extension.propertyfile;
 
-import java.util.function.BiFunction;
+import java.util.function.IntFunction;
 
 /**
  * Declares the modifications to be made to a {@link java.util.Properties Properties} file.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
- * @author <a href="https://github.com/gbevin">Geert Bevin</a>
  * @since 1.0
  */
-public class Entry extends EntryBase {
-    public Entry(String key) {
+public class EntryInt extends EntryBase {
+    /**
+     * Creates a new date {@link Entry entry}.
+     *
+     * @param key the required property key
+     */
+    public EntryInt(String key) {
         super(key);
     }
 
     /**
-     * Set the new {@link java.util.Properties property} value.
+     * Set the new {@link java.util.Properties property} value to an integer.
      *
-     * @param s The new value
+     * @param i The integer to set the value to.
      */
-    public Entry set(Object s) {
-        setNewValue(s);
+    public EntryInt set(int i) {
+        setNewValue(i);
         return this;
     }
 
@@ -46,37 +50,25 @@ public class Entry extends EntryBase {
      * @param defaultValue the default value
      */
     @SuppressWarnings("unused")
-    public Entry defaultValue(Object defaultValue) {
+    public EntryInt defaultValue(Object defaultValue) {
         setDefaultValue(defaultValue);
         return this;
     }
 
     /**
-     * Creates a new {@link Entry entry}.
+     * Creates a new {@link EntryInt entry}.
      *
-     * @param value  the value to perform a modification with
-     * @param modify the modification function
+     * @param calc the calculation function.
      */
-    public Entry modify(String value, BiFunction<String, String, String> modify) {
-        setModifyValue(value);
-        setModify(modify);
+    public EntryInt calc(IntFunction<Integer> calc) {
+        setCalc(calc);
         return this;
     }
 
     /**
-     * Creates a new {@link Entry entry}.
-     *
-     * @param modify the modification function
+     * Sets the {@link EntryInt entry} up for deletion.
      */
-    public Entry modify(BiFunction<String, String, String> modify) {
-        setModify(modify);
-        return this;
-    }
-
-    /**
-     * Sets the {@link Entry entry} up for deletion.
-     */
-    public Entry delete() {
+    public EntryInt delete() {
         setDelete(true);
         return this;
     }

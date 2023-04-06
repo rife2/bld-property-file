@@ -13,10 +13,10 @@ An extension for creating or modifying [property files](https://docs.oracle.com/
 public void updateMajor() throws Exception {
     new PropertyFileOperation(this)
             .file("version.properties")
-            .entry(new Entry("version.major", Types.INT).defaultValue(0).calc(ADD))
-            .entry(new Entry("version.minor").set(0))
-            .entry(new Entry("version.patch").set(0))
-            .entry(new Entry("build.date", Types.DATE).set("now").pattern("yyyy-MM-dd"))
+            .entry(new EntryInt("version.major").defaultValue(0).calc(ADD))
+            .entry(new EntryInt("version.minor").set(0))
+            .entry(new EntryInt("version.patch").set(0))
+            .entry(new EntryDate("build.date").now().pattern("yyyy-MM-dd"))
             .execute();
 }
 ```
@@ -62,33 +62,33 @@ The [PropertyFileOperation](https://rife2.github.io/bld-property-file/rife/bld/e
 
 ## Entry
 
-The [Entry](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.html) class is used to specify modifications to be made to the [properties file](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
+The [Entry](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.html) class is used to specify modifications to a [String property](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
 
-| Function         | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-|:-----------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `key()`          | The name of the property name/value pair.                                                                                                                                                                                                                                                                                                                                                                                                                                                              |                                                                                                                                                                                                                                                   
-| `set()`          | The value to set the property to, regardless of its previous value.                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| `type()`         | The value datatype, either [Types.INT](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html), [Types.DATE](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html), or [Types.STRING](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html). If none specified, [Types.STRING](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html) is assumed. |                                                                                                                                                                              
-| `pattern()`      | For [Types.INT](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html) and [Types.DATE](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html) only. If present, will parse the value as [DecimalFormat](https://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html) or [SimpleDateFormat](https://docs.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html) patterns, respectively.                    |
-| `unit()`         | The unit value to be used with [Types.DATE](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html) calculations. See [Units](#units).                                                                                                                                                                                                                                                                                                                             |                                                                                                                                                                          
+| Function         | Description/Example                                                                                     |
+|:-----------------|:--------------------------------------------------------------------------------------------------------|
+| `defaultValue()` | The value to be used if the property doesn't exist.                                                     |
+| `delete()`       | Delete the property.                                                                                    |
+| `modify()`       | `modify("-foo", String::concat)`<br/>`modify("-foo", (v, s) -> v + s)`<br/>`modify((v, s) -> v.trim())` | Modify an entry value.                     |
+| `set()`          | The value to set the property to, regardless of its previous value.                                     |
 
-- For convenience the `key` (and optional `type`) is first set in the constructor.
-- The `key` is required.
-- A `set` value or `defaultValue` are required except when deleting.
--  For [Types.DATE](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html), the `now` keyword can be used as the property value.
+## EntryDate
 
-## Functions
+The [Entry](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/EntryDate.html) class is used to specify modifications to a [date property](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
 
-The following function are available:
+| Function         | Description/Example                                                                                                                                                                                                                                                                                                                                                         |
+|:-----------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `calc()`         | `calc(ADD)`<br/>`calc(v -> v + 1)`<br/>`calc(SUB)`<br/>`calc(v -> v - 1)`                                                                                                                                                                                                                                                                                                   |
+| `delete()`       | Delete the property.                                                                                                                                                                                                                                                                                                                                                        |
+| `now()`          | Set the entry to the current date/time.                                                                                                                                                                                                                                                                                                                                     |
+| `pattern()`      | If present, will parse the value as a [DateTimeFormatter](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/format/DateTimeFormatter.html) pattern.                                                                                                                                                                                                    |
+| `set()`          | The [Calendar](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Calendar.html), [Date](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Date.html), or [java.time](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/package-summary.html) value to set the property to, regardless of its previous value. |
+| `unit()`         | The unit to be used calculations. See [Units](#units).                                                                                                                                                                                                                                                                                                                      |                                                                                                                                                                          
 
-| Function   | Example                                                                                                 | Description                                |
-|:-----------|:--------------------------------------------------------------------------------------------------------|:-------------------------------------------|
-| `calc()`   | `calc(ADD)`<br/>`calc(v -> v + 1)`<br/>`calc(SUB)`<br/>`calc(v -> v - 1)`                               | Perform a calculation with an entry value. |
-| `modify()` | `modify("-foo", String::concat)`<br/>`modify("-foo", (v, s) -> v + s)`<br/>`modify((v, s) -> v.trim())` | Modify an entry value.                     |
-| `delete()` | `delete()`                                                                                              | Delete an entry.                           |
-## Units
+- `set` or `now` are required.
 
-The following [Units](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Units.html) are available for [Types.DATE](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html):
+### Units
+
+The following [Units](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/EntryDate.Units.html) are available:
 
 * `Units.MILLISECOND`
 * `Units.SECOND`
@@ -99,8 +99,14 @@ The following [Units](https://rife2.github.io/bld-property-file/rife/bld/extensi
 * `Units.MONTH`
 * `Units.YEAR`
 
-## Differences with the [ant PropertyFile task](https://ant.apache.org/manual/Tasks/propertyfile.html)
+## EntryInt
 
-* The comments and layout of the original property file will not be preserved.
-* The `jdkproperties` parameter is not implemented.
-* The default [Types.DATE](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.Types.html) pattern is `yyyy-MM-dd HH:mm` and not `yyyy/MM/dd HH:mm`.
+The [Entry](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/EntryInt.html) class is used to specify modifications to a [integer property](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
+
+| Function         | Description/Example                                                                                                                                                |
+|:-----------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `defaultValue()` | The value to be used if the property doesn't exist.                                                                                                                |
+| `calc()`         | `calc(ADD)`<br/>`calc(v -> v + 1)`<br/>`calc(SUB)`<br/>`calc(v -> v - 1)`                                                                                          |
+| `delete()`       | Delete the property.                                                                                                                                               |
+| `pattern()`      | If present, will parse the value as a [DecimalFormat](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/text/DecimalFormat.html) pattern.          |
+| `set()`          | The [integer value](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html) to set the property to, regardless of its previous value. |

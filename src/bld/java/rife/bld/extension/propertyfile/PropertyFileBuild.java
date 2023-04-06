@@ -21,7 +21,8 @@ public class PropertyFileBuild extends Project {
         javadocOptions
                 .docLint(NO_MISSING)
                 .link("https://rife2.github.io/rife2/");
-        publishRepository = version.isSnapshot() ? repository("rife2-snapshot") : repository("rife2");
+//        publishRepository = version.isSnapshot() ? repository("rife2-snapshot") : repository("rife2");
+        publishRepository = MAVEN_LOCAL;
         publishInfo = new PublishInfo()
                 .groupId("com.uwyn.rife2")
                 .artifactId("bld-property-file")
@@ -45,7 +46,7 @@ public class PropertyFileBuild extends Project {
         repositories = List.of(MAVEN_CENTRAL, RIFE2);
 
         scope(compile)
-                .include(dependency("com.uwyn.rife2", "rife2", version(1, 5, 16)));
+                .include(dependency("com.uwyn.rife2", "rife2", version(1, 5, 17)));
         scope(test)
                 .include(dependency("org.jsoup", "jsoup", version(1, 15, 4)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 9, 2)))

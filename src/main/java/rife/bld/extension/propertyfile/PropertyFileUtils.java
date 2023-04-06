@@ -16,9 +16,6 @@
 
 package rife.bld.extension.propertyfile;
 
-import rife.bld.extension.propertyfile.Entry.Units;
-import rife.tools.Localization;
-
 import javax.imageio.IIOException;
 import java.io.File;
 import java.io.IOException;
@@ -26,10 +23,11 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,16 +42,6 @@ import java.util.logging.Logger;
 public final class PropertyFileUtils {
     private final static Logger LOGGER = Logger.getLogger(PropertyFileUtils.class.getName());
 
-    private final static Map<Units, Integer> CALENDAR_FIELDS =
-            Map.of(Units.MILLISECOND, Calendar.MILLISECOND,
-                    Units.SECOND, Calendar.SECOND,
-                    Units.MINUTE, Calendar.MINUTE,
-                    Units.HOUR, Calendar.HOUR_OF_DAY,
-                    Units.DAY, Calendar.DATE,
-                    Units.WEEK, Calendar.WEEK_OF_YEAR,
-                    Units.MONTH, Calendar.MONTH,
-                    Units.YEAR, Calendar.YEAR);
-
     private PropertyFileUtils() {
         // no-op
     }
@@ -66,42 +54,96 @@ public final class PropertyFileUtils {
      * @param entry   the {@link Entry} containing the {@link Properties property} edits
      * @return {@code true} if successful
      */
-    public static boolean processDate(String command, Properties p, Entry entry, boolean failOnWarning) {
+    public static boolean processDate(String command, Properties p, EntryDate entry, boolean failOnWarning)
+            throws Exception {
         var success = true;
-        var cal = Calendar.getInstance();
-        String value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(),
+        var value = PropertyFileUtils.currentValue(null, entry.getDefaultValue(),
                 entry.getNewValue());
 
         var pattern = entry.getPattern();
-        SimpleDateFormat fmt;
-        if (pattern.isBlank()) {
-            fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Localization.getLocale());
-        } else {
-            fmt = new SimpleDateFormat(entry.getPattern(), Localization.getLocale());
-        }
 
-        if ("now".equalsIgnoreCase(value) || value.isBlank()) {
-            cal.setTime(new Date());
-        } else {
+        String parsedValue = String.valueOf(value);
+        if (pattern != null && !pattern.isBlank()) {
+            var offset = 0;
+
+            if (entry.getCalc() != null) {
+                offset = entry.getCalc().apply(offset);
+            }
+
+            var dtf = DateTimeFormatter.ofPattern(pattern);
+            var unit = entry.getUnit();
+
             try {
-                cal.setTime(fmt.parse(value));
-            } catch (ParseException pe) {
-                warn(command, "Non-date value for \"" + entry.getKey() + "\" --> " + pe.getMessage(),
-                        pe, failOnWarning);
+                if (value instanceof String) {
+                    if ("now".equalsIgnoreCase((String) value)) {
+                        value = ZonedDateTime.now();
+                    } else {
+                        throw new DateTimeException("Excepted: Calendar, Date or java.time.");
+                    }
+                } else if (value instanceof LocalDateTime) {
+                    value = ((LocalDateTime) value).atZone(ZoneId.systemDefault());
+                } else if (value instanceof Date) {
+                    value = ((Date) value).toInstant().atZone(ZoneId.systemDefault());
+                } else if (value instanceof Calendar) {
+                    value = ((Calendar) value).toInstant().atZone(ZoneId.systemDefault());
+                } else if (value instanceof Instant) {
+                    value = ((Instant) value).atZone(ZoneId.systemDefault());
+                }
+
+                if (value instanceof LocalDate) {
+                    if (offset != 0) {
+                        if (unit == EntryDate.Units.DAY) {
+                            value = ((LocalDate) value).plusDays(offset);
+                        } else if (unit == EntryDate.Units.MONTH) {
+                            value = ((LocalDate) value).plusMonths(offset);
+                        } else if (unit == EntryDate.Units.WEEK) {
+                            value = ((LocalDate) value).plusWeeks(offset);
+                        } else if (unit == EntryDate.Units.YEAR) {
+                            value = ((LocalDate) value).plusYears(offset);
+                        }
+                    }
+                    parsedValue = dtf.format((LocalDate) value);
+                } else if (value instanceof LocalTime) {
+                    if (offset != 0) {
+                        if (unit == EntryDate.Units.SECOND) {
+                            value = ((LocalTime) value).plusSeconds(offset);
+                        } else if (unit == EntryDate.Units.MINUTE) {
+                            value = ((LocalTime) value).plusMinutes(offset);
+                        } else if (unit == EntryDate.Units.HOUR) {
+                            value = ((LocalTime) value).plusHours(offset);
+                        }
+                    }
+                    parsedValue = dtf.format((LocalTime) value);
+                } else if (value instanceof ZonedDateTime) {
+                    if (offset != 0) {
+                        if (unit == EntryDate.Units.DAY) {
+                            value = ((ZonedDateTime) value).plus(offset, ChronoUnit.DAYS);
+                        } else if (unit == EntryDate.Units.MONTH) {
+                            value = ((ZonedDateTime) value).plus(offset, ChronoUnit.MONTHS);
+                        } else if (unit == EntryDate.Units.WEEK) {
+                            value = ((ZonedDateTime) value).plus(offset, ChronoUnit.WEEKS);
+                        } else if (unit == EntryDate.Units.YEAR) {
+                            value = ((ZonedDateTime) value).plus(offset, ChronoUnit.YEARS);
+                        } else if (unit == EntryDate.Units.SECOND) {
+                            value = ((ZonedDateTime) value).plusSeconds(offset);
+                        } else if (unit == EntryDate.Units.MINUTE) {
+                            value = ((ZonedDateTime) value).plus(offset, ChronoUnit.MINUTES);
+                        } else if (unit == EntryDate.Units.HOUR) {
+                            value = ((ZonedDateTime) value).plus(offset, ChronoUnit.HOURS);
+                        }
+                    }
+                    parsedValue = dtf.format((ZonedDateTime) value);
+                }
+            } catch (DateTimeException dte) {
+                warn(command, "Non-date value for \"" + entry.getKey() + "\" --> " + dte.getMessage(),
+                        dte, failOnWarning);
                 success = false;
             }
         }
 
-        var offset = 0;
-
-        if (entry.getCalc() != null) {
-            offset = entry.getCalc().apply(offset);
+        if (success) {
+            p.setProperty(entry.getKey(), parsedValue);
         }
-
-        //noinspection MagicConstant
-        cal.add(CALENDAR_FIELDS.getOrDefault(entry.getUnit(), Calendar.DATE), offset);
-
-        p.setProperty(entry.getKey(), fmt.format(cal.getTime()));
 
         return success;
     }
@@ -114,7 +156,7 @@ public final class PropertyFileUtils {
      * @param defaultValue the default value
      * @return the current value
      */
-    public static String currentValue(String value, String defaultValue, String newValue) {
+    public static Object currentValue(String value, Object defaultValue, Object newValue) {
         if (newValue != null) {
             return newValue;
         } else if (value == null) {
@@ -132,16 +174,17 @@ public final class PropertyFileUtils {
      * @param entry   the {@link Entry} containing the {@link Properties property} edits
      * @return {@code true} if successful
      */
-    public static boolean processInt(String command, Properties p, Entry entry, boolean failOnWarning) {
+    public static boolean processInt(String command, Properties p, EntryInt entry, boolean failOnWarning)
+            throws Exception {
         var success = true;
         int intValue = 0;
         try {
             var fmt = new DecimalFormat(entry.getPattern());
-            String value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(),
+            var value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(),
                     entry.getNewValue());
 
             if (value != null) {
-                intValue = fmt.parse(value).intValue();
+                intValue = fmt.parse(String.valueOf(value)).intValue();
             }
 
             if (entry.getCalc() != null) {
@@ -168,7 +211,7 @@ public final class PropertyFileUtils {
         var value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(),
                 entry.getNewValue());
 
-        p.setProperty(entry.getKey(), value);
+        p.setProperty(entry.getKey(), String.valueOf(value));
 
         if (entry.getModify() != null && entry.getModifyValue() != null) {
             p.setProperty(entry.getKey(), entry.getModify().apply(p.getProperty(entry.getKey()), entry.getModifyValue()));
@@ -197,13 +240,12 @@ public final class PropertyFileUtils {
      * @param e             the related exception
      * @param failOnWarning skips logging the exception if set to {@code false}
      */
-    static void warn(String command, String message, Exception e, boolean failOnWarning) {
-        if (LOGGER.isLoggable(Level.WARNING)) {
-            if (failOnWarning) {
-                LOGGER.log(Level.WARNING, '[' + command + "] " + message, e);
-            } else {
-                LOGGER.warning('[' + command + "] " + message);
-            }
+    static void warn(String command, String message, Exception e, boolean failOnWarning) throws Exception {
+        if (failOnWarning) {
+            LOGGER.log(Level.SEVERE, '[' + command + "] " + message, e);
+            throw e;
+        } else {
+            warn(command, message);
         }
     }
 
@@ -215,7 +257,7 @@ public final class PropertyFileUtils {
      * @param p       the {@link Properties properties} to load into.
      * @return {@code true} if successful
      */
-    public static boolean loadProperties(String command, File file, Properties p) {
+    public static boolean loadProperties(String command, File file, Properties p) throws Exception {
         boolean success = true;
         if (file != null) {
             if (file.exists()) {

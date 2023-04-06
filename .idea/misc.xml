@@ -9,6 +9,9 @@
     <pattern value="rife.bld.extension.propertyfile.Entry" method="delete" />
     <pattern value="rife.bld.extension.propertyfile.Entry" />
     <pattern value="rife.bld.extension.propertyfile.Entry" method="setDelete" />
+    <pattern value="rife.bld.extension.propertyfile.EntryDate" method="delete" />
+    <pattern value="rife.bld.extension.propertyfile.EntryDate" />
+    <pattern value="rife.bld.extension.propertyfile.EntryInt" method="delete" />
   </component>
   <component name="PDMPlugin">
     <option name="skipTestSources" value="false" />

@@ -15,6 +15,7 @@ To run the examples, issue one of the following command or combination there off
 ./bld updateMajor run
 ./bld updateMinor run
 ./bld updatePatch run
+./bld updateRelease run
 ```
 Upon execution, the `version.properties` file will be created and displayed:
 

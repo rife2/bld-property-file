@@ -20,7 +20,6 @@ import rife.bld.Project;
 import rife.bld.operations.AbstractOperation;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -32,7 +31,7 @@ import java.util.Properties;
  * @since 1.0
  */
 public class PropertyFileOperation extends AbstractOperation<PropertyFileOperation> {
-    private final List<Entry> entries = new ArrayList<>();
+    private final List<EntryBase> entries = new ArrayList<>();
     private final Project project;
     private File file;
     private String comment = "";
@@ -49,7 +48,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @param entry the {@link Entry entry}
      */
     @SuppressWarnings("unused")
-    public PropertyFileOperation entry(Entry entry) {
+    public PropertyFileOperation entry(EntryBase entry) {
         entries.add(entry);
         return this;
     }
@@ -103,45 +102,44 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      */
     @Override
     public void execute() throws Exception {
-        if (project == null) {
-            throw new IOException("A project must be specified.");
-        }
-        if (file == null) {
-            throw new IOException("A properties file location must be specified.");
-        }
         var commandName = project.getCurrentCommandName();
-        var success = false;
         var properties = new Properties();
-        success = PropertyFileUtils.loadProperties(commandName, file, properties);
+        var success = false;
+
+        if (file == null) {
+            PropertyFileUtils.warn(commandName, "A properties file must be specified.");
+        } else {
+            success = PropertyFileUtils.loadProperties(commandName, file, properties);
+        }
+
         if (success) {
             for (var entry : entries) {
                 if (entry.getKey().isBlank()) {
-                    PropertyFileUtils.warn(commandName, "At least one entry key must specified.");
-                    success = false;
+                    PropertyFileUtils.warn(commandName, "An entry key must specified.");
                 } else {
                     var key = entry.getKey();
-                    var value = entry.getNewValue();
-                    var defaultValue = entry.getDefaultValue();
+                    Object value = entry.getNewValue();
+                    Object defaultValue = entry.getDefaultValue();
+                    var p = properties.getProperty(key);
                     if (entry.isDelete()) {
                         properties.remove(key);
-                    } else if ((value == null || value.isBlank()) && (defaultValue == null || defaultValue.isBlank())) {
+                    } else if ((value == null || String.valueOf(value).isBlank())
+                            && (defaultValue == null || String.valueOf(defaultValue).isBlank())
+                            && (p == null || p.isBlank())) {
                         PropertyFileUtils.warn(commandName, "An entry must be set or have a default value: " + key);
-                        success = false;
                     } else {
-                        switch (entry.getType()) {
-                            case DATE ->
-                                    success = PropertyFileUtils.processDate(commandName, properties, entry, failOnWarning);
-                            case INT ->
-                                    success = PropertyFileUtils.processInt(commandName, properties, entry, failOnWarning);
-                            default -> success = PropertyFileUtils.processString(properties, entry);
-                        }
+                        if (entry instanceof EntryDate)
+                            success = PropertyFileUtils.processDate(commandName, properties, (EntryDate) entry, failOnWarning);
+                        else if (entry instanceof EntryInt)
+                            success = PropertyFileUtils.processInt(commandName, properties, (EntryInt) entry, failOnWarning);
+                        else
+                            success = PropertyFileUtils.processString(properties, (Entry) entry);
                     }
                 }
             }
         }
-        if (failOnWarning && !success) {
-            throw new RuntimeException("Properties file configuration failed: " + file);
-        } else if (success) {
+
+        if (success) {
             PropertyFileUtils.saveProperties(file, comment, properties);
         }
     }
