@@ -23,7 +23,7 @@ Upon execution, the `version.properties` file will be created and displayed:
 ./bld updateMajor run
 ```
 
-```shell
+```text
 +---------------------------+
 | version.properties        |
 +---------------------------+
@@ -42,7 +42,7 @@ Subsequent commands will reflect the modifications to the
 ./bld upatePatch run
 ```
 
-```shell
+```text
 +---------------------------+
 | version.properties        |
 +---------------------------+

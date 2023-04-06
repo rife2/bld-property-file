@@ -73,7 +73,7 @@ The [Entry](https://rife2.github.io/bld-property-file/rife/bld/extension/propert
 
 ## EntryDate
 
-The [Entry](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/EntryDate.html) class is used to specify modifications to a [date property](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
+The [EntryDate](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/EntryDate.html) class is used to specify modifications to a [date property](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
 
 | Function         | Description/Example                                                                                                                                                                                                                                                                                                                                                         |
 |:-----------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -101,7 +101,7 @@ The following [Units](https://rife2.github.io/bld-property-file/rife/bld/extensi
 
 ## EntryInt
 
-The [Entry](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/EntryInt.html) class is used to specify modifications to a [integer property](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
+The [EntryInt](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/EntryInt.html) class is used to specify modifications to a [integer property](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
 
 | Function         | Description/Example                                                                                                                                                |
 |:-----------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
