@@ -17,7 +17,7 @@ public class PropertyFileBuild extends Project {
     public PropertyFileBuild() {
         pkg = "rife.bld.extension";
         name = "bld-property-file";
-        version = version(0, 9, 1, "SNAPSHOT");
+        version = version(0, 9, 1);
         javadocOptions
                 .docLint(NO_MISSING)
                 .link("https://rife2.github.io/rife2/");
@@ -52,7 +52,6 @@ public class PropertyFileBuild extends Project {
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 9, 2)))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 9, 2)))
                 .include(dependency("org.assertj:assertj-joda-time:2.2.0"));
-
     }
 
     public static void main(String[] args) {

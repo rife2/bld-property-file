@@ -19,7 +19,7 @@ package rife.bld.extension.propertyfile;
 import java.util.function.BiFunction;
 
 /**
- * Declares the modifications to be made to a {@link java.util.Properties string-based property}.
+ * Declares the modifications to be made to a {@link java.util.Properties String-based property}.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @author <a href="https://github.com/gbevin">Geert Bevin</a>

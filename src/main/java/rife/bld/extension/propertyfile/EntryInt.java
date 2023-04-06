@@ -19,7 +19,7 @@ package rife.bld.extension.propertyfile;
 import java.util.function.IntFunction;
 
 /**
- * Declares the modifications to be made to a {@link java.util.Properties integer-based property}.
+ * Declares the modifications to be made to an {@link java.util.Properties Integer-based property}.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0

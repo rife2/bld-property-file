@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.function.IntFunction;
 
 /**
- * Declares the modifications to be made to a {@link java.util.Properties date-based property}.
+ * Declares the modifications to be made to a {@link java.util.Properties Date-based property}.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
@@ -48,7 +48,7 @@ public class EntryDate extends EntryBase {
     }
 
     /**
-     * Sets the new {@link java.util.Properties property} value to an {@link LocalDate}
+     * Sets the new {@link java.util.Properties property} value to a {@link LocalDate}
      *
      * @param date the {@link LocalDate} to set the value to
      */
