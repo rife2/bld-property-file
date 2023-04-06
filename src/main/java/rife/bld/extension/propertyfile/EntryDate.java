@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.function.IntFunction;
 
 /**
- * Declares the modifications to be made to a {@link java.util.Properties Properties} file.
+ * Declares the modifications to be made to a {@link java.util.Properties date-based property}.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
@@ -38,9 +38,9 @@ public class EntryDate extends EntryBase {
     }
 
     /**
-     * Set the new {@link java.util.Properties property} value to an {@link Instant}
+     * Sets the new {@link java.util.Properties property} value to an {@link Instant}
      *
-     * @param instant the {@link Instant} to set the value to.
+     * @param instant the {@link Instant} to set the value to
      */
     public EntryDate set(Instant instant) {
         setNewValue(instant);
@@ -48,9 +48,9 @@ public class EntryDate extends EntryBase {
     }
 
     /**
-     * Set the new {@link java.util.Properties property} value to an {@link LocalDate}
+     * Sets the new {@link java.util.Properties property} value to an {@link LocalDate}
      *
-     * @param date the {@link LocalDate} to set the value to.
+     * @param date the {@link LocalDate} to set the value to
      */
     public EntryDate set(LocalDate date) {
         setNewValue(date);
@@ -58,9 +58,9 @@ public class EntryDate extends EntryBase {
     }
 
     /**
-     * Set the new {@link java.util.Properties property} value to an {@link LocalDateTime}
+     * Sets the new {@link java.util.Properties property} value to a {@link LocalDateTime}
      *
-     * @param date the {@link LocalDateTime} to set the value to.
+     * @param date the {@link LocalDateTime} to set the value to
      */
     public EntryDate set(LocalDateTime date) {
         setNewValue(date);
@@ -68,9 +68,9 @@ public class EntryDate extends EntryBase {
     }
 
     /**
-     * Set the new {@link java.util.Properties property} value to an {@link ZonedDateTime}
+     * Sets the new {@link java.util.Properties property} value to a {@link ZonedDateTime}
      *
-     * @param date the {@link ZonedDateTime} to set the value to.
+     * @param date the {@link ZonedDateTime} to set the value to
      */
     public EntryDate set(ZonedDateTime date) {
         setNewValue(date);
@@ -78,9 +78,9 @@ public class EntryDate extends EntryBase {
     }
 
     /**
-     * Set the new {@link java.util.Properties property} value to an {@link LocalTime}
+     * Sets the new {@link java.util.Properties property} value to a {@link LocalTime}
      *
-     * @param time the {@link LocalTime} to set the value to.
+     * @param time the {@link LocalTime} to set the value to
      */
     public EntryDate set(LocalTime time) {
         setNewValue(time);
@@ -88,9 +88,9 @@ public class EntryDate extends EntryBase {
     }
 
     /**
-     * Set the new {@link java.util.Properties property} value to an {@link Calendar}
+     * Sets the new {@link java.util.Properties property} value to a {@link Calendar}
      *
-     * @param cal the {@link Calendar} to set the value to.
+     * @param cal the {@link Calendar} to set the value to
      */
     public EntryDate set(Calendar cal) {
         setNewValue(cal);
@@ -98,9 +98,9 @@ public class EntryDate extends EntryBase {
     }
 
     /**
-     * Set the new {@link java.util.Properties property} value to an {@link Date}
+     * Sets the new {@link java.util.Properties property} value to a {@link Date}
      *
-     * @param date the {@link Date} to set the value to.
+     * @param date the {@link Date} to set the value to
      */
     public EntryDate set(Date date) {
         setNewValue(date);
@@ -108,7 +108,7 @@ public class EntryDate extends EntryBase {
     }
 
     /**
-     * Sets the new value to now.
+     * Sets the new {@link java.util.Properties property} value to now.
      */
     public EntryDate now() {
         setNewValue("now");
@@ -118,7 +118,7 @@ public class EntryDate extends EntryBase {
     /**
      * Creates a new {@link EntryDate entry}.
      *
-     * @param calc the calculation function.
+     * @param calc the calculation function
      */
     public EntryDate calc(IntFunction<Integer> calc) {
         setCalc(calc);
@@ -126,9 +126,8 @@ public class EntryDate extends EntryBase {
     }
 
     /**
-     * <p>Sets the pattern for {@link EntryInt} and {@link EntryDate} to
-     * {@link java.text.DecimalFormat DecimalFormat} and {@link java.time.format.DateTimeFormatter DateTimeFormatter}
-     * respectively.</p>
+     * Sets the pattern for {@link EntryInt} and {@link EntryDate} to{@link java.text.DecimalFormat DecimalFormat} and
+     * {@link java.time.format.DateTimeFormatter DateTimeFormatter} respectively.
      *
      * @param pattern the pattern
      */

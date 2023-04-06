@@ -23,6 +23,7 @@ public class PropertyFileExampleBuild extends Project {
         version = version(0, 1, 0);
 
         downloadSources = true;
+        autoDownloadPurge = true;
         repositories = List.of(MAVEN_CENTRAL);
         scope(test)
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 9, 2)))

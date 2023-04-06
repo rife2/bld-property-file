@@ -20,7 +20,7 @@ import java.util.function.BiFunction;
 import java.util.function.IntFunction;
 
 /**
- * Declares the modifications to be made to a {@link java.util.Properties Properties} file.
+ * Declares the modifications to be made to a {@link java.util.Properties property}.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @author <a href="https://github.com/gbevin">Geert Bevin</a>
@@ -70,14 +70,14 @@ public class EntryBase {
     }
 
     /**
-     * Set the modify function.
+     * Sets the modify function.
      */
     protected void setModify(BiFunction<String, String, String> modify) {
         this.modify = modify;
     }
 
     /**
-     * Set the modify function.
+     * Sets the modify function.
      *
      * @param value the value to perform a modification with
      */
@@ -87,14 +87,14 @@ public class EntryBase {
     }
 
     /**
-     * Returns {@code true} if the {@link EntryBase} is to be deleted.
+     * Returns {@code true} if the {@link java.util.Properties property} is to be deleted.
      */
     protected boolean isDelete() {
         return isDelete;
     }
 
     /**
-     * Sets whether the {@link EntryBase} should be deleted.
+     * Sets whether the {@link java.util.Properties property} should be deleted.
      */
     protected void setDelete(boolean delete) {
         isDelete = delete;
@@ -138,7 +138,7 @@ public class EntryBase {
     }
 
     /**
-     * <p>Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.</p>
+     * Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.
      *
      * @param defaultValue the default value
      */
@@ -164,14 +164,14 @@ public class EntryBase {
     }
 
     /**
-     * Return the {@link EntryDate.Units unit}.
+     * Returns the {@link EntryDate.Units unit}.
      */
     protected EntryDate.Units getUnit() {
         return unit;
     }
 
     /**
-     * Sets the {@link EntryDate.Units unit} value to apply to calculations for {@link EntryDate}.
+     * Sets the {@link EntryDate.Units unit} value to apply to calculations.
      *
      * @param unit the {@link EntryDate.Units unit}
      */
@@ -198,7 +198,7 @@ public class EntryBase {
     }
 
     /**
-     * Set a new value for {@link java.util.Properties property}.
+     * Sets a new value for {@link java.util.Properties property}.
      *
      * @param newValue the new value
      */

@@ -19,7 +19,7 @@ package rife.bld.extension.propertyfile;
 import java.util.function.IntFunction;
 
 /**
- * Declares the modifications to be made to a {@link java.util.Properties Properties} file.
+ * Declares the modifications to be made to a {@link java.util.Properties integer-based property}.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
@@ -35,9 +35,9 @@ public class EntryInt extends EntryBase {
     }
 
     /**
-     * Set the new {@link java.util.Properties property} value to an integer.
+     * Sets the new {@link java.util.Properties property} value to an integer.
      *
-     * @param i The integer to set the value to.
+     * @param i The integer to set the value to
      */
     public EntryInt set(int i) {
         setNewValue(i);
@@ -45,7 +45,7 @@ public class EntryInt extends EntryBase {
     }
 
     /**
-     * <p>Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.</p>
+     * Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.
      *
      * @param defaultValue the default value
      */

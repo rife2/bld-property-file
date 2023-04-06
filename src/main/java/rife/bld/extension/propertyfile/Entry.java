@@ -19,7 +19,7 @@ package rife.bld.extension.propertyfile;
 import java.util.function.BiFunction;
 
 /**
- * Declares the modifications to be made to a {@link java.util.Properties Properties} file.
+ * Declares the modifications to be made to a {@link java.util.Properties string-based property}.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @author <a href="https://github.com/gbevin">Geert Bevin</a>
@@ -31,7 +31,7 @@ public class Entry extends EntryBase {
     }
 
     /**
-     * Set the new {@link java.util.Properties property} value.
+     * Sets the new {@link java.util.Properties property} value.
      *
      * @param s The new value
      */

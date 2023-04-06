@@ -76,9 +76,9 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
     }
 
     /**
-     * Sets the command to return a failure on any warnings.
+     * Sets the {@link #execute() execution} to return a failure on any warnings.
      *
-     * @param failOnWarning if set to {@code true}, the task will fail on any warnings.
+     * @param failOnWarning if set to {@code true}, the execution will fail on any warnings.
      */
     @SuppressWarnings("unused")
     public PropertyFileOperation failOnWarning(boolean failOnWarning) {

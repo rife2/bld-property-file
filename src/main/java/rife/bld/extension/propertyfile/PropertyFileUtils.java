@@ -32,9 +32,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
- * Collection of utility-type methods commonly used in this project.
+ * Collection of common methods used in this project.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
@@ -52,7 +51,6 @@ public final class PropertyFileUtils {
      * @param command the issuing command
      * @param p       the {@link Properties property}
      * @param entry   the {@link Entry} containing the {@link Properties property} edits
-     * @return {@code true} if successful
      */
     public static boolean processDate(String command, Properties p, EntryDate entry, boolean failOnWarning)
             throws Exception {
@@ -154,7 +152,6 @@ public final class PropertyFileUtils {
      * @param value        the value
      * @param newValue     the new value
      * @param defaultValue the default value
-     * @return the current value
      */
     public static Object currentValue(String value, Object defaultValue, Object newValue) {
         if (newValue != null) {
@@ -172,7 +169,6 @@ public final class PropertyFileUtils {
      * @param command the issuing command
      * @param p       the {@link Properties property}
      * @param entry   the {@link Entry} containing the {@link Properties property} edits
-     * @return {@code true} if successful
      */
     public static boolean processInt(String command, Properties p, EntryInt entry, boolean failOnWarning)
             throws Exception {
@@ -205,7 +201,6 @@ public final class PropertyFileUtils {
      *
      * @param p     the {@link Properties property}
      * @param entry the {@link Entry} containing the {@link Properties property} edits
-     * @return {@code true} if successful
      */
     public static boolean processString(Properties p, Entry entry) {
         var value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(),
@@ -238,7 +233,7 @@ public final class PropertyFileUtils {
      * @param command       The command name
      * @param message       the message log
      * @param e             the related exception
-     * @param failOnWarning skips logging the exception if set to {@code false}
+     * @param failOnWarning logs and throws exception if set to {@code true}
      */
     static void warn(String command, String message, Exception e, boolean failOnWarning) throws Exception {
         if (failOnWarning) {
@@ -253,9 +248,8 @@ public final class PropertyFileUtils {
      * Loads a {@link Properties properties} file.
      *
      * @param command the issuing command
-     * @param file    the file location.
+     * @param file    the file location
      * @param p       the {@link Properties properties} to load into.
-     * @return {@code true} if successful
      */
     public static boolean loadProperties(String command, File file, Properties p) throws Exception {
         boolean success = true;
