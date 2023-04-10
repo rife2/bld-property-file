@@ -10,6 +10,7 @@ import rife.bld.extension.propertyfile.PropertyFileOperation;
 import java.util.List;
 
 import static rife.bld.dependencies.Repository.MAVEN_CENTRAL;
+import static rife.bld.dependencies.Repository.RIFE2_RELEASES;
 import static rife.bld.dependencies.Scope.test;
 import static rife.bld.extension.propertyfile.Calc.ADD;
 
@@ -22,9 +23,11 @@ public class PropertyFileExampleBuild extends Project {
         mainClass = "com.example.PropertyFileExampleMain";
         version = version(0, 1, 0);
 
+        javaRelease = 17;
         downloadSources = true;
         autoDownloadPurge = true;
-        repositories = List.of(MAVEN_CENTRAL);
+        repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
+
         scope(test)
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 9, 2)))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 9, 2)));
