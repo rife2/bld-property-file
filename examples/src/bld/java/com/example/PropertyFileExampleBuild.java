@@ -39,7 +39,8 @@ public class PropertyFileExampleBuild extends Project {
 
     @BuildCommand(summary = "Updates major version")
     public void updateMajor() throws Exception {
-        new PropertyFileOperation(this)
+        new PropertyFileOperation()
+                .fromProject(this)
                 .file("version.properties")
                 // set the major version to 1 if it doesn't exist, increase by 1
                 .entry(new EntryInt("version.major").defaultValue(0).calc(ADD))
@@ -54,7 +55,8 @@ public class PropertyFileExampleBuild extends Project {
 
     @BuildCommand(summary = "Updates minor version")
     public void updateMinor() throws Exception {
-        new PropertyFileOperation(this)
+        new PropertyFileOperation()
+                .fromProject(this)
                 .file("version.properties")
                 // set the major version to 1 if it doesn't exist
                 .entry(new EntryInt("version.major").defaultValue(1))
@@ -69,7 +71,8 @@ public class PropertyFileExampleBuild extends Project {
 
     @BuildCommand(summary = "Updates patch version")
     public void updatePatch() throws Exception {
-        new PropertyFileOperation(this)
+        new PropertyFileOperation()
+                .fromProject(this)
                 .file("version.properties")
                 // set the major version to 1 if it doesn't exist
                 .entry(new EntryInt("version.major").defaultValue(1))
@@ -84,7 +87,8 @@ public class PropertyFileExampleBuild extends Project {
 
     @BuildCommand(summary = "Updates the release")
     public void updateRelease() throws Exception {
-        new PropertyFileOperation(this)
+        new PropertyFileOperation()
+                .fromProject(this)
                 .file("version.properties")
                 // set the release to current date/time
                 .entry(new EntryDate("release").now().pattern("yyyyMMddHHmmss"))
@@ -95,7 +99,8 @@ public class PropertyFileExampleBuild extends Project {
 
     @BuildCommand(summary = "Delete version properties")
     public void deleteVersion() throws Exception {
-        new PropertyFileOperation(this)
+        new PropertyFileOperation()
+                .fromProject(this)
                 .file("version.properties")
                 .entry(new Entry("version.major").delete())
                 .entry(new Entry("version.minor").delete())

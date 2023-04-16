@@ -29,6 +29,11 @@ public final class Calc {
     public static final IntFunction<Integer> ADD = Calc::add;
     public static final IntFunction<Integer> SUB = Calc::sub;
 
+
+    private Calc() {
+        // no-op
+    }
+
     /**
      * Adds {@code 1} to the value.
      *

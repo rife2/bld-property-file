@@ -1,8 +1,9 @@
 package rife.bld.extension.propertyfile;
 
+import rife.bld.BuildCommand;
 import rife.bld.Project;
+import rife.bld.extension.PmdOperation;
 import rife.bld.publish.PublishDeveloper;
-import rife.bld.publish.PublishInfo;
 import rife.bld.publish.PublishLicense;
 import rife.bld.publish.PublishScm;
 
@@ -33,32 +34,41 @@ public class PropertyFileBuild extends Project {
                 .include(dependency("org.assertj:assertj-joda-time:2.2.0"));
 
         javadocOperation()
-            .javadocOptions()
+                .javadocOptions()
                 .docLint(NO_MISSING)
                 .link("https://rife2.github.io/rife2/");
 
         publishOperation()
-            .repository(version.isSnapshot() ? repository("rife2-snapshot") : repository("rife2"))
-//            .repository(MAVEN_LOCAL)
-            .info()
+                .repository(version.isSnapshot() ? repository("rife2-snapshot") : repository("rife2"))
+//                .repository(MAVEN_LOCAL)
+                .info()
                 .groupId("com.uwyn.rife2")
                 .artifactId("bld-property-file")
                 .description("bld Extension to Create or Modify Properties Files")
                 .url("https://github.com/rife2/bld-property-file")
                 .developer(new PublishDeveloper().id("ethauvin").name("Erik C. Thauvin").email("erik@thauvin.net")
-                    .url("https://erik.thauvin.net/"))
+                        .url("https://erik.thauvin.net/"))
                 .developer(new PublishDeveloper().id("gbevin").name("Geert Bevin").email("gbevin@uwyn.com")
-                    .url("https://github.com/gbevin"))
+                        .url("https://github.com/gbevin"))
                 .license(new PublishLicense().name("The Apache License, Version 2.0")
-                    .url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+                        .url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
                 .scm(new PublishScm().connection("scm:git:https://github.com/rife2/bld-property-file.git")
-                    .developerConnection("scm:git:git@github.com:rife2/bld-property-file.git")
-                    .url("https://github.com/rife2/bld-property-file"))
+                        .developerConnection("scm:git:git@github.com:rife2/bld-property-file.git")
+                        .url("https://github.com/rife2/bld-property-file"))
                 .signKey(property("sign.key"))
                 .signPassphrase(property("sign.passphrase"));
     }
 
     public static void main(String[] args) {
         new PropertyFileBuild().start(args);
+    }
+
+    @BuildCommand(summary = "Runs PMD analysis")
+    public void pmd() throws Exception {
+        new PmdOperation()
+                .fromProject(this)
+                .failOnViolation(true)
+                .ruleSets("config/pmd.xml")
+                .execute();
     }
 }

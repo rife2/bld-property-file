@@ -16,7 +16,7 @@
 
 package rife.bld.extension.propertyfile;
 
-import rife.bld.Project;
+import rife.bld.BaseProject;
 import rife.bld.operations.AbstractOperation;
 
 import java.io.File;
@@ -32,13 +32,20 @@ import java.util.Properties;
  */
 public class PropertyFileOperation extends AbstractOperation<PropertyFileOperation> {
     private final List<EntryBase> entries = new ArrayList<>();
-    private final Project project;
-    private File file;
     private String comment = "";
     private boolean failOnWarning;
+    private File file;
+    private BaseProject project;
 
-    public PropertyFileOperation(Project project) {
-        this.project = project;
+    /**
+     * Sets the comment to be inserted at the top of the {@link java.util.Properties} file.
+     *
+     * @param comment the header comment
+     */
+    @SuppressWarnings("unused")
+    public PropertyFileOperation comment(String comment) {
+        this.comment = comment;
+        return this;
     }
 
     /**
@@ -50,50 +57,6 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
     @SuppressWarnings("unused")
     public PropertyFileOperation entry(EntryBase entry) {
         entries.add(entry);
-        return this;
-    }
-
-    /**
-     * Sets the location of the {@link java.util.Properties} file to be edited.
-     *
-     * @param file the file to be edited
-     */
-    @SuppressWarnings("unused")
-    public PropertyFileOperation file(String file) {
-        this.file = new File(file);
-        return this;
-    }
-
-    /**
-     * Sets the location of the {@link java.util.Properties} file to be edited.
-     *
-     * @param file the file to be edited
-     */
-    @SuppressWarnings("unused")
-    public PropertyFileOperation file(File file) {
-        this.file = file;
-        return this;
-    }
-
-    /**
-     * Sets the {@link #execute() execution} to return a failure on any warnings.
-     *
-     * @param failOnWarning if set to {@code true}, the execution will fail on any warnings.
-     */
-    @SuppressWarnings("unused")
-    public PropertyFileOperation failOnWarning(boolean failOnWarning) {
-        this.failOnWarning = failOnWarning;
-        return this;
-    }
-
-    /**
-     * Sets the comment to be inserted at the top of the {@link java.util.Properties} file.
-     *
-     * @param comment the header comment
-     */
-    @SuppressWarnings("unused")
-    public PropertyFileOperation comment(String comment) {
-        this.comment = comment;
         return this;
     }
 
@@ -128,12 +91,13 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
                             && (p == null || p.isBlank())) {
                         PropertyFileUtils.warn(commandName, "An entry must be set or have a default value: " + key);
                     } else {
-                        if (entry instanceof EntryDate)
+                        if (entry instanceof EntryDate) {
                             success = PropertyFileUtils.processDate(commandName, properties, (EntryDate) entry, failOnWarning);
-                        else if (entry instanceof EntryInt)
+                        } else if (entry instanceof EntryInt) {
                             success = PropertyFileUtils.processInt(commandName, properties, (EntryInt) entry, failOnWarning);
-                        else
+                        } else {
                             success = PropertyFileUtils.processString(properties, (Entry) entry);
+                        }
                     }
                 }
             }
@@ -142,5 +106,46 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
         if (success) {
             PropertyFileUtils.saveProperties(file, comment, properties);
         }
+    }
+
+    /**
+     * Sets the {@link #execute() execution} to return a failure on any warnings.
+     *
+     * @param failOnWarning if set to {@code true}, the execution will fail on any warnings.
+     */
+    @SuppressWarnings("unused")
+    public PropertyFileOperation failOnWarning(boolean failOnWarning) {
+        this.failOnWarning = failOnWarning;
+        return this;
+    }
+
+    /**
+     * Sets the location of the {@link java.util.Properties} file to be edited.
+     *
+     * @param file the file to be edited
+     */
+    @SuppressWarnings("unused")
+    public PropertyFileOperation file(File file) {
+        this.file = file;
+        return this;
+    }
+
+    /**
+     * Sets the location of the {@link java.util.Properties} file to be edited.
+     *
+     * @param file the file to be edited
+     */
+    @SuppressWarnings("unused")
+    public PropertyFileOperation file(String file) {
+        this.file = new File(file);
+        return this;
+    }
+
+    /**
+     * Creates a new operation.
+     */
+    public PropertyFileOperation fromProject(BaseProject project) {
+        this.project = project;
+        return this;
     }
 }

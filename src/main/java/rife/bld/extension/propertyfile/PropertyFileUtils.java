@@ -46,12 +46,56 @@ public final class PropertyFileUtils {
     }
 
     /**
+     * Returns the new value, value or default value depending on which is specified.
+     *
+     * @param value        the value
+     * @param newValue     the new value
+     * @param defaultValue the default value
+     */
+    public static Object currentValue(String value, Object defaultValue, Object newValue) {
+        if (newValue != null) {
+            return newValue;
+        } else if (value == null) {
+            return defaultValue;
+        } else {
+            return value;
+        }
+    }
+
+    /**
+     * Loads a {@link Properties properties} file.
+     *
+     * @param command the issuing command
+     * @param file    the file location
+     * @param p       the {@link Properties properties} to load into.
+     */
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
+    public static boolean loadProperties(String command, File file, Properties p) throws Exception {
+        boolean success = true;
+        if (file != null) {
+            if (file.exists()) {
+                try (var propStream = Files.newInputStream(file.toPath(), StandardOpenOption.READ)) {
+                    p.load(propStream);
+                } catch (IOException ioe) {
+                    warn(command, "Could not load properties file: " + ioe.getMessage(), ioe, true);
+                    success = false;
+                }
+            }
+        } else {
+            warn(command, "Please specify the properties file location.");
+            success = false;
+        }
+        return success;
+    }
+
+    /**
      * Processes a date {@link Properties property}.
      *
      * @param command the issuing command
      * @param p       the {@link Properties property}
      * @param entry   the {@link Entry} containing the {@link Properties property} edits
      */
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     public static boolean processDate(String command, Properties p, EntryDate entry, boolean failOnWarning)
             throws Exception {
         var success = true;
@@ -147,29 +191,13 @@ public final class PropertyFileUtils {
     }
 
     /**
-     * Returns the new value, value or default value depending on which is specified.
-     *
-     * @param value        the value
-     * @param newValue     the new value
-     * @param defaultValue the default value
-     */
-    public static Object currentValue(String value, Object defaultValue, Object newValue) {
-        if (newValue != null) {
-            return newValue;
-        } else if (value == null) {
-            return defaultValue;
-        } else {
-            return value;
-        }
-    }
-
-    /**
      * Processes an integer {@link Properties property}.
      *
      * @param command the issuing command
      * @param p       the {@link Properties property}
      * @param entry   the {@link Entry} containing the {@link Properties property} edits
      */
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     public static boolean processInt(String command, Properties p, EntryInt entry, boolean failOnWarning)
             throws Exception {
         var success = true;
@@ -216,6 +244,21 @@ public final class PropertyFileUtils {
     }
 
     /**
+     * Saves a {@link Properties properties} file.
+     *
+     * @param file    the file location
+     * @param comment the header comment
+     * @param p       the {@link Properties} to save into the file
+     */
+    public static void saveProperties(File file, String comment, Properties p) throws IOException {
+        try (var output = Files.newOutputStream(file.toPath())) {
+            p.store(output, comment);
+        } catch (IIOException ioe) {
+            throw new IIOException("An IO error occurred while saving the Properties file: " + file, ioe);
+        }
+    }
+
+    /**
      * Logs a warning.
      *
      * @param command the issuing command
@@ -235,52 +278,13 @@ public final class PropertyFileUtils {
      * @param e             the related exception
      * @param failOnWarning logs and throws exception if set to {@code true}
      */
+    @SuppressWarnings({"PMD.SignatureDeclareThrowsException"})
     static void warn(String command, String message, Exception e, boolean failOnWarning) throws Exception {
         if (failOnWarning) {
             LOGGER.log(Level.SEVERE, '[' + command + "] " + message, e);
             throw e;
         } else {
             warn(command, message);
-        }
-    }
-
-    /**
-     * Loads a {@link Properties properties} file.
-     *
-     * @param command the issuing command
-     * @param file    the file location
-     * @param p       the {@link Properties properties} to load into.
-     */
-    public static boolean loadProperties(String command, File file, Properties p) throws Exception {
-        boolean success = true;
-        if (file != null) {
-            if (file.exists()) {
-                try (var propStream = Files.newInputStream(file.toPath(), StandardOpenOption.READ)) {
-                    p.load(propStream);
-                } catch (IOException ioe) {
-                    warn(command, "Could not load properties file: " + ioe.getMessage(), ioe, true);
-                    success = false;
-                }
-            }
-        } else {
-            warn(command, "Please specify the properties file location.");
-            success = false;
-        }
-        return success;
-    }
-
-    /**
-     * Saves a {@link Properties properties} file.
-     *
-     * @param file    the file location
-     * @param comment the header comment
-     * @param p       the {@link Properties} to save into the file
-     */
-    public static void saveProperties(File file, String comment, Properties p) throws IOException {
-        try (var output = Files.newOutputStream(file.toPath())) {
-            p.store(output, comment);
-        } catch (IIOException ioe) {
-            throw new IIOException("An IO error occurred while saving the Properties file: " + file, ioe);
         }
     }
 }

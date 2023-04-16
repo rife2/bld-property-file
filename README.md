@@ -11,7 +11,8 @@ An extension for creating or modifying [property files](https://docs.oracle.com/
 ```java
 @BuildCommand
 public void updateMajor() throws Exception {
-    new PropertyFileOperation(this)
+    new PropertyFileOperation()
+            .fromProject(this)
             .file("version.properties")
             .entry(new EntryInt("version.major").defaultValue(0).calc(ADD))
             .entry(new EntryInt("version.minor").set(0))

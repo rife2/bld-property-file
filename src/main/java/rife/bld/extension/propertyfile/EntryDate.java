@@ -38,6 +38,43 @@ public class EntryDate extends EntryBase {
     }
 
     /**
+     * Creates a new {@link EntryDate entry}.
+     *
+     * @param calc the calculation function
+     */
+    public EntryDate calc(IntFunction<Integer> calc) {
+        setCalc(calc);
+        return this;
+    }
+
+    /**
+     * Sets the {@link EntryDate entry} up for deletion.
+     */
+    public EntryDate delete() {
+        setDelete(true);
+        return this;
+    }
+
+    /**
+     * Sets the new {@link java.util.Properties property} value to now.
+     */
+    public EntryDate now() {
+        setNewValue("now");
+        return this;
+    }
+
+    /**
+     * Sets the pattern for {@link EntryInt} and {@link EntryDate} to{@link java.text.DecimalFormat DecimalFormat} and
+     * {@link java.time.format.DateTimeFormatter DateTimeFormatter} respectively.
+     *
+     * @param pattern the pattern
+     */
+    public EntryDate pattern(String pattern) {
+        setPattern(pattern);
+        return this;
+    }
+
+    /**
      * Sets the new {@link java.util.Properties property} value to an {@link Instant}
      *
      * @param instant the {@link Instant} to set the value to
@@ -108,49 +145,12 @@ public class EntryDate extends EntryBase {
     }
 
     /**
-     * Sets the new {@link java.util.Properties property} value to now.
-     */
-    public EntryDate now() {
-        setNewValue("now");
-        return this;
-    }
-
-    /**
-     * Creates a new {@link EntryDate entry}.
-     *
-     * @param calc the calculation function
-     */
-    public EntryDate calc(IntFunction<Integer> calc) {
-        setCalc(calc);
-        return this;
-    }
-
-    /**
-     * Sets the pattern for {@link EntryInt} and {@link EntryDate} to{@link java.text.DecimalFormat DecimalFormat} and
-     * {@link java.time.format.DateTimeFormatter DateTimeFormatter} respectively.
-     *
-     * @param pattern the pattern
-     */
-    public EntryDate pattern(String pattern) {
-        setPattern(pattern);
-        return this;
-    }
-
-    /**
      * Sets the {@link Units unit} value to apply to calculations for {@link EntryDate}.
      *
      * @param unit the {@link Units unit}
      */
     public EntryDate unit(Units unit) {
         setUnit(unit);
-        return this;
-    }
-
-    /**
-     * Sets the {@link EntryDate entry} up for deletion.
-     */
-    public EntryDate delete() {
-        setDelete(true);
         return this;
     }
 

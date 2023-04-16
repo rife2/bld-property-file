@@ -27,15 +27,15 @@ import java.util.function.IntFunction;
  * @since 1.0
  */
 public class EntryBase {
-    private String key;
+    private IntFunction<Integer> calc;
     private Object defaultValue;
-    private Object newValue;
-    private String modifyValue = "";
     private boolean isDelete;
+    private String key;
+    private BiFunction<String, String, String> modify;
+    private String modifyValue = "";
+    private Object newValue;
     private String pattern = "";
     private EntryDate.Units unit = EntryDate.Units.DAY;
-    private IntFunction<Integer> calc;
-    private BiFunction<String, String, String> modify;
 
     /**
      * Creates a new {@link EntryBase entry}.
@@ -44,60 +44,6 @@ public class EntryBase {
      */
     public EntryBase(String key) {
         this.key = key;
-    }
-
-    /**
-     * Returns the value to be used in the {@link #modify} function.
-     */
-    protected String getModifyValue() {
-        return modifyValue;
-    }
-
-    /**
-     * Sets the modify value.
-     *
-     * @param value the modify value.
-     */
-    protected void setModifyValue(String value) {
-        this.modifyValue = value;
-    }
-
-    /**
-     * Returns the modify function.
-     */
-    protected BiFunction<String, String, String> getModify() {
-        return modify;
-    }
-
-    /**
-     * Sets the modify function.
-     */
-    protected void setModify(BiFunction<String, String, String> modify) {
-        this.modify = modify;
-    }
-
-    /**
-     * Sets the modify function.
-     *
-     * @param value the value to perform a modification with
-     */
-    protected void setModify(String value, BiFunction<String, String, String> modify) {
-        this.modifyValue = value;
-        this.modify = modify;
-    }
-
-    /**
-     * Returns {@code true} if the {@link java.util.Properties property} is to be deleted.
-     */
-    protected boolean isDelete() {
-        return isDelete;
-    }
-
-    /**
-     * Sets whether the {@link java.util.Properties property} should be deleted.
-     */
-    protected void setDelete(boolean delete) {
-        isDelete = delete;
     }
 
     /**
@@ -112,6 +58,22 @@ public class EntryBase {
      */
     protected void setCalc(IntFunction<Integer> calc) {
         this.calc = calc;
+    }
+
+    /**
+     * Returns the default value.
+     */
+    protected Object getDefaultValue() {
+        return defaultValue;
+    }
+
+    /**
+     * Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.
+     *
+     * @param defaultValue the default value
+     */
+    protected void setDefaultValue(Object defaultValue) {
+        this.defaultValue = defaultValue;
     }
 
     /**
@@ -131,19 +93,49 @@ public class EntryBase {
     }
 
     /**
-     * Returns the default value.
+     * Returns the modify function.
      */
-    protected Object getDefaultValue() {
-        return defaultValue;
+    protected BiFunction<String, String, String> getModify() {
+        return modify;
     }
 
     /**
-     * Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.
-     *
-     * @param defaultValue the default value
+     * Sets the modify function.
      */
-    protected void setDefaultValue(Object defaultValue) {
-        this.defaultValue = defaultValue;
+    protected void setModify(BiFunction<String, String, String> modify) {
+        this.modify = modify;
+    }
+
+    /**
+     * Returns the value to be used in the {@link #modify} function.
+     */
+    protected String getModifyValue() {
+        return modifyValue;
+    }
+
+    /**
+     * Sets the modify value.
+     *
+     * @param value the modify value.
+     */
+    protected void setModifyValue(String value) {
+        this.modifyValue = value;
+    }
+
+    /**
+     * Returns the new value to set the {@link java.util.Properties property)} to.
+     */
+    public Object getNewValue() {
+        return newValue;
+    }
+
+    /**
+     * Sets a new value for {@link java.util.Properties property}.
+     *
+     * @param newValue the new value
+     */
+    public void setNewValue(Object newValue) {
+        this.newValue = newValue;
     }
 
     /**
@@ -180,6 +172,20 @@ public class EntryBase {
     }
 
     /**
+     * Returns {@code true} if the {@link java.util.Properties property} is to be deleted.
+     */
+    protected boolean isDelete() {
+        return isDelete;
+    }
+
+    /**
+     * Sets whether the {@link java.util.Properties property} should be deleted.
+     */
+    protected void setDelete(boolean delete) {
+        isDelete = delete;
+    }
+
+    /**
      * Sets the key of the {@link java.util.Properties property}.
      *
      * @param key the {@link java.util.Properties property} key
@@ -191,18 +197,12 @@ public class EntryBase {
     }
 
     /**
-     * Returns the new value to set the {@link java.util.Properties property)} to.
-     */
-    public Object getNewValue() {
-        return newValue;
-    }
-
-    /**
-     * Sets a new value for {@link java.util.Properties property}.
+     * Sets the modify function.
      *
-     * @param newValue the new value
+     * @param value the value to perform a modification with
      */
-    public void setNewValue(Object newValue) {
-        this.newValue = newValue;
+    protected void setModify(String value, BiFunction<String, String, String> modify) {
+        this.modifyValue = value;
+        this.modify = modify;
     }
 }

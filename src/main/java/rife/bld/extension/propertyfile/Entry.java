@@ -31,16 +31,6 @@ public class Entry extends EntryBase {
     }
 
     /**
-     * Sets the new {@link java.util.Properties property} value.
-     *
-     * @param s The new value
-     */
-    public Entry set(Object s) {
-        setNewValue(s);
-        return this;
-    }
-
-    /**
      * <p>Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.</p>
      *
      * @param defaultValue the default value
@@ -48,6 +38,24 @@ public class Entry extends EntryBase {
     @SuppressWarnings("unused")
     public Entry defaultValue(Object defaultValue) {
         setDefaultValue(defaultValue);
+        return this;
+    }
+
+    /**
+     * Sets the {@link Entry entry} up for deletion.
+     */
+    public Entry delete() {
+        setDelete(true);
+        return this;
+    }
+
+    /**
+     * Creates a new {@link Entry entry}.
+     *
+     * @param modify the modification function
+     */
+    public Entry modify(BiFunction<String, String, String> modify) {
+        setModify(modify);
         return this;
     }
 
@@ -64,20 +72,12 @@ public class Entry extends EntryBase {
     }
 
     /**
-     * Creates a new {@link Entry entry}.
+     * Sets the new {@link java.util.Properties property} value.
      *
-     * @param modify the modification function
+     * @param s The new value
      */
-    public Entry modify(BiFunction<String, String, String> modify) {
-        setModify(modify);
-        return this;
-    }
-
-    /**
-     * Sets the {@link Entry entry} up for deletion.
-     */
-    public Entry delete() {
-        setDelete(true);
+    public Entry set(Object s) {
+        setNewValue(s);
         return this;
     }
 }

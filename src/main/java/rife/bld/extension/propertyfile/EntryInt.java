@@ -35,12 +35,12 @@ public class EntryInt extends EntryBase {
     }
 
     /**
-     * Sets the new {@link java.util.Properties property} value to an integer.
+     * Creates a new {@link EntryInt entry}.
      *
-     * @param i The integer to set the value to
+     * @param calc the calculation function.
      */
-    public EntryInt set(int i) {
-        setNewValue(i);
+    public EntryInt calc(IntFunction<Integer> calc) {
+        setCalc(calc);
         return this;
     }
 
@@ -56,20 +56,20 @@ public class EntryInt extends EntryBase {
     }
 
     /**
-     * Creates a new {@link EntryInt entry}.
-     *
-     * @param calc the calculation function.
-     */
-    public EntryInt calc(IntFunction<Integer> calc) {
-        setCalc(calc);
-        return this;
-    }
-
-    /**
      * Sets the {@link EntryInt entry} up for deletion.
      */
     public EntryInt delete() {
         setDelete(true);
+        return this;
+    }
+
+    /**
+     * Sets the new {@link java.util.Properties property} value to an integer.
+     *
+     * @param i The integer to set the value to
+     */
+    public EntryInt set(int i) {
+        setNewValue(i);
         return this;
     }
 }
