@@ -9,7 +9,8 @@ import rife.bld.publish.PublishScm;
 
 import java.util.List;
 
-import static rife.bld.dependencies.Repository.*;
+import static rife.bld.dependencies.Repository.MAVEN_CENTRAL;
+import static rife.bld.dependencies.Repository.RIFE2_RELEASES;
 import static rife.bld.dependencies.Scope.compile;
 import static rife.bld.dependencies.Scope.test;
 import static rife.bld.operations.JavadocOptions.DocLinkOption.NO_MISSING;
@@ -25,12 +26,14 @@ public class PropertyFileBuild extends Project {
         autoDownloadPurge = true;
         repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
 
+        var rife2 = version(1,7,0);
         scope(compile)
-                .include(dependency("com.uwyn.rife2", "rife2", version(1, 5, 20)));
+                .include(dependency("com.uwyn.rife2", "rife2", rife2))
+                .include(dependency("com.uwyn.rife2", "bld", rife2));
         scope(test)
-                .include(dependency("org.jsoup", "jsoup", version(1, 15, 4)))
-                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 9, 2)))
-                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 9, 2)))
+                .include(dependency("org.jsoup", "jsoup", version(1, 16, 1)))
+                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 9, 3)))
+                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 9, 3)))
                 .include(dependency("org.assertj:assertj-joda-time:2.2.0"));
 
         javadocOperation()
