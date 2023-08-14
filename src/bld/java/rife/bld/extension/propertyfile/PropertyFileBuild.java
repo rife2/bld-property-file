@@ -2,11 +2,13 @@ package rife.bld.extension.propertyfile;
 
 import rife.bld.BuildCommand;
 import rife.bld.Project;
+import rife.bld.extension.JacocoReportOperation;
 import rife.bld.extension.PmdOperation;
 import rife.bld.publish.PublishDeveloper;
 import rife.bld.publish.PublishLicense;
 import rife.bld.publish.PublishScm;
 
+import java.io.IOException;
 import java.util.List;
 
 import static rife.bld.dependencies.Repository.MAVEN_CENTRAL;
@@ -32,8 +34,8 @@ public class PropertyFileBuild extends Project {
                 .include(dependency("com.uwyn.rife2", "bld", rife2));
         scope(test)
                 .include(dependency("org.jsoup", "jsoup", version(1, 16, 1)))
-                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 9, 3)))
-                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 9, 3)))
+                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 0)))
+                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 10, 0)))
                 .include(dependency("org.assertj:assertj-joda-time:2.2.0"));
 
         javadocOperation()
@@ -64,6 +66,13 @@ public class PropertyFileBuild extends Project {
 
     public static void main(String[] args) {
         new PropertyFileBuild().start(args);
+    }
+
+    @BuildCommand(summary = "Generates JaCoCo Reports")
+    public void jacoco() throws IOException {
+        new JacocoReportOperation()
+                .fromProject(this)
+                .execute();
     }
 
     @BuildCommand(summary = "Runs PMD analysis")
