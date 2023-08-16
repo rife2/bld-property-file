@@ -6,7 +6,9 @@
 [![Snapshot](https://flat.badgen.net/maven/v/metadata-url/repo.rife2.com/snapshots/com/uwyn/rife2/bld-property-file/maven-metadata.xml?label=snapshot)](https://repo.rife2.com/#/snapshots/com/uwyn/rife2/bld-property-file)
 [![GitHub CI](https://github.com/rife2/bld-property-file/actions/workflows/bld.yml/badge.svg)](https://github.com/rife2/bld-property-file/actions/workflows/bld.yml)
 
-An extension for creating or modifying [property files](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html) with [bld](https://rife2.com/bld). It is inspired by the [ant PropertyFile task](https://ant.apache.org/manual/Tasks/propertyfile.html).
+To install, please refer to the [extensions documentation](https://github.com/rife2/bld/wiki/Extensions).
+
+To create or modifying [property files](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html) with [bld](https://rife2.com/bld), add the follwing to your build file:
 
 ```java
 @BuildCommand
@@ -111,3 +113,5 @@ The [EntryInt](https://rife2.github.io/bld-property-file/rife/bld/extension/prop
 | `delete()`       | Delete the property.                                                                                                                                               |
 | `pattern()`      | If present, will parse the value as a [DecimalFormat](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/text/DecimalFormat.html) pattern.          |
 | `set()`          | The [integer value](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html) to set the property to, regardless of its previous value. |
+
+It is inspired by the [ant PropertyFile task](https://ant.apache.org/manual/Tasks/propertyfile.html).
