@@ -46,7 +46,6 @@ public class PropertyFileBuild extends Project {
 
         publishOperation()
                 .repository(version.isSnapshot() ? repository("rife2-snapshot") : repository("rife2"))
-//                .repository(MAVEN_LOCAL)
                 .info()
                 .groupId("com.uwyn.rife2")
                 .artifactId("bld-property-file")
