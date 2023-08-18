@@ -25,7 +25,6 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
@@ -95,11 +94,11 @@ public final class PropertyFileUtils {
      * @param p       the {@link Properties property}
      * @param entry   the {@link Entry} containing the {@link Properties property} edits
      */
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
+    @SuppressWarnings({"PMD.SignatureDeclareThrowsException", "PMD.ExceptionAsFlowControl"})
     public static boolean processDate(String command, Properties p, EntryDate entry, boolean failOnWarning)
             throws Exception {
         var success = true;
-        var value = PropertyFileUtils.currentValue(null, entry.getDefaultValue(),
+        var value = currentValue(null, entry.getDefaultValue(),
                 entry.getNewValue());
 
         var pattern = entry.getPattern();
@@ -159,19 +158,19 @@ public final class PropertyFileUtils {
                 } else if (value instanceof ZonedDateTime) {
                     if (offset != 0) {
                         if (unit == EntryDate.Units.DAY) {
-                            value = ((ZonedDateTime) value).plus(offset, ChronoUnit.DAYS);
+                            value = ((ZonedDateTime) value).plusDays(offset);
                         } else if (unit == EntryDate.Units.MONTH) {
-                            value = ((ZonedDateTime) value).plus(offset, ChronoUnit.MONTHS);
+                            value = ((ZonedDateTime) value).plusMonths(offset);
                         } else if (unit == EntryDate.Units.WEEK) {
-                            value = ((ZonedDateTime) value).plus(offset, ChronoUnit.WEEKS);
+                            value = ((ZonedDateTime) value).plusWeeks(offset);
                         } else if (unit == EntryDate.Units.YEAR) {
-                            value = ((ZonedDateTime) value).plus(offset, ChronoUnit.YEARS);
+                            value = ((ZonedDateTime) value).plusYears(offset);
                         } else if (unit == EntryDate.Units.SECOND) {
                             value = ((ZonedDateTime) value).plusSeconds(offset);
                         } else if (unit == EntryDate.Units.MINUTE) {
-                            value = ((ZonedDateTime) value).plus(offset, ChronoUnit.MINUTES);
+                            value = ((ZonedDateTime) value).plusMinutes(offset);
                         } else if (unit == EntryDate.Units.HOUR) {
-                            value = ((ZonedDateTime) value).plus(offset, ChronoUnit.HOURS);
+                            value = ((ZonedDateTime) value).plusHours(offset);
                         }
                     }
                     parsedValue = dtf.format((ZonedDateTime) value);
@@ -204,7 +203,7 @@ public final class PropertyFileUtils {
         int intValue = 0;
         try {
             var fmt = new DecimalFormat(entry.getPattern());
-            var value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(),
+            var value = currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(),
                     entry.getNewValue());
 
             if (value != null) {
@@ -231,8 +230,7 @@ public final class PropertyFileUtils {
      * @param entry the {@link Entry} containing the {@link Properties property} edits
      */
     public static boolean processString(Properties p, Entry entry) {
-        var value = PropertyFileUtils.currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(),
-                entry.getNewValue());
+        var value = currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(), entry.getNewValue());
 
         p.setProperty(entry.getKey(), String.valueOf(value));
 

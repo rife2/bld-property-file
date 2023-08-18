@@ -26,6 +26,7 @@ import java.util.function.IntFunction;
  * @author <a href="https://github.com/gbevin">Geert Bevin</a>
  * @since 1.0
  */
+@SuppressWarnings("PMD.DataClass")
 public class EntryBase {
     private IntFunction<Integer> calc;
     private Object defaultValue;
@@ -54,26 +55,10 @@ public class EntryBase {
     }
 
     /**
-     * Sets the calculation function.
-     */
-    protected void setCalc(IntFunction<Integer> calc) {
-        this.calc = calc;
-    }
-
-    /**
      * Returns the default value.
      */
     protected Object getDefaultValue() {
         return defaultValue;
-    }
-
-    /**
-     * Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.
-     *
-     * @param defaultValue the default value
-     */
-    protected void setDefaultValue(Object defaultValue) {
-        this.defaultValue = defaultValue;
     }
 
     /**
@@ -84,26 +69,10 @@ public class EntryBase {
     }
 
     /**
-     * Sets the key of the {@link java.util.Properties property}.
-     *
-     * @param key the {@link java.util.Properties property} key
-     */
-    protected void setKey(String key) {
-        this.key = key;
-    }
-
-    /**
      * Returns the modify function.
      */
     protected BiFunction<String, String, String> getModify() {
         return modify;
-    }
-
-    /**
-     * Sets the modify function.
-     */
-    protected void setModify(BiFunction<String, String, String> modify) {
-        this.modify = modify;
     }
 
     /**
@@ -114,28 +83,10 @@ public class EntryBase {
     }
 
     /**
-     * Sets the modify value.
-     *
-     * @param value the modify value.
-     */
-    protected void setModifyValue(String value) {
-        this.modifyValue = value;
-    }
-
-    /**
      * Returns the new value to set the {@link java.util.Properties property)} to.
      */
     public Object getNewValue() {
         return newValue;
-    }
-
-    /**
-     * Sets a new value for {@link java.util.Properties property}.
-     *
-     * @param newValue the new value
-     */
-    public void setNewValue(Object newValue) {
-        this.newValue = newValue;
     }
 
     /**
@@ -146,16 +97,6 @@ public class EntryBase {
     }
 
     /**
-     * Sets the {@link java.text.DecimalFormat DecimalFormat} or {@link java.time.format.DateTimeFormatter DateTimeFormatter}
-     * pattern to be used with {@link EntryDate} or {@link EntryInt} respectively.
-     *
-     * @param pattern the pattern
-     */
-    protected void setPattern(String pattern) {
-        this.pattern = pattern;
-    }
-
-    /**
      * Returns the {@link EntryDate.Units unit}.
      */
     protected EntryDate.Units getUnit() {
@@ -163,26 +104,10 @@ public class EntryBase {
     }
 
     /**
-     * Sets the {@link EntryDate.Units unit} value to apply to calculations.
-     *
-     * @param unit the {@link EntryDate.Units unit}
-     */
-    protected void setUnit(EntryDate.Units unit) {
-        this.unit = unit;
-    }
-
-    /**
      * Returns {@code true} if the {@link java.util.Properties property} is to be deleted.
      */
     protected boolean isDelete() {
         return isDelete;
-    }
-
-    /**
-     * Sets whether the {@link java.util.Properties property} should be deleted.
-     */
-    protected void setDelete(boolean delete) {
-        isDelete = delete;
     }
 
     /**
@@ -197,6 +122,45 @@ public class EntryBase {
     }
 
     /**
+     * Sets the calculation function.
+     */
+    protected void setCalc(IntFunction<Integer> calc) {
+        this.calc = calc;
+    }
+
+    /**
+     * Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.
+     *
+     * @param defaultValue the default value
+     */
+    protected void setDefaultValue(Object defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    /**
+     * Sets whether the {@link java.util.Properties property} should be deleted.
+     */
+    protected void setDelete(boolean delete) {
+        isDelete = delete;
+    }
+
+    /**
+     * Sets the key of the {@link java.util.Properties property}.
+     *
+     * @param key the {@link java.util.Properties property} key
+     */
+    protected void setKey(String key) {
+        this.key = key;
+    }
+
+    /**
+     * Sets the modify function.
+     */
+    protected void setModify(BiFunction<String, String, String> modify) {
+        this.modify = modify;
+    }
+
+    /**
      * Sets the modify function.
      *
      * @param value the value to perform a modification with
@@ -204,5 +168,42 @@ public class EntryBase {
     protected void setModify(String value, BiFunction<String, String, String> modify) {
         this.modifyValue = value;
         this.modify = modify;
+    }
+
+    /**
+     * Sets the modify value.
+     *
+     * @param value the modify value.
+     */
+    protected void setModifyValue(String value) {
+        this.modifyValue = value;
+    }
+
+    /**
+     * Sets a new value for {@link java.util.Properties property}.
+     *
+     * @param newValue the new value
+     */
+    public void setNewValue(Object newValue) {
+        this.newValue = newValue;
+    }
+
+    /**
+     * Sets the {@link java.text.DecimalFormat DecimalFormat} or {@link java.time.format.DateTimeFormatter DateTimeFormatter}
+     * pattern to be used with {@link EntryDate} or {@link EntryInt} respectively.
+     *
+     * @param pattern the pattern
+     */
+    protected void setPattern(String pattern) {
+        this.pattern = pattern;
+    }
+
+    /**
+     * Sets the {@link EntryDate.Units unit} value to apply to calculations.
+     *
+     * @param unit the {@link EntryDate.Units unit}
+     */
+    protected void setUnit(EntryDate.Units unit) {
+        this.unit = unit;
     }
 }
