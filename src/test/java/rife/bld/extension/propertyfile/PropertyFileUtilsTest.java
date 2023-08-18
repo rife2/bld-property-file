@@ -26,10 +26,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static rife.bld.extension.propertyfile.Calc.ADD;
-import static rife.bld.extension.propertyfile.Calc.SUB;
+import static org.assertj.core.api.Assertions.assertThat; // NOPMD
+import static org.assertj.core.api.Assertions.assertThatCode; // NOPMD
+import static rife.bld.extension.propertyfile.Calc.ADD; // NOPMD
+import static rife.bld.extension.propertyfile.Calc.SUB; // NOPMD
 
 /**
  * PropertyFileUtilsTest class
@@ -42,14 +42,14 @@ class PropertyFileUtilsTest {
     final static Properties p = new Properties();
     final static String t = "test";
 
-    public EntryDate newEntryDate() {
-        p.clear();
-        return new EntryDate("adate").pattern("D");
-    }
-
     public Entry newEntry() {
         p.clear();
         return new Entry("version.major").set("1");
+    }
+
+    public EntryDate newEntryDate() {
+        p.clear();
+        return new EntryDate("adate").pattern("D");
     }
 
     public EntryInt newEntryInt() {

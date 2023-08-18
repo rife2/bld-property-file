@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
     <pattern value="rife.bld.extension.propertyFile.Entry" method="defaultValue" />
@@ -11,6 +12,10 @@
     <pattern value="rife.bld.extension.propertyfile.EntryDate" method="delete" />
     <pattern value="rife.bld.extension.propertyfile.EntryDate" />
     <pattern value="rife.bld.extension.propertyfile.EntryInt" method="delete" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileBuild" method="jacoco" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileBuild" method="pmd" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileOperation" method="fromProject" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileOperation" />
   </component>
   <component name="PDMPlugin">
     <option name="customRuleSets">
