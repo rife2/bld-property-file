@@ -14,6 +14,17 @@ import static rife.bld.dependencies.Repository.RIFE2_RELEASES;
 import static rife.bld.dependencies.Scope.test;
 import static rife.bld.extension.propertyfile.Calc.ADD;
 
+/**
+ * Example build.
+ *
+ * <ul style="list-style-type:none">
+ *     <li>./bld updateMajor run</li>
+ *     <li>./bld updateMinor run</li>
+ *     <li>./bld updatePath run</li>
+ *     <li>./bld updateRelease run</li>
+ *     <li>./bld deleteVersion run</li>
+ * </ul>
+ */
 public class PropertyFileExampleBuild extends Project {
     final EntryDate buildDateEntry = new EntryDate("build.date").now().pattern("yyyy-MM-dd");
 
@@ -29,8 +40,8 @@ public class PropertyFileExampleBuild extends Project {
         repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
 
         scope(test)
-                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 9, 3)))
-                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 9, 3)));
+                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 0)))
+                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 10, 0)));
     }
 
     public static void main(String[] args) {
