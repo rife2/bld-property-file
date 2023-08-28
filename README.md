@@ -1,4 +1,4 @@
-# [Bld](https://rife2.com/bld) Extension to Create or Modify Properties Files
+# [bld](https://rife2.com/bld) Extension to Create or Modify Properties Files
 
 [![License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Java](https://img.shields.io/badge/java-17%2B-blue)](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
