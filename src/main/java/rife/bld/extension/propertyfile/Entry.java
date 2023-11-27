@@ -26,6 +26,11 @@ import java.util.function.BiFunction;
  * @since 1.0
  */
 public class Entry extends EntryBase {
+    /**
+     * Instantiates a new Entry.
+     *
+     * @param key the key
+     */
     public Entry(String key) {
         super(key);
     }
@@ -34,6 +39,7 @@ public class Entry extends EntryBase {
      * <p>Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.</p>
      *
      * @param defaultValue the default value
+     * @return the entry
      */
     @SuppressWarnings("unused")
     public Entry defaultValue(Object defaultValue) {
@@ -43,6 +49,8 @@ public class Entry extends EntryBase {
 
     /**
      * Sets the {@link Entry entry} up for deletion.
+     *
+     * @return the entry
      */
     public Entry delete() {
         setDelete(true);
@@ -53,6 +61,7 @@ public class Entry extends EntryBase {
      * Creates a new {@link Entry entry}.
      *
      * @param modify the modification function
+     * @return the entry
      */
     public Entry modify(BiFunction<String, String, String> modify) {
         setModify(modify);
@@ -64,6 +73,7 @@ public class Entry extends EntryBase {
      *
      * @param value  the value to perform a modification with
      * @param modify the modification function
+     * @return the entry
      */
     public Entry modify(String value, BiFunction<String, String, String> modify) {
         setModifyValue(value);
@@ -75,6 +85,7 @@ public class Entry extends EntryBase {
      * Sets the new {@link java.util.Properties property} value.
      *
      * @param s The new value
+     * @return the entry
      */
     public Entry set(Object s) {
         setNewValue(s);

@@ -38,6 +38,7 @@ public class EntryInt extends EntryBase {
      * Creates a new {@link EntryInt entry}.
      *
      * @param calc the calculation function.
+     * @return this instance
      */
     public EntryInt calc(IntFunction<Integer> calc) {
         setCalc(calc);
@@ -48,6 +49,7 @@ public class EntryInt extends EntryBase {
      * Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.
      *
      * @param defaultValue the default value
+     * @return this instance
      */
     @SuppressWarnings("unused")
     public EntryInt defaultValue(Object defaultValue) {
@@ -57,6 +59,8 @@ public class EntryInt extends EntryBase {
 
     /**
      * Sets the {@link EntryInt entry} up for deletion.
+     *
+     * @return this instance
      */
     public EntryInt delete() {
         setDelete(true);
@@ -67,6 +71,7 @@ public class EntryInt extends EntryBase {
      * Sets the new {@link java.util.Properties property} value to an integer.
      *
      * @param i The integer to set the value to
+     * @return this instance
      */
     public EntryInt set(int i) {
         setNewValue(i);

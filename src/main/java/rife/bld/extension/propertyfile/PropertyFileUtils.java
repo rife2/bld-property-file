@@ -48,8 +48,9 @@ public final class PropertyFileUtils {
      * Returns the new value, value or default value depending on which is specified.
      *
      * @param value        the value
-     * @param newValue     the new value
      * @param defaultValue the default value
+     * @param newValue     the new value
+     * @return the object
      */
     public static Object currentValue(String value, Object defaultValue, Object newValue) {
         if (newValue != null) {
@@ -67,6 +68,8 @@ public final class PropertyFileUtils {
      * @param command the issuing command
      * @param file    the file location
      * @param p       the {@link Properties properties} to load into.
+     * @return the boolean
+     * @throws Exception the exception
      */
     @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     public static boolean loadProperties(String command, File file, Properties p) throws Exception {
@@ -90,9 +93,12 @@ public final class PropertyFileUtils {
     /**
      * Processes a date {@link Properties property}.
      *
-     * @param command the issuing command
-     * @param p       the {@link Properties property}
-     * @param entry   the {@link Entry} containing the {@link Properties property} edits
+     * @param command       the issuing command
+     * @param p             the {@link Properties property}
+     * @param entry         the {@link Entry} containing the {@link Properties property} edits
+     * @param failOnWarning the fail on warning
+     * @return the boolean
+     * @throws Exception the exception
      */
     @SuppressWarnings({"PMD.SignatureDeclareThrowsException", "PMD.ExceptionAsFlowControl"})
     public static boolean processDate(String command, Properties p, EntryDate entry, boolean failOnWarning)
@@ -192,9 +198,12 @@ public final class PropertyFileUtils {
     /**
      * Processes an integer {@link Properties property}.
      *
-     * @param command the issuing command
-     * @param p       the {@link Properties property}
-     * @param entry   the {@link Entry} containing the {@link Properties property} edits
+     * @param command       the issuing command
+     * @param p             the {@link Properties property}
+     * @param entry         the {@link Entry} containing the {@link Properties property} edits
+     * @param failOnWarning the fail on warning
+     * @return the boolean
+     * @throws Exception the exception
      */
     @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     public static boolean processInt(String command, Properties p, EntryInt entry, boolean failOnWarning)
@@ -228,6 +237,7 @@ public final class PropertyFileUtils {
      *
      * @param p     the {@link Properties property}
      * @param entry the {@link Entry} containing the {@link Properties property} edits
+     * @return the boolean
      */
     public static boolean processString(Properties p, Entry entry) {
         var value = currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(), entry.getNewValue());
@@ -247,6 +257,7 @@ public final class PropertyFileUtils {
      * @param file    the file location
      * @param comment the header comment
      * @param p       the {@link Properties} to save into the file
+     * @throws IOException the io exception
      */
     public static void saveProperties(File file, String comment, Properties p) throws IOException {
         try (var output = Files.newOutputStream(file.toPath())) {
@@ -275,6 +286,7 @@ public final class PropertyFileUtils {
      * @param message       the message log
      * @param e             the related exception
      * @param failOnWarning logs and throws exception if set to {@code true}
+     * @throws Exception the exception
      */
     @SuppressWarnings({"PMD.SignatureDeclareThrowsException"})
     static void warn(String command, String message, Exception e, boolean failOnWarning) throws Exception {

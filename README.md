@@ -24,6 +24,7 @@ public void updateMajor() throws Exception {
             .execute();
 }
 ```
+
 Invoking the `updateMajor` command, will create the `version.propertees`file:
 
 ```sh

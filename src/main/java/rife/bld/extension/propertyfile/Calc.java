@@ -26,7 +26,13 @@ import java.util.function.IntFunction;
  * @since 1.0
  */
 public final class Calc {
+    /**
+     * The add function.
+     */
     public static final IntFunction<Integer> ADD = Calc::add;
+    /**
+     * The sub function.
+     */
     public static final IntFunction<Integer> SUB = Calc::sub;
 
 
@@ -38,6 +44,7 @@ public final class Calc {
      * Adds {@code 1} to the value.
      *
      * @param v the value
+     * @return the new value
      */
     public static Integer add(int v) {
         return v + 1;
@@ -47,6 +54,7 @@ public final class Calc {
      * Subtracts {@code 1} to the value.
      *
      * @param v the value
+     * @return the new value
      */
     public static Integer sub(int v) {
         return v - 1;

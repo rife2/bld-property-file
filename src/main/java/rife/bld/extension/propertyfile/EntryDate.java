@@ -41,6 +41,7 @@ public class EntryDate extends EntryBase {
      * Creates a new {@link EntryDate entry}.
      *
      * @param calc the calculation function
+     * @return this instance
      */
     public EntryDate calc(IntFunction<Integer> calc) {
         setCalc(calc);
@@ -49,6 +50,8 @@ public class EntryDate extends EntryBase {
 
     /**
      * Sets the {@link EntryDate entry} up for deletion.
+     *
+     * @return this instance
      */
     public EntryDate delete() {
         setDelete(true);
@@ -57,6 +60,8 @@ public class EntryDate extends EntryBase {
 
     /**
      * Sets the new {@link java.util.Properties property} value to now.
+     *
+     * @return this instance
      */
     public EntryDate now() {
         setNewValue("now");
@@ -68,6 +73,7 @@ public class EntryDate extends EntryBase {
      * {@link java.time.format.DateTimeFormatter DateTimeFormatter} respectively.
      *
      * @param pattern the pattern
+     * @return this instance
      */
     public EntryDate pattern(String pattern) {
         setPattern(pattern);
@@ -78,6 +84,7 @@ public class EntryDate extends EntryBase {
      * Sets the new {@link java.util.Properties property} value to an {@link Instant}
      *
      * @param instant the {@link Instant} to set the value to
+     * @return this instance
      */
     public EntryDate set(Instant instant) {
         setNewValue(instant);
@@ -88,6 +95,7 @@ public class EntryDate extends EntryBase {
      * Sets the new {@link java.util.Properties property} value to a {@link LocalDate}
      *
      * @param date the {@link LocalDate} to set the value to
+     * @return this instance
      */
     public EntryDate set(LocalDate date) {
         setNewValue(date);
@@ -98,6 +106,7 @@ public class EntryDate extends EntryBase {
      * Sets the new {@link java.util.Properties property} value to a {@link LocalDateTime}
      *
      * @param date the {@link LocalDateTime} to set the value to
+     * @return this instance
      */
     public EntryDate set(LocalDateTime date) {
         setNewValue(date);
@@ -108,6 +117,7 @@ public class EntryDate extends EntryBase {
      * Sets the new {@link java.util.Properties property} value to a {@link ZonedDateTime}
      *
      * @param date the {@link ZonedDateTime} to set the value to
+     * @return this instance
      */
     public EntryDate set(ZonedDateTime date) {
         setNewValue(date);
@@ -118,6 +128,7 @@ public class EntryDate extends EntryBase {
      * Sets the new {@link java.util.Properties property} value to a {@link LocalTime}
      *
      * @param time the {@link LocalTime} to set the value to
+     * @return this instance
      */
     public EntryDate set(LocalTime time) {
         setNewValue(time);
@@ -128,6 +139,7 @@ public class EntryDate extends EntryBase {
      * Sets the new {@link java.util.Properties property} value to a {@link Calendar}
      *
      * @param cal the {@link Calendar} to set the value to
+     * @return this instance
      */
     public EntryDate set(Calendar cal) {
         setNewValue(cal);
@@ -138,6 +150,7 @@ public class EntryDate extends EntryBase {
      * Sets the new {@link java.util.Properties property} value to a {@link Date}
      *
      * @param date the {@link Date} to set the value to
+     * @return this instance
      */
     public EntryDate set(Date date) {
         setNewValue(date);
@@ -148,6 +161,7 @@ public class EntryDate extends EntryBase {
      * Sets the {@link Units unit} value to apply to calculations for {@link EntryDate}.
      *
      * @param unit the {@link Units unit}
+     * @return this instance
      */
     public EntryDate unit(Units unit) {
         setUnit(unit);
@@ -168,6 +182,33 @@ public class EntryDate extends EntryBase {
      * </uL>
      */
     public enum Units {
-        SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, YEAR
+        /**
+         * Second units.
+         */
+        SECOND,
+        /**
+         * Minute units.
+         */
+        MINUTE,
+        /**
+         * Hour units.
+         */
+        HOUR,
+        /**
+         * Day units.
+         */
+        DAY,
+        /**
+         * Week units.
+         */
+        WEEK,
+        /**
+         * Month units.
+         */
+        MONTH,
+        /**
+         * Year units.
+         */
+        YEAR
     }
 }

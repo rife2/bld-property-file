@@ -41,6 +41,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * Sets the comment to be inserted at the top of the {@link java.util.Properties} file.
      *
      * @param comment the header comment
+     * @return this instance
      */
     @SuppressWarnings("unused")
     public PropertyFileOperation comment(String comment) {
@@ -53,6 +54,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * file.
      *
      * @param entry the {@link Entry entry}
+     * @return this instance
      */
     @SuppressWarnings("unused")
     public PropertyFileOperation entry(EntryBase entry) {
@@ -112,6 +114,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * Sets the {@link #execute() execution} to return a failure on any warnings.
      *
      * @param failOnWarning if set to {@code true}, the execution will fail on any warnings.
+     * @return this instance
      */
     @SuppressWarnings("unused")
     public PropertyFileOperation failOnWarning(boolean failOnWarning) {
@@ -123,6 +126,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * Sets the location of the {@link java.util.Properties} file to be edited.
      *
      * @param file the file to be edited
+     * @return this instance
      */
     @SuppressWarnings("unused")
     public PropertyFileOperation file(File file) {
@@ -134,6 +138,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * Sets the location of the {@link java.util.Properties} file to be edited.
      *
      * @param file the file to be edited
+     * @return this instance
      */
     @SuppressWarnings("unused")
     public PropertyFileOperation file(String file) {
@@ -143,6 +148,9 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
 
     /**
      * Creates a new operation.
+     *
+     * @param project the project
+     * @return this instance
      */
     public PropertyFileOperation fromProject(BaseProject project) {
         this.project = project;

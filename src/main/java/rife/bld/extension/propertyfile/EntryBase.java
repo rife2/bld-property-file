@@ -49,6 +49,8 @@ public class EntryBase {
 
     /**
      * Returns the calculation function.
+     *
+     * @return the calc function
      */
     protected IntFunction<Integer> getCalc() {
         return calc;
@@ -56,6 +58,8 @@ public class EntryBase {
 
     /**
      * Returns the default value.
+     *
+     * @return the default value
      */
     protected Object getDefaultValue() {
         return defaultValue;
@@ -63,6 +67,8 @@ public class EntryBase {
 
     /**
      * Returns the key of the {@link java.util.Properties property}.
+     *
+     * @return the key
      */
     protected String getKey() {
         return key;
@@ -70,6 +76,8 @@ public class EntryBase {
 
     /**
      * Returns the modify function.
+     *
+     * @return the modify function
      */
     protected BiFunction<String, String, String> getModify() {
         return modify;
@@ -77,6 +85,8 @@ public class EntryBase {
 
     /**
      * Returns the value to be used in the {@link #modify} function.
+     *
+     * @return the modify value
      */
     protected String getModifyValue() {
         return modifyValue;
@@ -84,6 +94,8 @@ public class EntryBase {
 
     /**
      * Returns the new value to set the {@link java.util.Properties property)} to.
+     *
+     * @return the new value
      */
     public Object getNewValue() {
         return newValue;
@@ -91,6 +103,8 @@ public class EntryBase {
 
     /**
      * Returns the pattern.
+     *
+     * @return the pattern
      */
     protected String getPattern() {
         return pattern;
@@ -98,6 +112,8 @@ public class EntryBase {
 
     /**
      * Returns the {@link EntryDate.Units unit}.
+     *
+     * @return the unit
      */
     protected EntryDate.Units getUnit() {
         return unit;
@@ -105,6 +121,8 @@ public class EntryBase {
 
     /**
      * Returns {@code true} if the {@link java.util.Properties property} is to be deleted.
+     *
+     * @return {@code true} or {@code false}
      */
     protected boolean isDelete() {
         return isDelete;
@@ -114,6 +132,7 @@ public class EntryBase {
      * Sets the key of the {@link java.util.Properties property}.
      *
      * @param key the {@link java.util.Properties property} key
+     * @return this instance
      */
     @SuppressWarnings("unused")
     public EntryBase key(String key) {
@@ -123,6 +142,8 @@ public class EntryBase {
 
     /**
      * Sets the calculation function.
+     *
+     * @param calc the calc function
      */
     protected void setCalc(IntFunction<Integer> calc) {
         this.calc = calc;
@@ -139,6 +160,8 @@ public class EntryBase {
 
     /**
      * Sets whether the {@link java.util.Properties property} should be deleted.
+     *
+     * @param delete {@code true} or {@code false}
      */
     protected void setDelete(boolean delete) {
         isDelete = delete;
@@ -155,6 +178,8 @@ public class EntryBase {
 
     /**
      * Sets the modify function.
+     *
+     * @param modify the modify function
      */
     protected void setModify(BiFunction<String, String, String> modify) {
         this.modify = modify;
@@ -163,7 +188,8 @@ public class EntryBase {
     /**
      * Sets the modify function.
      *
-     * @param value the value to perform a modification with
+     * @param value  the value to perform a modification with
+     * @param modify the modify function
      */
     protected void setModify(String value, BiFunction<String, String, String> modify) {
         this.modifyValue = value;
