@@ -37,7 +37,7 @@ public class PropertyFileBuild extends Project {
     public PropertyFileBuild() {
         pkg = "rife.bld.extension";
         name = "bld-property-file";
-        version = version(0, 9, 4, "SNAPSHOT");
+        version = version(0, 9, 4);
 
         javaRelease = 17;
         downloadSources = true;
