@@ -37,7 +37,7 @@ public class PropertyFileBuild extends Project {
     public PropertyFileBuild() {
         pkg = "rife.bld.extension";
         name = "bld-property-file";
-        version = version(0, 9, 4);
+        version = version(0, 9, 5, "SNAPSHOT");
 
         javaRelease = 17;
         downloadSources = true;
@@ -48,8 +48,8 @@ public class PropertyFileBuild extends Project {
                 .include(dependency("com.uwyn.rife2", "bld", version(1, 8, 0)));
         scope(test)
                 .include(dependency("org.jsoup", "jsoup", version(1, 17, 2)))
-                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 1)))
-                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 10, 1)))
+                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 2)))
+                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 10, 2)))
                 .include(dependency("org.assertj:assertj-joda-time:2.2.0"));
 
         javadocOperation()
