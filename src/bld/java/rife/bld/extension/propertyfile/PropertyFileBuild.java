@@ -37,7 +37,7 @@ public class PropertyFileBuild extends Project {
     public PropertyFileBuild() {
         pkg = "rife.bld.extension";
         name = "bld-property-file";
-        version = version(0, 9, 5, "SNAPSHOT");
+        version = version(0, 9, 5);
 
         javaRelease = 17;
         downloadSources = true;
@@ -45,7 +45,7 @@ public class PropertyFileBuild extends Project {
         repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
 
         scope(compile)
-                .include(dependency("com.uwyn.rife2", "bld", version(1, 8, 0)));
+                .include(dependency("com.uwyn.rife2", "bld", version(1, 9, 0)));
         scope(test)
                 .include(dependency("org.jsoup", "jsoup", version(1, 17, 2)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 2)))
