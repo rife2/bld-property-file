@@ -3,19 +3,6 @@
     "configurations": [
         {
             "type": "java",
-            "name": "PropertyFileExampleBuild",
-            "request": "launch",
-            "mainClass": "com.example.PropertyFileExampleBuild",
-            "projectName": "examples_dbdc9d4b"
-        },
-        {
-            "type": "java",
-            "name": "Run Main",
-            "request": "launch",
-            "mainClass": "com.example.PropertyFileExampleMain"
-        },
-        {
-            "type": "java",
             "name": "Run Tests",
             "request": "launch",
             "mainClass": "org.junit.platform.console.ConsoleLauncher",
