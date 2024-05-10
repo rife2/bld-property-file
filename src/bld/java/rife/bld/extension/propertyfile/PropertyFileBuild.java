@@ -45,7 +45,7 @@ public class PropertyFileBuild extends Project {
         repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
 
         scope(compile)
-                .include(dependency("com.uwyn.rife2", "bld", version(1, 9, 0)));
+                .include(dependency("com.uwyn.rife2", "bld", version(1, 9, 1)));
         scope(test)
                 .include(dependency("org.jsoup", "jsoup", version(1, 17, 2)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 2)))
@@ -82,7 +82,7 @@ public class PropertyFileBuild extends Project {
                 .license(
                         new PublishLicense()
                                 .name("The Apache License, Version 2.0")
-                                .url("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                                .url("https://www.apache.org/licenses/LICENSE-2.0.txt")
                 )
                 .scm(
                         new PublishScm().connection("scm:git:https://github.com/rife2/bld-property-file.git")
