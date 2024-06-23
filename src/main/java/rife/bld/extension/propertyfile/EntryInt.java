@@ -63,7 +63,7 @@ public class EntryInt extends EntryBase {
      * @return this instance
      */
     public EntryInt delete() {
-        setDelete(true);
+        setDelete();
         return this;
     }
 

@@ -54,7 +54,7 @@ public class EntryDate extends EntryBase {
      * @return this instance
      */
     public EntryDate delete() {
-        setDelete(true);
+        setDelete();
         return this;
     }
 

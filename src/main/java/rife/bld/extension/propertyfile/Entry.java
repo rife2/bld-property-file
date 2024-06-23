@@ -53,7 +53,7 @@ public class Entry extends EntryBase {
      * @return the entry
      */
     public Entry delete() {
-        setDelete(true);
+        setDelete();
         return this;
     }
 

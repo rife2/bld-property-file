@@ -28,15 +28,15 @@ import java.util.function.IntFunction;
  */
 @SuppressWarnings("PMD.DataClass")
 public class EntryBase {
-    private IntFunction<Integer> calc;
-    private Object defaultValue;
-    private boolean isDelete;
-    private String key;
-    private BiFunction<String, String, String> modify;
-    private String modifyValue = "";
-    private Object newValue;
-    private String pattern = "";
-    private EntryDate.Units unit = EntryDate.Units.DAY;
+    private IntFunction<Integer> calc_;
+    private Object defaultValue_;
+    private boolean isDelete_;
+    private String key_;
+    private String modifyValue_ = "";
+    private BiFunction<String, String, String> modify_;
+    private Object newValue_;
+    private String pattern_ = "";
+    private EntryDate.Units unit_ = EntryDate.Units.DAY;
 
     /**
      * Creates a new {@link EntryBase entry}.
@@ -44,7 +44,7 @@ public class EntryBase {
      * @param key the required property key
      */
     public EntryBase(String key) {
-        this.key = key;
+        key_ = key;
     }
 
     /**
@@ -53,7 +53,7 @@ public class EntryBase {
      * @return the calc function
      */
     protected IntFunction<Integer> getCalc() {
-        return calc;
+        return calc_;
     }
 
     /**
@@ -62,7 +62,7 @@ public class EntryBase {
      * @return the default value
      */
     protected Object getDefaultValue() {
-        return defaultValue;
+        return defaultValue_;
     }
 
     /**
@@ -71,7 +71,7 @@ public class EntryBase {
      * @return the key
      */
     protected String getKey() {
-        return key;
+        return key_;
     }
 
     /**
@@ -80,16 +80,16 @@ public class EntryBase {
      * @return the modify function
      */
     protected BiFunction<String, String, String> getModify() {
-        return modify;
+        return modify_;
     }
 
     /**
-     * Returns the value to be used in the {@link #modify} function.
+     * Returns the value to be used in the {@link #modify_} function.
      *
      * @return the modify value
      */
     protected String getModifyValue() {
-        return modifyValue;
+        return modifyValue_;
     }
 
     /**
@@ -98,7 +98,7 @@ public class EntryBase {
      * @return the new value
      */
     public Object getNewValue() {
-        return newValue;
+        return newValue_;
     }
 
     /**
@@ -107,7 +107,7 @@ public class EntryBase {
      * @return the pattern
      */
     protected String getPattern() {
-        return pattern;
+        return pattern_;
     }
 
     /**
@@ -116,7 +116,7 @@ public class EntryBase {
      * @return the unit
      */
     protected EntryDate.Units getUnit() {
-        return unit;
+        return unit_;
     }
 
     /**
@@ -125,7 +125,7 @@ public class EntryBase {
      * @return {@code true} or {@code false}
      */
     protected boolean isDelete() {
-        return isDelete;
+        return isDelete_;
     }
 
     /**
@@ -136,7 +136,7 @@ public class EntryBase {
      */
     @SuppressWarnings("unused")
     public EntryBase key(String key) {
-        setKey(key);
+        key_ = key;
         return this;
     }
 
@@ -146,7 +146,7 @@ public class EntryBase {
      * @param calc the calc function
      */
     protected void setCalc(IntFunction<Integer> calc) {
-        this.calc = calc;
+        calc_ = calc;
     }
 
     /**
@@ -155,16 +155,14 @@ public class EntryBase {
      * @param defaultValue the default value
      */
     protected void setDefaultValue(Object defaultValue) {
-        this.defaultValue = defaultValue;
+        defaultValue_ = defaultValue;
     }
 
     /**
-     * Sets whether the {@link java.util.Properties property} should be deleted.
-     *
-     * @param delete {@code true} or {@code false}
+     * Sets the {@link java.util.Properties property} to be deleted.
      */
-    protected void setDelete(boolean delete) {
-        isDelete = delete;
+    protected void setDelete() {
+        isDelete_ = true;
     }
 
     /**
@@ -173,7 +171,7 @@ public class EntryBase {
      * @param key the {@link java.util.Properties property} key
      */
     protected void setKey(String key) {
-        this.key = key;
+        key_ = key;
     }
 
     /**
@@ -182,7 +180,7 @@ public class EntryBase {
      * @param modify the modify function
      */
     protected void setModify(BiFunction<String, String, String> modify) {
-        this.modify = modify;
+        modify_ = modify;
     }
 
     /**
@@ -192,8 +190,8 @@ public class EntryBase {
      * @param modify the modify function
      */
     protected void setModify(String value, BiFunction<String, String, String> modify) {
-        this.modifyValue = value;
-        this.modify = modify;
+        modifyValue_ = value;
+        modify_ = modify;
     }
 
     /**
@@ -202,7 +200,7 @@ public class EntryBase {
      * @param value the modify value.
      */
     protected void setModifyValue(String value) {
-        this.modifyValue = value;
+        modifyValue_ = value;
     }
 
     /**
@@ -211,7 +209,7 @@ public class EntryBase {
      * @param newValue the new value
      */
     public void setNewValue(Object newValue) {
-        this.newValue = newValue;
+        newValue_ = newValue;
     }
 
     /**
@@ -221,7 +219,7 @@ public class EntryBase {
      * @param pattern the pattern
      */
     protected void setPattern(String pattern) {
-        this.pattern = pattern;
+        pattern_ = pattern;
     }
 
     /**
@@ -230,6 +228,6 @@ public class EntryBase {
      * @param unit the {@link EntryDate.Units unit}
      */
     protected void setUnit(EntryDate.Units unit) {
-        this.unit = unit;
+        unit_ = unit;
     }
 }
