@@ -58,7 +58,6 @@ class PropertyFileUtilsTest {
     }
 
     @Test
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     void parseDateSub() throws Exception {
         var entryDate = newEntryDate();
         entryDate.setCalc(SUB);
@@ -84,7 +83,6 @@ class PropertyFileUtilsTest {
     }
 
     @Test
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     void parseIntSubTest() throws Exception {
         var entryInt = newEntryInt();
         entryInt.calc(SUB);
@@ -148,7 +146,6 @@ class PropertyFileUtilsTest {
     }
 
     @Test
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     void parseTimeTest() throws Exception {
         var entry = new EntryDate("time").pattern("m");
         var time = LocalTime.now();
@@ -165,7 +162,6 @@ class PropertyFileUtilsTest {
     }
 
     @Test
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     void processDateAddTest() throws Exception {
         var entryDate = newEntryDate();
         entryDate.setCalc(ADD);
@@ -189,7 +185,6 @@ class PropertyFileUtilsTest {
     }
 
     @Test
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     void processIntAddTest() throws Exception {
         var entryInt = newEntryInt();
         entryInt.calc(ADD);
@@ -233,7 +228,6 @@ class PropertyFileUtilsTest {
     }
 
     @Test
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     void savePropertiesTest() throws Exception {
         var p = new Properties();
         var test = "test";

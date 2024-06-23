@@ -104,12 +104,10 @@ public final class PropertyFileUtils {
     public static boolean processDate(String command, Properties p, EntryDate entry, boolean failOnWarning)
             throws Exception {
         var success = true;
-        var value = currentValue(null, entry.getDefaultValue(),
-                entry.getNewValue());
-
+        var value = currentValue(null, entry.getDefaultValue(), entry.getNewValue());
         var pattern = entry.getPattern();
 
-        String parsedValue = String.valueOf(value);
+        var parsedValue = String.valueOf(value);
         if (pattern != null && !pattern.isBlank()) {
             var offset = 0;
 
@@ -239,6 +237,7 @@ public final class PropertyFileUtils {
      * @param entry the {@link Entry} containing the {@link Properties property} edits
      * @return the boolean
      */
+    @SuppressWarnings("SameReturnValue")
     public static boolean processString(Properties p, Entry entry) {
         var value = currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(), entry.getNewValue());
 
@@ -290,6 +289,7 @@ public final class PropertyFileUtils {
      */
     @SuppressWarnings({"PMD.SignatureDeclareThrowsException"})
     static void warn(String command, String message, Exception e, boolean failOnWarning) throws Exception {
+        LOGGER.warning("ahah");
         if (failOnWarning) {
             LOGGER.log(Level.SEVERE, '[' + command + "] " + message, e);
             throw e;

@@ -31,11 +31,11 @@ import java.util.Properties;
  * @since 1.0
  */
 public class PropertyFileOperation extends AbstractOperation<PropertyFileOperation> {
-    private final List<EntryBase> entries = new ArrayList<>();
-    private String comment = "";
-    private boolean failOnWarning;
-    private File file;
-    private BaseProject project;
+    private final List<EntryBase> entries_ = new ArrayList<>();
+    private String comment_ = "";
+    private boolean failOnWarning_;
+    private File file_;
+    private BaseProject project_;
 
     /**
      * Sets the comment to be inserted at the top of the {@link java.util.Properties} file.
@@ -43,9 +43,8 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @param comment the header comment
      * @return this instance
      */
-    @SuppressWarnings("unused")
     public PropertyFileOperation comment(String comment) {
-        this.comment = comment;
+        comment_ = comment;
         return this;
     }
 
@@ -58,7 +57,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      */
     @SuppressWarnings("unused")
     public PropertyFileOperation entry(EntryBase entry) {
-        entries.add(entry);
+        entries_.add(entry);
         return this;
     }
 
@@ -67,18 +66,18 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      */
     @Override
     public void execute() throws Exception {
-        var commandName = project.getCurrentCommandName();
+        var commandName = project_.getCurrentCommandName();
         var properties = new Properties();
         var success = false;
 
-        if (file == null) {
+        if (file_ == null) {
             PropertyFileUtils.warn(commandName, "A properties file must be specified.");
         } else {
-            success = PropertyFileUtils.loadProperties(commandName, file, properties);
+            success = PropertyFileUtils.loadProperties(commandName, file_, properties);
         }
 
         if (success) {
-            for (var entry : entries) {
+            for (var entry : entries_) {
                 if (entry.getKey().isBlank()) {
                     PropertyFileUtils.warn(commandName, "An entry key must specified.");
                 } else {
@@ -94,9 +93,9 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
                         PropertyFileUtils.warn(commandName, "An entry must be set or have a default value: " + key);
                     } else {
                         if (entry instanceof EntryDate) {
-                            success = PropertyFileUtils.processDate(commandName, properties, (EntryDate) entry, failOnWarning);
+                            success = PropertyFileUtils.processDate(commandName, properties, (EntryDate) entry, failOnWarning_);
                         } else if (entry instanceof EntryInt) {
-                            success = PropertyFileUtils.processInt(commandName, properties, (EntryInt) entry, failOnWarning);
+                            success = PropertyFileUtils.processInt(commandName, properties, (EntryInt) entry, failOnWarning_);
                         } else {
                             success = PropertyFileUtils.processString(properties, (Entry) entry);
                         }
@@ -106,7 +105,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
         }
 
         if (success) {
-            PropertyFileUtils.saveProperties(file, comment, properties);
+            PropertyFileUtils.saveProperties(file_, comment_, properties);
         }
     }
 
@@ -116,9 +115,8 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @param failOnWarning if set to {@code true}, the execution will fail on any warnings.
      * @return this instance
      */
-    @SuppressWarnings("unused")
     public PropertyFileOperation failOnWarning(boolean failOnWarning) {
-        this.failOnWarning = failOnWarning;
+        failOnWarning_ = failOnWarning;
         return this;
     }
 
@@ -128,9 +126,8 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @param file the file to be edited
      * @return this instance
      */
-    @SuppressWarnings("unused")
     public PropertyFileOperation file(File file) {
-        this.file = file;
+        file_ = file;
         return this;
     }
 
@@ -140,9 +137,8 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @param file the file to be edited
      * @return this instance
      */
-    @SuppressWarnings("unused")
     public PropertyFileOperation file(String file) {
-        this.file = new File(file);
+        file_ = new File(file);
         return this;
     }
 
@@ -153,7 +149,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @return this instance
      */
     public PropertyFileOperation fromProject(BaseProject project) {
-        this.project = project;
+        project_ = project;
         return this;
     }
 }
