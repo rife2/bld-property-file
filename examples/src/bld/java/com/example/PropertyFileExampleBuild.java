@@ -50,7 +50,7 @@ public class PropertyFileExampleBuild extends Project {
         new PropertyFileExampleBuild().start(args);
     }
 
-    @BuildCommand(summary = "Updates major version")
+    @BuildCommand(value = "update-major", summary = "Updates major version")
     public void updateMajor() throws Exception {
         new PropertyFileOperation()
                 .fromProject(this)
@@ -66,7 +66,7 @@ public class PropertyFileExampleBuild extends Project {
                 .execute();
     }
 
-    @BuildCommand(summary = "Updates minor version")
+    @BuildCommand(value = "update-minor", summary = "Updates minor version")
     public void updateMinor() throws Exception {
         new PropertyFileOperation()
                 .fromProject(this)
@@ -82,7 +82,7 @@ public class PropertyFileExampleBuild extends Project {
                 .execute();
     }
 
-    @BuildCommand(summary = "Updates patch version")
+    @BuildCommand(value = "update-patch", summary = "Updates patch version")
     public void updatePatch() throws Exception {
         new PropertyFileOperation()
                 .fromProject(this)
@@ -98,7 +98,7 @@ public class PropertyFileExampleBuild extends Project {
                 .execute();
     }
 
-    @BuildCommand(summary = "Updates the release")
+    @BuildCommand(value = "update-release", summary = "Updates the release")
     public void updateRelease() throws Exception {
         new PropertyFileOperation()
                 .fromProject(this)
@@ -110,7 +110,7 @@ public class PropertyFileExampleBuild extends Project {
                 .execute();
     }
 
-    @BuildCommand(summary = "Delete version properties")
+    @BuildCommand(value = "delete-version", summary = "Delete version properties")
     public void deleteVersion() throws Exception {
         new PropertyFileOperation()
                 .fromProject(this)
