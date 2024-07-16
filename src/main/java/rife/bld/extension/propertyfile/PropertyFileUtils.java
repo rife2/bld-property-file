@@ -16,7 +16,8 @@
 
 package rife.bld.extension.propertyfile;
 
-import javax.imageio.IIOException;
+import rife.bld.operations.exceptions.ExitStatusException;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -69,22 +70,22 @@ public final class PropertyFileUtils {
      * @param file    the file location
      * @param p       the {@link Properties properties} to load into.
      * @return the boolean
-     * @throws Exception the exception
+     * @throws ExitStatusException if an error occurred
      */
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
-    public static boolean loadProperties(String command, File file, Properties p) throws Exception {
+    public static boolean loadProperties(String command, File file, Properties p, boolean silent)
+            throws ExitStatusException {
         boolean success = true;
         if (file != null) {
             if (file.exists()) {
                 try (var propStream = Files.newInputStream(file.toPath(), StandardOpenOption.READ)) {
                     p.load(propStream);
                 } catch (IOException ioe) {
-                    warn(command, "Could not load properties file: " + ioe.getMessage(), ioe, true);
+                    warn(command, "Could not load properties file: " + ioe.getMessage(), true, silent);
                     success = false;
                 }
             }
         } else {
-            warn(command, "Please specify the properties file location.");
+            warn(command, "Please specify the properties file location.", true, silent);
             success = false;
         }
         return success;
@@ -261,20 +262,8 @@ public final class PropertyFileUtils {
     public static void saveProperties(File file, String comment, Properties p) throws IOException {
         try (var output = Files.newOutputStream(file.toPath())) {
             p.store(output, comment);
-        } catch (IIOException ioe) {
-            throw new IIOException("An IO error occurred while saving the Properties file: " + file, ioe);
-        }
-    }
-
-    /**
-     * Logs a warning.
-     *
-     * @param command the issuing command
-     * @param message the message to log
-     */
-    static void warn(String command, String message) {
-        if (LOGGER.isLoggable(Level.WARNING)) {
-            LOGGER.warning('[' + command + "] " + message);
+        } catch (IOException ioe) {
+            throw new IOException("An IO error occurred while saving the Properties file: " + file, ioe);
         }
     }
 
@@ -283,18 +272,20 @@ public final class PropertyFileUtils {
      *
      * @param command       The command name
      * @param message       the message log
-     * @param e             the related exception
      * @param failOnWarning logs and throws exception if set to {@code true}
-     * @throws Exception the exception
+     * @throws ExitStatusException if a {@link Level#SEVERE} exception occurs
      */
-    @SuppressWarnings({"PMD.SignatureDeclareThrowsException"})
-    static void warn(String command, String message, Exception e, boolean failOnWarning) throws Exception {
-        LOGGER.warning("ahah");
+    static void warn(String command, String message, boolean failOnWarning, boolean silent)
+            throws ExitStatusException {
         if (failOnWarning) {
-            LOGGER.log(Level.SEVERE, '[' + command + "] " + message, e);
-            throw e;
+            if (LOGGER.isLoggable(Level.SEVERE) && !silent) {
+                LOGGER.log(Level.SEVERE, '[' + command + "] " + message);
+            }
+            throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
         } else {
-            warn(command, message);
+            if (LOGGER.isLoggable(Level.WARNING) && !silent) {
+                LOGGER.warning('[' + command + "] " + message);
+            }
         }
     }
 }

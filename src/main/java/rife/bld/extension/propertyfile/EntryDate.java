@@ -19,7 +19,6 @@ package rife.bld.extension.propertyfile;
 import java.time.*;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.function.IntFunction;
 
 /**
  * Declares the modifications to be made to a {@link java.util.Properties Date-based property}.
@@ -27,9 +26,11 @@ import java.util.function.IntFunction;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-public class EntryDate extends EntryBase {
+public class EntryDate extends EntryBase<EntryDate> {
+    private EntryDate.Units unit_ = EntryDate.Units.DAY;
+
     /**
-     * Creates a new date {@link Entry entry}.
+     * Creates a new {@link EntryDate entry}.
      *
      * @param key the required property key
      */
@@ -38,45 +39,12 @@ public class EntryDate extends EntryBase {
     }
 
     /**
-     * Creates a new {@link EntryDate entry}.
-     *
-     * @param calc the calculation function
-     * @return this instance
-     */
-    public EntryDate calc(IntFunction<Integer> calc) {
-        setCalc(calc);
-        return this;
-    }
-
-    /**
-     * Sets the {@link EntryDate entry} up for deletion.
-     *
-     * @return this instance
-     */
-    public EntryDate delete() {
-        setDelete();
-        return this;
-    }
-
-    /**
      * Sets the new {@link java.util.Properties property} value to now.
      *
      * @return this instance
      */
     public EntryDate now() {
-        setNewValue("now");
-        return this;
-    }
-
-    /**
-     * Sets the pattern for {@link EntryInt} and {@link EntryDate} to{@link java.text.DecimalFormat DecimalFormat} and
-     * {@link java.time.format.DateTimeFormatter DateTimeFormatter} respectively.
-     *
-     * @param pattern the pattern
-     * @return this instance
-     */
-    public EntryDate pattern(String pattern) {
-        setPattern(pattern);
+        newValue("now");
         return this;
     }
 
@@ -87,7 +55,7 @@ public class EntryDate extends EntryBase {
      * @return this instance
      */
     public EntryDate set(Instant instant) {
-        setNewValue(instant);
+        newValue(instant);
         return this;
     }
 
@@ -98,7 +66,7 @@ public class EntryDate extends EntryBase {
      * @return this instance
      */
     public EntryDate set(LocalDate date) {
-        setNewValue(date);
+        newValue(date);
         return this;
     }
 
@@ -109,7 +77,7 @@ public class EntryDate extends EntryBase {
      * @return this instance
      */
     public EntryDate set(LocalDateTime date) {
-        setNewValue(date);
+        newValue(date);
         return this;
     }
 
@@ -120,7 +88,7 @@ public class EntryDate extends EntryBase {
      * @return this instance
      */
     public EntryDate set(ZonedDateTime date) {
-        setNewValue(date);
+        newValue(date);
         return this;
     }
 
@@ -131,7 +99,7 @@ public class EntryDate extends EntryBase {
      * @return this instance
      */
     public EntryDate set(LocalTime time) {
-        setNewValue(time);
+        newValue(time);
         return this;
     }
 
@@ -142,7 +110,7 @@ public class EntryDate extends EntryBase {
      * @return this instance
      */
     public EntryDate set(Calendar cal) {
-        setNewValue(cal);
+        newValue(cal);
         return this;
     }
 
@@ -153,8 +121,17 @@ public class EntryDate extends EntryBase {
      * @return this instance
      */
     public EntryDate set(Date date) {
-        setNewValue(date);
+        newValue(date);
         return this;
+    }
+
+    /**
+     * Returns the {@link EntryDate.Units unit}.
+     *
+     * @return the unit
+     */
+    public EntryDate.Units unit() {
+        return unit_;
     }
 
     /**
@@ -164,7 +141,17 @@ public class EntryDate extends EntryBase {
      * @return this instance
      */
     public EntryDate unit(Units unit) {
-        setUnit(unit);
+        unit_ = unit;
+        return this;
+    }
+
+    /**
+     * Sets the {@link java.time.format.DateTimeFormatter DateTimeFormatter} pattern.
+     *
+     * @param pattern the pattern
+     */
+    public EntryDate pattern(String pattern) {
+        super.pattern(pattern);
         return this;
     }
 

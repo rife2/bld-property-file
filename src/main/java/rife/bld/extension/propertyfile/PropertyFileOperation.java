@@ -18,11 +18,14 @@ package rife.bld.extension.propertyfile;
 
 import rife.bld.BaseProject;
 import rife.bld.operations.AbstractOperation;
+import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Creates or applies edits to a {@link Properties Properties} file.
@@ -31,7 +34,8 @@ import java.util.Properties;
  * @since 1.0
  */
 public class PropertyFileOperation extends AbstractOperation<PropertyFileOperation> {
-    private final List<EntryBase> entries_ = new ArrayList<>();
+    private final static Logger LOGGER = Logger.getLogger(PropertyFileOperation.class.getName());
+    private final List<EntryBase<?>> entries_ = new ArrayList<>();
     private String comment_ = "";
     private boolean failOnWarning_;
     private File file_;
@@ -55,8 +59,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @param entry the {@link Entry entry}
      * @return this instance
      */
-    @SuppressWarnings("unused")
-    public PropertyFileOperation entry(EntryBase entry) {
+    public PropertyFileOperation entry(EntryBase<?> entry) {
         entries_.add(entry);
         return this;
     }
@@ -66,38 +69,49 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      */
     @Override
     public void execute() throws Exception {
+        if (project_ == null) {
+            if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
+                LOGGER.log(Level.SEVERE, "A project is required");
+            }
+            throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
+        }
+
         var commandName = project_.getCurrentCommandName();
         var properties = new Properties();
-        var success = false;
+        var success = true;
 
         if (file_ == null) {
-            PropertyFileUtils.warn(commandName, "A properties file must be specified.");
+            warn(commandName, "A properties file must be specified.");
         } else {
-            success = PropertyFileUtils.loadProperties(commandName, file_, properties);
+            success = PropertyFileUtils.loadProperties(commandName, file_, properties, silent());
         }
 
         if (success) {
             for (var entry : entries_) {
-                if (entry.getKey().isBlank()) {
-                    PropertyFileUtils.warn(commandName, "An entry key must specified.");
+                if (entry.key().isBlank()) {
+                    warn(commandName, "An entry key must specified.");
                 } else {
-                    var key = entry.getKey();
-                    Object value = entry.getNewValue();
-                    Object defaultValue = entry.getDefaultValue();
+                    var key = entry.key();
+                    Object value = entry.newValue();
+                    Object defaultValue = entry.defaultValue();
                     var p = properties.getProperty(key);
                     if (entry.isDelete()) {
                         properties.remove(key);
                     } else if ((value == null || String.valueOf(value).isBlank())
                             && (defaultValue == null || String.valueOf(defaultValue).isBlank())
                             && (p == null || p.isBlank())) {
-                        PropertyFileUtils.warn(commandName, "An entry must be set or have a default value: " + key);
+                        warn(commandName, "An entry must be set or have a default value: " + key);
                     } else {
-                        if (entry instanceof EntryDate) {
-                            success = PropertyFileUtils.processDate(commandName, properties, (EntryDate) entry, failOnWarning_);
-                        } else if (entry instanceof EntryInt) {
-                            success = PropertyFileUtils.processInt(commandName, properties, (EntryInt) entry, failOnWarning_);
-                        } else {
-                            success = PropertyFileUtils.processString(properties, (Entry) entry);
+                        try {
+                            if (entry instanceof EntryDate) {
+                                PropertyFileUtils.processDate(properties, (EntryDate) entry);
+                            } else if (entry instanceof EntryInt) {
+                                PropertyFileUtils.processInt(properties, (EntryInt) entry);
+                            } else {
+                                PropertyFileUtils.processString(properties, (Entry) entry);
+                            }
+                        } catch (IllegalArgumentException e) {
+                            warn(commandName, e.getMessage());
                         }
                     }
                 }
@@ -151,5 +165,25 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
     public PropertyFileOperation fromProject(BaseProject project) {
         project_ = project;
         return this;
+    }
+
+    /**
+     * Logs a warning.
+     *
+     * @param command The command name
+     * @param message the message log
+     * @throws ExitStatusException if a {@link Level#SEVERE} exception occurs
+     */
+    private void warn(String command, String message) throws ExitStatusException {
+        if (failOnWarning_) {
+            if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
+                LOGGER.log(Level.SEVERE, '[' + command + "] " + message);
+                throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
+            }
+        } else {
+            if (LOGGER.isLoggable(Level.WARNING) && !silent()) {
+                LOGGER.warning('[' + command + "] " + message);
+            }
+        }
     }
 }

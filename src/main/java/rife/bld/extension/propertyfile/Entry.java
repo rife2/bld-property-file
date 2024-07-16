@@ -25,60 +25,57 @@ import java.util.function.BiFunction;
  * @author <a href="https://github.com/gbevin">Geert Bevin</a>
  * @since 1.0
  */
-public class Entry extends EntryBase {
+public class Entry extends EntryBase<Entry> {
+    private String modifyValue_ = "";
+    private BiFunction<String, String, String> modify_;
+
     /**
-     * Instantiates a new Entry.
+     * Creates a new {@link Entry entry}.
      *
-     * @param key the key
+     * @param key the required property key
      */
     public Entry(String key) {
         super(key);
     }
 
     /**
-     * <p>Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.</p>
+     * Returns the modify function.
      *
-     * @param defaultValue the default value
-     * @return the entry
+     * @return the modify function
      */
-    @SuppressWarnings("unused")
-    public Entry defaultValue(Object defaultValue) {
-        setDefaultValue(defaultValue);
-        return this;
+    protected BiFunction<String, String, String> modify() {
+        return modify_;
     }
 
     /**
-     * Sets the {@link Entry entry} up for deletion.
+     * Sets the modify function.
      *
-     * @return the entry
-     */
-    public Entry delete() {
-        setDelete();
-        return this;
-    }
-
-    /**
-     * Creates a new {@link Entry entry}.
-     *
-     * @param modify the modification function
-     * @return the entry
+     * @param modify the modify function
      */
     public Entry modify(BiFunction<String, String, String> modify) {
-        setModify(modify);
+        modify_ = modify;
         return this;
     }
 
     /**
-     * Creates a new {@link Entry entry}.
+     * Sets the modify function.
      *
      * @param value  the value to perform a modification with
-     * @param modify the modification function
-     * @return the entry
+     * @param modify the modify function
      */
     public Entry modify(String value, BiFunction<String, String, String> modify) {
-        setModifyValue(value);
-        setModify(modify);
+        modifyValue_ = value;
+        modify_ = modify;
         return this;
+    }
+
+    /**
+     * Returns the value to be used in the {@link #modify_} function.
+     *
+     * @return the modify value
+     */
+    protected String modifyValue() {
+        return modifyValue_;
     }
 
     /**
@@ -88,7 +85,7 @@ public class Entry extends EntryBase {
      * @return the entry
      */
     public Entry set(Object s) {
-        setNewValue(s);
+        newValue(s);
         return this;
     }
 }

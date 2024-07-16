@@ -16,7 +16,6 @@
 
 package rife.bld.extension.propertyfile;
 
-import java.util.function.BiFunction;
 import java.util.function.IntFunction;
 
 /**
@@ -26,17 +25,14 @@ import java.util.function.IntFunction;
  * @author <a href="https://github.com/gbevin">Geert Bevin</a>
  * @since 1.0
  */
-@SuppressWarnings("PMD.DataClass")
-public class EntryBase {
+@SuppressWarnings({"unchecked", "PMD.AbstractClassWithoutAbstractMethod"})
+public abstract class EntryBase<T> {
     private IntFunction<Integer> calc_;
     private Object defaultValue_;
     private boolean isDelete_;
     private String key_;
-    private String modifyValue_ = "";
-    private BiFunction<String, String, String> modify_;
     private Object newValue_;
-    private String pattern_ = "";
-    private EntryDate.Units unit_ = EntryDate.Units.DAY;
+    private Object pattern_;
 
     /**
      * Creates a new {@link EntryBase entry}.
@@ -52,8 +48,18 @@ public class EntryBase {
      *
      * @return the calc function
      */
-    protected IntFunction<Integer> getCalc() {
+    protected IntFunction<Integer> calc() {
         return calc_;
+    }
+
+    /**
+     * Sets the calculation function.
+     *
+     * @param calc the calc function
+     */
+    public T calc(IntFunction<Integer> calc) {
+        calc_ = calc;
+        return (T) this;
     }
 
     /**
@@ -61,62 +67,26 @@ public class EntryBase {
      *
      * @return the default value
      */
-    protected Object getDefaultValue() {
+    protected Object defaultValue() {
         return defaultValue_;
     }
 
     /**
-     * Returns the key of the {@link java.util.Properties property}.
+     * Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.
      *
-     * @return the key
+     * @param defaultValue the default value
      */
-    protected String getKey() {
-        return key_;
+    public T defaultValue(Object defaultValue) {
+        defaultValue_ = defaultValue;
+        return (T) this;
     }
 
     /**
-     * Returns the modify function.
-     *
-     * @return the modify function
+     * Indicates that the {@link java.util.Properties property} is to be deleted.
      */
-    protected BiFunction<String, String, String> getModify() {
-        return modify_;
-    }
-
-    /**
-     * Returns the value to be used in the {@link #modify_} function.
-     *
-     * @return the modify value
-     */
-    protected String getModifyValue() {
-        return modifyValue_;
-    }
-
-    /**
-     * Returns the new value to set the {@link java.util.Properties property)} to.
-     *
-     * @return the new value
-     */
-    public Object getNewValue() {
-        return newValue_;
-    }
-
-    /**
-     * Returns the pattern.
-     *
-     * @return the pattern
-     */
-    protected String getPattern() {
-        return pattern_;
-    }
-
-    /**
-     * Returns the {@link EntryDate.Units unit}.
-     *
-     * @return the unit
-     */
-    protected EntryDate.Units getUnit() {
-        return unit_;
+    public T delete() {
+        isDelete_ = true;
+        return (T) this;
     }
 
     /**
@@ -129,78 +99,32 @@ public class EntryBase {
     }
 
     /**
+     * Returns the key of the {@link java.util.Properties property}.
+     *
+     * @return the key
+     */
+    protected String key() {
+        return key_;
+    }
+
+    /**
      * Sets the key of the {@link java.util.Properties property}.
      *
      * @param key the {@link java.util.Properties property} key
      * @return this instance
      */
-    @SuppressWarnings("unused")
-    public EntryBase key(String key) {
+    public T key(String key) {
         key_ = key;
-        return this;
+        return (T) this;
     }
 
     /**
-     * Sets the calculation function.
+     * Returns the new value to set the {@link java.util.Properties property)} to.
      *
-     * @param calc the calc function
+     * @return the new value
      */
-    protected void setCalc(IntFunction<Integer> calc) {
-        calc_ = calc;
-    }
-
-    /**
-     * Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.
-     *
-     * @param defaultValue the default value
-     */
-    protected void setDefaultValue(Object defaultValue) {
-        defaultValue_ = defaultValue;
-    }
-
-    /**
-     * Sets the {@link java.util.Properties property} to be deleted.
-     */
-    protected void setDelete() {
-        isDelete_ = true;
-    }
-
-    /**
-     * Sets the key of the {@link java.util.Properties property}.
-     *
-     * @param key the {@link java.util.Properties property} key
-     */
-    protected void setKey(String key) {
-        key_ = key;
-    }
-
-    /**
-     * Sets the modify function.
-     *
-     * @param modify the modify function
-     */
-    protected void setModify(BiFunction<String, String, String> modify) {
-        modify_ = modify;
-    }
-
-    /**
-     * Sets the modify function.
-     *
-     * @param value  the value to perform a modification with
-     * @param modify the modify function
-     */
-    protected void setModify(String value, BiFunction<String, String, String> modify) {
-        modifyValue_ = value;
-        modify_ = modify;
-    }
-
-    /**
-     * Sets the modify value.
-     *
-     * @param value the modify value.
-     */
-    protected void setModifyValue(String value) {
-        modifyValue_ = value;
+    protected Object newValue() {
+        return newValue_;
     }
 
     /**
@@ -208,26 +132,26 @@ public class EntryBase {
      *
      * @param newValue the new value
      */
-    public void setNewValue(Object newValue) {
+    protected void newValue(Object newValue) {
         newValue_ = newValue;
     }
 
     /**
-     * Sets the {@link java.text.DecimalFormat DecimalFormat} or {@link java.time.format.DateTimeFormatter DateTimeFormatter}
-     * pattern to be used with {@link EntryDate} or {@link EntryInt} respectively.
+     * Returns the pattern.
      *
-     * @param pattern the pattern
+     * @return the pattern
      */
-    protected void setPattern(String pattern) {
-        pattern_ = pattern;
+    protected Object pattern() {
+        return pattern_;
     }
 
     /**
-     * Sets the {@link EntryDate.Units unit} value to apply to calculations.
+     * Sets the {@link java.util.Formatter} pattern.
      *
-     * @param unit the {@link EntryDate.Units unit}
+     * @param pattern the pattern
      */
-    protected void setUnit(EntryDate.Units unit) {
-        unit_ = unit;
+    public T pattern(Object pattern) {
+        pattern_ = pattern;
+        return (T) this;
     }
 }

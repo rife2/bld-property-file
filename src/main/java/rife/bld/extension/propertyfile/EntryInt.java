@@ -16,55 +16,20 @@
 
 package rife.bld.extension.propertyfile;
 
-import java.util.function.IntFunction;
-
 /**
  * Declares the modifications to be made to an {@link java.util.Properties Integer-based property}.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-public class EntryInt extends EntryBase {
+public class EntryInt extends EntryBase<EntryInt> {
     /**
-     * Creates a new date {@link Entry entry}.
+     * Creates a new {@link EntryInt entry}.
      *
      * @param key the required property key
      */
     public EntryInt(String key) {
         super(key);
-    }
-
-    /**
-     * Creates a new {@link EntryInt entry}.
-     *
-     * @param calc the calculation function.
-     * @return this instance
-     */
-    public EntryInt calc(IntFunction<Integer> calc) {
-        setCalc(calc);
-        return this;
-    }
-
-    /**
-     * Sets the initial value to set the {@link java.util.Properties property} to, if not already defined.
-     *
-     * @param defaultValue the default value
-     * @return this instance
-     */
-    @SuppressWarnings("unused")
-    public EntryInt defaultValue(Object defaultValue) {
-        setDefaultValue(defaultValue);
-        return this;
-    }
-
-    /**
-     * Sets the {@link EntryInt entry} up for deletion.
-     *
-     * @return this instance
-     */
-    public EntryInt delete() {
-        setDelete();
-        return this;
     }
 
     /**
@@ -74,7 +39,17 @@ public class EntryInt extends EntryBase {
      * @return this instance
      */
     public EntryInt set(int i) {
-        setNewValue(i);
+        newValue(i);
+        return this;
+    }
+
+    /**
+     * Sets the {@link java.text.DecimalFormat DecimalFormat} pattern.
+     *
+     * @param pattern the pattern
+     */
+    public EntryInt pattern(String pattern) {
+        super.pattern(pattern);
         return this;
     }
 }

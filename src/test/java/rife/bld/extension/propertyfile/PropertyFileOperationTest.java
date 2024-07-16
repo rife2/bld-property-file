@@ -18,6 +18,7 @@ package rife.bld.extension.propertyfile;
 
 import org.junit.jupiter.api.Test;
 import rife.bld.Project;
+import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -26,6 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static rife.bld.extension.propertyfile.Calc.ADD;
 
 class PropertyFileOperationTest {
@@ -75,5 +77,11 @@ class PropertyFileOperationTest {
 
         assertThat(p.getProperty("build.date")).as("dalete build.date").isNull();
         assertThat(p).as("version keys").containsKeys("version.major", "version.minor", "version.patch");
+    }
+
+    @Test
+    void testExecuteNoProject() {
+        var op = new PropertyFileOperation();
+        assertThatCode(op::execute).isInstanceOf(ExitStatusException.class);
     }
 }
