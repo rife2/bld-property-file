@@ -69,12 +69,13 @@ The [PropertyFileOperation](https://rife2.github.io/bld-property-file/rife/bld/e
 
 The [Entry](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.html) class is used to specify modifications to a [String property](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
 
-| Function         | Description/Example                                                                                     |
-|:-----------------|:--------------------------------------------------------------------------------------------------------|
-| `defaultValue()` | The value to be used if the property doesn't exist.                                                     |
-| `delete()`       | Delete the property.                                                                                    |
-| `modify()`       | `modify("-foo", String::concat)`<br/>`modify("-foo", (v, s) -> v + s)`<br/>`modify((v, s) -> v.trim())` | Modify an entry value.                     |
-| `set()`          | The value to set the property to, regardless of its previous value.                                     |
+| Function         | Description/Example                                                                                                                               |
+|:-----------------|:--------------------------------------------------------------------------------------------------------------------------------------------------|
+| `defaultValue()` | The value to be used if the property doesn't exist.                                                                                               |
+| `delete()`       | Delete the property.                                                                                                                              |
+| `modify()`       | `modify("-foo", String::concat)`<br/>`modify("-foo", (v, s) -> v + s)`<br/>`modify((v, s) -> v.trim())`                                           |
+| `pattern()`      | If present, will parse the value as a [Formatter](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Formatter.html) pattern. |
+| `set()`          | The value to set the property to, regardless of its previous value.                                                                               |
 
 ## EntryDate
 

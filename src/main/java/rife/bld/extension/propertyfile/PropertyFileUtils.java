@@ -91,144 +91,132 @@ public final class PropertyFileUtils {
         return success;
     }
 
+    private static String objectToString(Object o) {
+        if (o == null) {
+            return "";
+        } else {
+            return String.valueOf(o);
+        }
+    }
+
     /**
      * Processes a date {@link Properties property}.
      *
-     * @param command       the issuing command
-     * @param p             the {@link Properties property}
-     * @param entry         the {@link Entry} containing the {@link Properties property} edits
-     * @param failOnWarning the fail on warning
-     * @return the boolean
-     * @throws Exception the exception
+     * @param p     the {@link Properties property}
+     * @param entry the {@link Entry} containing the {@link Properties property} edits
+     * @throws DateTimeException if a parsing error occurs
      */
-    @SuppressWarnings({"PMD.SignatureDeclareThrowsException", "PMD.ExceptionAsFlowControl"})
-    public static boolean processDate(String command, Properties p, EntryDate entry, boolean failOnWarning)
-            throws Exception {
-        var success = true;
-        var value = currentValue(null, entry.getDefaultValue(), entry.getNewValue());
-        var pattern = entry.getPattern();
+    @SuppressWarnings("PMD.ExceptionAsFlowControl")
+    public static void processDate(Properties p, EntryDate entry) throws IllegalArgumentException {
+        var currentValue = currentValue(null, entry.defaultValue(), entry.newValue());
+        var pattern = objectToString(entry.pattern());
 
-        var parsedValue = String.valueOf(value);
+        var dateValue = String.valueOf(currentValue);
         if (pattern != null && !pattern.isBlank()) {
             var offset = 0;
 
-            if (entry.getCalc() != null) {
-                offset = entry.getCalc().apply(offset);
+            if (entry.calc() != null) {
+                offset = entry.calc().apply(offset);
             }
 
             var dtf = DateTimeFormatter.ofPattern(pattern);
-            var unit = entry.getUnit();
+            var unit = entry.unit();
 
             try {
-                if (value instanceof String) {
-                    if ("now".equalsIgnoreCase((String) value)) {
-                        value = ZonedDateTime.now();
+                if (currentValue instanceof String) {
+                    if ("now".equalsIgnoreCase((String) currentValue)) {
+                        currentValue = ZonedDateTime.now();
                     } else {
                         throw new DateTimeException("Excepted: Calendar, Date or java.time.");
                     }
-                } else if (value instanceof LocalDateTime) {
-                    value = ((LocalDateTime) value).atZone(ZoneId.systemDefault());
-                } else if (value instanceof Date) {
-                    value = ((Date) value).toInstant().atZone(ZoneId.systemDefault());
-                } else if (value instanceof Calendar) {
-                    value = ((Calendar) value).toInstant().atZone(ZoneId.systemDefault());
-                } else if (value instanceof Instant) {
-                    value = ((Instant) value).atZone(ZoneId.systemDefault());
+                } else if (currentValue instanceof LocalDateTime) {
+                    currentValue = ((LocalDateTime) currentValue).atZone(ZoneId.systemDefault());
+                } else if (currentValue instanceof Date) {
+                    currentValue = ((Date) currentValue).toInstant().atZone(ZoneId.systemDefault());
+                } else if (currentValue instanceof Calendar) {
+                    currentValue = ((Calendar) currentValue).toInstant().atZone(ZoneId.systemDefault());
+                } else if (currentValue instanceof Instant) {
+                    currentValue = ((Instant) currentValue).atZone(ZoneId.systemDefault());
                 }
 
-                if (value instanceof LocalDate) {
+                if (currentValue instanceof LocalDate) {
                     if (offset != 0) {
                         if (unit == EntryDate.Units.DAY) {
-                            value = ((LocalDate) value).plusDays(offset);
+                            currentValue = ((LocalDate) currentValue).plusDays(offset);
                         } else if (unit == EntryDate.Units.MONTH) {
-                            value = ((LocalDate) value).plusMonths(offset);
+                            currentValue = ((LocalDate) currentValue).plusMonths(offset);
                         } else if (unit == EntryDate.Units.WEEK) {
-                            value = ((LocalDate) value).plusWeeks(offset);
+                            currentValue = ((LocalDate) currentValue).plusWeeks(offset);
                         } else if (unit == EntryDate.Units.YEAR) {
-                            value = ((LocalDate) value).plusYears(offset);
+                            currentValue = ((LocalDate) currentValue).plusYears(offset);
                         }
                     }
-                    parsedValue = dtf.format((LocalDate) value);
-                } else if (value instanceof LocalTime) {
+                    dateValue = dtf.format((LocalDate) currentValue);
+                } else if (currentValue instanceof LocalTime) {
                     if (offset != 0) {
                         if (unit == EntryDate.Units.SECOND) {
-                            value = ((LocalTime) value).plusSeconds(offset);
+                            currentValue = ((LocalTime) currentValue).plusSeconds(offset);
                         } else if (unit == EntryDate.Units.MINUTE) {
-                            value = ((LocalTime) value).plusMinutes(offset);
+                            currentValue = ((LocalTime) currentValue).plusMinutes(offset);
                         } else if (unit == EntryDate.Units.HOUR) {
-                            value = ((LocalTime) value).plusHours(offset);
+                            currentValue = ((LocalTime) currentValue).plusHours(offset);
                         }
                     }
-                    parsedValue = dtf.format((LocalTime) value);
-                } else if (value instanceof ZonedDateTime) {
+                    dateValue = dtf.format((LocalTime) currentValue);
+                } else if (currentValue instanceof ZonedDateTime) {
                     if (offset != 0) {
                         if (unit == EntryDate.Units.DAY) {
-                            value = ((ZonedDateTime) value).plusDays(offset);
+                            currentValue = ((ZonedDateTime) currentValue).plusDays(offset);
                         } else if (unit == EntryDate.Units.MONTH) {
-                            value = ((ZonedDateTime) value).plusMonths(offset);
+                            currentValue = ((ZonedDateTime) currentValue).plusMonths(offset);
                         } else if (unit == EntryDate.Units.WEEK) {
-                            value = ((ZonedDateTime) value).plusWeeks(offset);
+                            currentValue = ((ZonedDateTime) currentValue).plusWeeks(offset);
                         } else if (unit == EntryDate.Units.YEAR) {
-                            value = ((ZonedDateTime) value).plusYears(offset);
+                            currentValue = ((ZonedDateTime) currentValue).plusYears(offset);
                         } else if (unit == EntryDate.Units.SECOND) {
-                            value = ((ZonedDateTime) value).plusSeconds(offset);
+                            currentValue = ((ZonedDateTime) currentValue).plusSeconds(offset);
                         } else if (unit == EntryDate.Units.MINUTE) {
-                            value = ((ZonedDateTime) value).plusMinutes(offset);
+                            currentValue = ((ZonedDateTime) currentValue).plusMinutes(offset);
                         } else if (unit == EntryDate.Units.HOUR) {
-                            value = ((ZonedDateTime) value).plusHours(offset);
+                            currentValue = ((ZonedDateTime) currentValue).plusHours(offset);
                         }
                     }
-                    parsedValue = dtf.format((ZonedDateTime) value);
+                    dateValue = dtf.format((ZonedDateTime) currentValue);
                 }
             } catch (DateTimeException dte) {
-                warn(command, "Non-date value for \"" + entry.getKey() + "\" --> " + dte.getMessage(),
-                        dte, failOnWarning);
-                success = false;
+                throw new IllegalArgumentException(
+                        "Non-date value for \"" + entry.key() + "\" --> " + dte.getMessage(), dte);
             }
         }
-
-        if (success) {
-            p.setProperty(entry.getKey(), parsedValue);
-        }
-
-        return success;
+        p.setProperty(entry.key(), dateValue);
     }
 
     /**
      * Processes an integer {@link Properties property}.
      *
-     * @param command       the issuing command
-     * @param p             the {@link Properties property}
-     * @param entry         the {@link Entry} containing the {@link Properties property} edits
-     * @param failOnWarning the fail on warning
-     * @return the boolean
-     * @throws Exception the exception
+     * @param p     the {@link Properties property}
+     * @param entry the {@link Entry} containing the {@link Properties property} edits
+     * @throws NumberFormatException if a parsing error occurs
      */
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
-    public static boolean processInt(String command, Properties p, EntryInt entry, boolean failOnWarning)
-            throws Exception {
-        var success = true;
+    public static void processInt(Properties p, EntryInt entry) throws IllegalArgumentException {
         int intValue = 0;
         try {
-            var fmt = new DecimalFormat(entry.getPattern());
-            var value = currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(),
-                    entry.getNewValue());
+            var fmt = new DecimalFormat(objectToString(entry.pattern()));
+            var currentValue = currentValue(p.getProperty(entry.key()), entry.defaultValue(), entry.newValue());
 
-            if (value != null) {
-                intValue = fmt.parse(String.valueOf(value)).intValue();
+            if (currentValue != null) {
+                intValue = fmt.parse(String.valueOf(currentValue)).intValue();
             }
 
-            if (entry.getCalc() != null) {
-                intValue = entry.getCalc().apply(intValue);
+            if (entry.calc() != null) {
+                intValue = entry.calc().apply(intValue);
             }
-            p.setProperty(entry.getKey(), fmt.format(intValue));
+
+            p.setProperty(entry.key(), fmt.format(intValue));
         } catch (NumberFormatException | ParseException e) {
-            warn(command, "Non-integer value for \"" + entry.getKey() + "\" --> " + e.getMessage(), e,
-                    failOnWarning);
-            success = false;
+            throw new IllegalArgumentException(
+                    "Non-integer value for \"" + entry.key() + "\" --> " + e.getMessage(), e);
         }
-
-        return success;
     }
 
     /**
@@ -236,19 +224,16 @@ public final class PropertyFileUtils {
      *
      * @param p     the {@link Properties property}
      * @param entry the {@link Entry} containing the {@link Properties property} edits
-     * @return the boolean
      */
-    @SuppressWarnings("SameReturnValue")
-    public static boolean processString(Properties p, Entry entry) {
-        var value = currentValue(p.getProperty(entry.getKey()), entry.getDefaultValue(), entry.getNewValue());
+    public static void processString(Properties p, Entry entry) {
+        var currentValue = currentValue(p.getProperty(entry.key()), entry.defaultValue(), entry.newValue());
 
-        p.setProperty(entry.getKey(), String.valueOf(value));
+        p.setProperty(entry.key(), String.format(String.valueOf(currentValue), entry.pattern()));
 
-        if (entry.getModify() != null && entry.getModifyValue() != null) {
-            p.setProperty(entry.getKey(), entry.getModify().apply(p.getProperty(entry.getKey()), entry.getModifyValue()));
+        if (entry.modify() != null && entry.modifyValue() != null) {
+            var modify = entry.modify().apply(p.getProperty(entry.key()), entry.modifyValue());
+            p.setProperty(entry.key(), String.format(modify, entry.pattern()));
         }
-
-        return true;
     }
 
     /**
