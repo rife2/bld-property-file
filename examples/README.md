@@ -10,6 +10,7 @@
 ./bld update-major run
 ./bld update-minor run
 ./bld update-patch run
+./bld update-release run
 ```
 
 # Delete Version Properties

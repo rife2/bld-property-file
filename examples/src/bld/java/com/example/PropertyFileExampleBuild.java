@@ -107,6 +107,7 @@ public class PropertyFileExampleBuild extends Project {
                 .entry(new EntryDate("release").now().pattern("yyyyMMddHHmmss"))
                 // prepend 'beta.' to the release
                 .entry(new Entry("release").modify("beta.", (v, s) -> s + v))
+                .entry(buildDateEntry)
                 .execute();
     }
 
