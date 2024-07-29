@@ -18,7 +18,6 @@ package rife.bld.extension.propertyfile;
 
 import rife.bld.BuildCommand;
 import rife.bld.Project;
-import rife.bld.extension.JacocoReportOperation;
 import rife.bld.extension.PmdOperation;
 import rife.bld.publish.PublishDeveloper;
 import rife.bld.publish.PublishLicense;
@@ -43,7 +42,7 @@ public class PropertyFileBuild extends Project {
         repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_RELEASES, RIFE2_SNAPSHOTS);
 
         scope(compile)
-                .include(dependency("com.uwyn.rife2", "bld", version(2, 0, 0, "SNAPSHOT")));
+                .include(dependency("com.uwyn.rife2", "bld", version(2, 0, 1)));
         scope(test)
                 .include(dependency("org.jsoup", "jsoup", version(1, 18, 1)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 10, 3)))
@@ -92,13 +91,6 @@ public class PropertyFileBuild extends Project {
 
     public static void main(String[] args) {
         new PropertyFileBuild().start(args);
-    }
-
-    @BuildCommand(summary = "Generates JaCoCo Reports")
-    public void jacoco() throws Exception {
-        new JacocoReportOperation()
-                .fromProject(this)
-                .execute();
     }
 
     @BuildCommand(summary = "Runs PMD analysis")
