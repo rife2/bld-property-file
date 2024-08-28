@@ -21,6 +21,7 @@ import rife.bld.operations.AbstractOperation;
 import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -152,8 +153,26 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @return this instance
      */
     public PropertyFileOperation file(String file) {
-        file_ = new File(file);
-        return this;
+        return file(new File(file));
+    }
+
+    /**
+     * Retrieves the location of the {@link java.util.Properties} file to be edited.
+     *
+     * @return the properties file
+     */
+    public File file() {
+        return file_;
+    }
+
+    /**
+     * Sets the location of the {@link java.util.Properties} file to be edited.
+     *
+     * @param file the file to be edited
+     * @return this instance
+     */
+    public PropertyFileOperation file(Path file) {
+        return file(file.toFile());
     }
 
     /**

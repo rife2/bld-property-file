@@ -84,4 +84,18 @@ class PropertyFileOperationTest {
         var op = new PropertyFileOperation();
         assertThatCode(op::execute).isInstanceOf(ExitStatusException.class);
     }
+
+    @Test
+    void testFile() {
+        var foo = new File("foo");
+
+        var op = new PropertyFileOperation().file("foo");
+        assertThat(op.file()).as("as string").isEqualTo(foo);
+
+        op = new PropertyFileOperation().file(foo);
+        assertThat(op.file()).as("as file").isEqualTo(foo);
+
+        op = new PropertyFileOperation().file(foo.toPath());
+        assertThat(op.file()).as("as path").isEqualTo(foo);
+    }
 }
