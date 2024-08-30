@@ -49,6 +49,16 @@ public class EntryDate extends EntryBase<EntryDate> {
     }
 
     /**
+     * Sets the {@link java.time.format.DateTimeFormatter DateTimeFormatter} pattern.
+     *
+     * @param pattern the pattern
+     */
+    public EntryDate pattern(String pattern) {
+        super.pattern(pattern);
+        return this;
+    }
+
+    /**
      * Sets the new {@link java.util.Properties property} value to an {@link Instant}
      *
      * @param instant the {@link Instant} to set the value to
@@ -142,16 +152,6 @@ public class EntryDate extends EntryBase<EntryDate> {
      */
     public EntryDate unit(Units unit) {
         unit_ = unit;
-        return this;
-    }
-
-    /**
-     * Sets the {@link java.time.format.DateTimeFormatter DateTimeFormatter} pattern.
-     *
-     * @param pattern the pattern
-     */
-    public EntryDate pattern(String pattern) {
-        super.pattern(pattern);
         return this;
     }
 

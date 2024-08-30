@@ -33,6 +33,16 @@ public class EntryInt extends EntryBase<EntryInt> {
     }
 
     /**
+     * Sets the {@link java.text.DecimalFormat DecimalFormat} pattern.
+     *
+     * @param pattern the pattern
+     */
+    public EntryInt pattern(String pattern) {
+        super.pattern(pattern);
+        return this;
+    }
+
+    /**
      * Sets the new {@link java.util.Properties property} value to an integer.
      *
      * @param i The integer to set the value to
@@ -40,16 +50,6 @@ public class EntryInt extends EntryBase<EntryInt> {
      */
     public EntryInt set(int i) {
         newValue(i);
-        return this;
-    }
-
-    /**
-     * Sets the {@link java.text.DecimalFormat DecimalFormat} pattern.
-     *
-     * @param pattern the pattern
-     */
-    public EntryInt pattern(String pattern) {
-        super.pattern(pattern);
         return this;
     }
 }
