@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  * @since 1.0
  */
 public class PropertyFileOperation extends AbstractOperation<PropertyFileOperation> {
-    private final static Logger LOGGER = Logger.getLogger(PropertyFileOperation.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(PropertyFileOperation.class.getName());
     private final List<EntryBase<?>> entries_ = new ArrayList<>();
     private String comment_ = "";
     private boolean failOnWarning_;

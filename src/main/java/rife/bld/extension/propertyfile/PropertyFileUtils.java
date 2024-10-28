@@ -39,7 +39,7 @@ import java.util.logging.Logger;
  * @since 1.0
  */
 public final class PropertyFileUtils {
-    private final static Logger LOGGER = Logger.getLogger(PropertyFileUtils.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(PropertyFileUtils.class.getName());
 
     private PropertyFileUtils() {
         // no-op
