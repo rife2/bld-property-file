@@ -16,6 +16,7 @@
 
 package rife.bld.extension.propertyfile;
 
+import org.assertj.core.api.AutoCloseableSoftAssertions;
 import org.junit.jupiter.api.Test;
 import rife.bld.Project;
 import rife.bld.operations.exceptions.ExitStatusException;
@@ -51,11 +52,13 @@ class PropertyFileOperationTest {
         var p = new Properties();
         p.load(Files.newInputStream(tmpFile.toPath()));
 
-        assertThat(p.getProperty("version.major")).as("major").isEqualTo("1");
-        assertThat(p.getProperty("version.minor")).as("minor").isEqualTo("0");
-        assertThat(p.getProperty("version.patch")).as("patch").isEqualTo("0");
-        assertThat(p.getProperty("build.date")).as("date")
-                .isEqualTo(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        try (var softly = new AutoCloseableSoftAssertions()) {
+            softly.assertThat(p.getProperty("version.major")).as("major").isEqualTo("1");
+            softly.assertThat(p.getProperty("version.minor")).as("minor").isEqualTo("0");
+            softly.assertThat(p.getProperty("version.patch")).as("patch").isEqualTo("0");
+            softly.assertThat(p.getProperty("build.date")).as("date")
+                    .isEqualTo(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        }
 
         new PropertyFileOperation()
                 .fromProject(new Project())
