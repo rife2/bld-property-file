@@ -39,7 +39,6 @@ import static rife.bld.extension.propertyfile.Calc.SUB;
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class PropertyFileUtilsTest {
-    final static int dayOfYear = LocalDate.now().getDayOfYear();
     final static Properties p = new Properties();
     final static String t = "test";
 
@@ -62,23 +61,28 @@ class PropertyFileUtilsTest {
     void parseDateSub() {
         var entryDate = newEntryDate().calc(SUB);
         PropertyFileUtils.processDate(p, entryDate.now());
-        assertThat(p.getProperty(entryDate.key())).as("processDate(now-3)").isEqualTo(String.valueOf(dayOfYear - 1));
+        assertThat(p.getProperty(entryDate.key())).as("processDate(now-3)").isEqualTo(String.valueOf(
+                LocalDateTime.now().minusDays(1).getDayOfYear()));
 
         entryDate.calc(v -> v - 2);
         PropertyFileUtils.processDate(p, entryDate.now());
-        assertThat(p.getProperty(entryDate.key())).as("processDate(now-2)").isEqualTo(String.valueOf(dayOfYear - 2));
+        assertThat(p.getProperty(entryDate.key())).as("processDate(now-2)").isEqualTo(String.valueOf(
+                LocalDateTime.now().minusDays(2).getDayOfYear()));
 
         entryDate.calc(SUB);
         PropertyFileUtils.processDate(p, entryDate.set(new Date()));
-        assertThat(p.getProperty(entryDate.key())).as("processDate(date-1)").isEqualTo(String.valueOf(dayOfYear - 1));
+        assertThat(p.getProperty(entryDate.key())).as("processDate(date-1)").isEqualTo(String.valueOf(
+                LocalDateTime.now().minusDays(1).getDayOfYear()));
 
         entryDate.calc(v -> v - 2);
         PropertyFileUtils.processDate(p, entryDate.set(Calendar.getInstance()));
-        assertThat(p.getProperty(entryDate.key())).as("processDate(cal-2)").isEqualTo(String.valueOf(dayOfYear - 2));
+        assertThat(p.getProperty(entryDate.key())).as("processDate(cal-2)").isEqualTo(String.valueOf(
+                LocalDateTime.now().minusDays(2).getDayOfYear()));
 
         entryDate.calc(v -> v - 3);
         PropertyFileUtils.processDate(p, entryDate.set(LocalDate.now()));
-        assertThat(p.getProperty(entryDate.key())).as("processDate(LocalDate-3)").isEqualTo(String.valueOf(dayOfYear - 3));
+        assertThat(p.getProperty(entryDate.key())).as("processDate(LocalDate-3)").isEqualTo(String.valueOf(
+                LocalDateTime.now().minusDays(3).getDayOfYear()));
     }
 
     @Test
@@ -170,22 +174,26 @@ class PropertyFileUtilsTest {
         var entryDate = newEntryDate();
         entryDate.calc(ADD);
         PropertyFileUtils.processDate(p, entryDate.now());
-        assertThat(p.getProperty(entryDate.key())).as("processDate(now+1)").isEqualTo(String.valueOf(dayOfYear + 1));
+        assertThat(p.getProperty(entryDate.key())).as("processDate(now+1)").isEqualTo(String.valueOf(
+                LocalDateTime.now().plusDays(1).getDayOfYear()));
 
         PropertyFileUtils.processDate(p, entryDate.now().calc(v -> v + 3));
-        assertThat(p.getProperty(entryDate.key())).as("processDate(now+3)").isEqualTo(String.valueOf(dayOfYear + 3));
+        assertThat(p.getProperty(entryDate.key())).as("processDate(now+3)").isEqualTo(String.valueOf(
+                LocalDateTime.now().plusDays(3).getDayOfYear()));
 
         entryDate.calc(ADD);
         PropertyFileUtils.processDate(p, entryDate.set(ZonedDateTime.now()));
         assertThat(p.getProperty(entryDate.key())).as("processDate(ZonedDateTime+1)")
-                .isEqualTo(String.valueOf(dayOfYear + 1));
+                .isEqualTo(String.valueOf(LocalDateTime.now().plusDays(1).getDayOfYear()));
 
         PropertyFileUtils.processDate(p, entryDate.set(Instant.now()).calc(v -> v + 2));
-        assertThat(p.getProperty(entryDate.key())).as("processDate(Instant+2)").isEqualTo(String.valueOf(dayOfYear + 2));
+        assertThat(p.getProperty(entryDate.key())).as("processDate(Instant+2)").isEqualTo(String.valueOf(
+                LocalDateTime.now().plusDays(2).getDayOfYear()));
 
         entryDate.calc(v -> v + 3);
         PropertyFileUtils.processDate(p, entryDate.set(LocalDateTime.now()));
-        assertThat(p.getProperty(entryDate.key())).as("processDate(LocalDteTime+2)").isEqualTo(String.valueOf(dayOfYear + 3));
+        assertThat(p.getProperty(entryDate.key())).as("processDate(LocalDteTime+2)")
+                .isEqualTo(String.valueOf(LocalDateTime.now().plusDays(3).getDayOfYear()));
     }
 
     @Test
