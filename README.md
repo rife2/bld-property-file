@@ -7,9 +7,17 @@
 [![Snapshot](https://flat.badgen.net/maven/v/metadata-url/repo.rife2.com/snapshots/com/uwyn/rife2/bld-property-file/maven-metadata.xml?label=snapshot)](https://repo.rife2.com/#/snapshots/com/uwyn/rife2/bld-property-file)
 [![GitHub CI](https://github.com/rife2/bld-property-file/actions/workflows/bld.yml/badge.svg)](https://github.com/rife2/bld-property-file/actions/workflows/bld.yml)
 
-To install, please refer to the [extensions documentation](https://github.com/rife2/bld/wiki/Extensions).
+To install the latest version, add the following to the `lib/bld/bld-wrapper.properties` file:
 
-To create or modifying [property files](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html) with [bld](https://rife2.com/bld), add the follwing to your build file:
+```properties
+bld.extension-property-file=com.uwyn.rife2:bld-property-file
+```
+
+For more information, please refer to the [extensions](https://github.com/rife2/bld/wiki/Extensions) documentation.
+
+## Create or Modify Property Files
+
+To create or modify [property files](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html) with [bld](https://rife2.com/bld), add the follwing to your build file:
 
 ```java
 @BuildCommand
