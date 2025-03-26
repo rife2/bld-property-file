@@ -28,6 +28,10 @@ jobs:
         working-directory: examples
         run: ./bld download
 
+      - name: Compile run [examples]
+        working-directory: examples
+        run: ./bld compile run
+
       - name: Update version properties and run [examples]
         working-directory: examples
         run: |
@@ -35,6 +39,10 @@ jobs:
           ./bld update-minor run
           ./bld update-patch run
           ./bld update-release run
+
+      - name: Delete version properties and run [examples]
+        working-directory: examples
+        run: ./bld delete-version run
 
       - name: Download dependencies
         run: ./bld download
