@@ -39,6 +39,7 @@ import static rife.bld.extension.propertyfile.Calc.ADD;
 class PropertyFileOperationTest {
     private static final String BUILD_DATE = "build.date";
     private static final String COMMENT = "This is a comment";
+    private static final String FOO = "foo";
     private static final String VERSION_MAJOR = "version.major";
     private static final String VERSION_MINOR = "version.minor";
     private static final String VERSION_PATCH = "version.patch";
@@ -59,7 +60,9 @@ class PropertyFileOperationTest {
 
     @Test
     void shouldClear() throws Exception {
-        properties.setProperty("foo", "bar");
+        var bar = "bar";
+
+        properties.setProperty(FOO, bar);
         assertThat(properties).as("properties should not be empty").isNotEmpty();
 
         new PropertyFileOperation()
@@ -75,12 +78,12 @@ class PropertyFileOperationTest {
                 .fromProject(new Project())
                 .file(tmpFile)
                 .clear()
-                .entry(new Entry("foo").set("bar"))
+                .entry(new Entry(FOO).set(bar))
                 .execute();
 
         loadProperties();
         assertThat(properties).size().as("properties size should be 1").isEqualTo(1);
-        assertThat(properties.getProperty("foo")).as("foo property should be set").isEqualTo("bar");
+        assertThat(properties.getProperty(FOO)).as("foo property should be set").isEqualTo(bar);
     }
 
     @Test
@@ -149,7 +152,7 @@ class PropertyFileOperationTest {
     @Nested
     @DisplayName("File Input Tests")
     class FileInputTests {
-        private static final File FOO_FILE = new File("foo");
+        private static final File FOO_FILE = new File(FOO);
 
         @Test
         void shouldHandleFile() {
@@ -165,7 +168,7 @@ class PropertyFileOperationTest {
 
         @Test
         void shouldHandleString() {
-            var op = new PropertyFileOperation().file("foo");
+            var op = new PropertyFileOperation().file(FOO);
             assertThat(op.file()).as("as string").isEqualTo(FOO_FILE);
         }
     }
