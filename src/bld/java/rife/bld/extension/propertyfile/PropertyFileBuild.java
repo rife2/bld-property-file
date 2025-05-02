@@ -18,11 +18,16 @@ package rife.bld.extension.propertyfile;
 
 import rife.bld.BuildCommand;
 import rife.bld.Project;
+import rife.bld.extension.ExecOperation;
 import rife.bld.extension.PmdOperation;
+import rife.bld.operations.JUnitOperation;
 import rife.bld.publish.PublishDeveloper;
 import rife.bld.publish.PublishLicense;
 import rife.bld.publish.PublishScm;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static rife.bld.dependencies.Repository.*;
@@ -31,6 +36,11 @@ import static rife.bld.dependencies.Scope.test;
 import static rife.bld.operations.JavadocOptions.DocLinkOption.NO_MISSING;
 
 public class PropertyFileBuild extends Project {
+    final PmdOperation pmdOp = new PmdOperation()
+            .fromProject(this)
+            .failOnViolation(true)
+            .ruleSets("config/pmd.xml");
+
     public PropertyFileBuild() {
         pkg = "rife.bld.extension";
         name = "bld-property-file";
@@ -96,10 +106,33 @@ public class PropertyFileBuild extends Project {
 
     @BuildCommand(summary = "Runs PMD analysis")
     public void pmd() throws Exception {
-        new PmdOperation()
+        pmdOp.execute();
+    }
+
+    @BuildCommand(value = "pmd-cli", summary = "Runs PMD analysis (CLI)")
+    public void pmdCli() throws Exception {
+        pmdOp.includeLineNumber(false).execute();
+    }
+
+    @Override
+    public void test() throws Exception {
+        var testResultsDir = "build/test-results/test/";
+
+        new JUnitOperation()
                 .fromProject(this)
-                .failOnViolation(true)
-                .ruleSets("config/pmd.xml")
+                .testToolOptions("--reports-dir=" + testResultsDir)
                 .execute();
+
+        var xunitViewer = new File("/usr/bin/xunit-viewer");
+        if (xunitViewer.exists() && xunitViewer.canExecute()) {
+            var reportsDir = "build/reports/tests/test/";
+
+            Files.createDirectories(Path.of(reportsDir));
+
+            new ExecOperation()
+                    .fromProject(this)
+                    .command(xunitViewer.getPath(), "-r", testResultsDir, "-o", reportsDir + "index.html")
+                    .execute();
+        }
     }
 }

@@ -62,7 +62,14 @@ class PropertyFileOperationTest {
     void shouldClear() throws Exception {
         var bar = "bar";
 
-        properties.setProperty(FOO, bar);
+        new PropertyFileOperation()
+                .fromProject(new Project())
+                .file(tmpFile)
+                .clear()
+                .entry(new Entry(FOO).set(bar))
+                .execute();
+
+        loadProperties();
         assertThat(properties).as("properties should not be empty").isNotEmpty();
 
         new PropertyFileOperation()
@@ -83,7 +90,7 @@ class PropertyFileOperationTest {
 
         loadProperties();
         assertThat(properties).size().as("properties size should be 1").isEqualTo(1);
-        assertThat(properties.getProperty(FOO)).as("foo property should be set").isEqualTo(bar);
+        assertThat(properties.getProperty(FOO)).as("%s property should be set", FOO).isEqualTo(bar);
     }
 
     @Test
