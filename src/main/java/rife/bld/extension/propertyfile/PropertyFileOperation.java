@@ -37,10 +37,22 @@ import java.util.logging.Logger;
 public class PropertyFileOperation extends AbstractOperation<PropertyFileOperation> {
     private static final Logger LOGGER = Logger.getLogger(PropertyFileOperation.class.getName());
     private final List<EntryBase<?>> entries_ = new ArrayList<>();
+    private boolean clear_;
     private String comment_ = "";
     private boolean failOnWarning_;
     private File file_;
     private BaseProject project_;
+
+    /**
+     * Marks the operation to clear all existing entries in the target properties file
+     * before applying further modifications.
+     *
+     * @return this instance
+     */
+    public PropertyFileOperation clear() {
+        clear_ = true;
+        return this;
+    }
 
     /**
      * Sets the comment to be inserted at the top of the {@link java.util.Properties} file.
@@ -88,6 +100,12 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
         }
 
         if (success) {
+            if (clear_) {
+                if (LOGGER.isLoggable(Level.WARNING)) {
+                    LOGGER.warning("All entries will be cleared first.");
+                }
+                properties.clear();
+            }
             for (var entry : entries_) {
                 if (entry.key().isBlank()) {
                     warn(commandName, "An entry key must specified.");

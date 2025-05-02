@@ -57,6 +57,32 @@ class PropertyFileOperationTest {
     }
 
     @Test
+    void shouldClear() throws Exception {
+        properties.setProperty("foo", "bar");
+        assertThat(properties).as("properties should not be empty").isNotEmpty();
+
+        new PropertyFileOperation()
+                .fromProject(new Project())
+                .file(tmpFile)
+                .clear()
+                .execute();
+
+        loadProperties();
+        assertThat(properties).as("properties should be empty").isEmpty();
+
+        new PropertyFileOperation()
+                .fromProject(new Project())
+                .file(tmpFile)
+                .clear()
+                .entry(new Entry("foo").set("bar"))
+                .execute();
+
+        loadProperties();
+        assertThat(properties).size().as("properties size should be 1").isEqualTo(1);
+        assertThat(properties.getProperty("foo")).as("foo property should be set").isEqualTo("bar");
+    }
+
+    @Test
     void shouldDeleteBuildDateProperty() throws Exception {
         // when
         new PropertyFileOperation()
