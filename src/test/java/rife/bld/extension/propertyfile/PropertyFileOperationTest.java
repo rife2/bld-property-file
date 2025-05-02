@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static rife.bld.extension.propertyfile.Calc.ADD;
 
+@DisplayName("PropertyFile Operation Tests")
 class PropertyFileOperationTest {
     private static final String BUILD_DATE = "build.date";
     private static final String COMMENT = "This is a comment";

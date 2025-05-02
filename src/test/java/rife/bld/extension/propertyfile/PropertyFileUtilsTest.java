@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static rife.bld.extension.propertyfile.Calc.ADD;
 import static rife.bld.extension.propertyfile.Calc.SUB;
 
+@DisplayName("Property File Utils Tests")
 class PropertyFileUtilsTest {
     private static final String DEFAULT_INT_PATTERN = "0000";
     private static final Properties PROPERTIES = new Properties();
