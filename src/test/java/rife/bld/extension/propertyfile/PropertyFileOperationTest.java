@@ -70,7 +70,7 @@ class PropertyFileOperationTest {
                 .execute();
 
         loadProperties();
-        assertThat(properties).as("properties should not be empty").isNotEmpty();
+        assertThat(properties).as("properties should only contain %s", FOO).containsOnlyKeys(FOO);
 
         new PropertyFileOperation()
                 .fromProject(new Project())
@@ -107,9 +107,8 @@ class PropertyFileOperationTest {
 
         // then
         loadProperties();
-        assertThat(properties.getProperty(BUILD_DATE)).as("deleted build.date").isNull();
-        assertThat(properties).as("version keys")
-                .containsKeys(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+        assertThat(properties.getProperty(BUILD_DATE)).as("%s should be deleted", BUILD_DATE).isNull();
+        assertThat(properties).containsOnlyKeys(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
     }
 
     @Test
@@ -139,13 +138,14 @@ class PropertyFileOperationTest {
                 .entry(new EntryInt(VERSION_PATCH).set(0))
                 .entry(new EntryDate(BUILD_DATE).now().pattern("yyyy-MM-dd"))
                 .execute();
+
         // then
         loadProperties();
         try (var softly = new AutoCloseableSoftAssertions()) {
-            softly.assertThat(properties.getProperty(VERSION_MAJOR)).as("major").isEqualTo("1");
-            softly.assertThat(properties.getProperty(VERSION_MINOR)).as("minor").isEqualTo("0");
-            softly.assertThat(properties.getProperty(VERSION_PATCH)).as("patch").isEqualTo("0");
-            softly.assertThat(properties.getProperty(BUILD_DATE)).as("date")
+            softly.assertThat(properties.getProperty(VERSION_MAJOR)).as("%s == 1", VERSION_MAJOR).isEqualTo("1");
+            softly.assertThat(properties.getProperty(VERSION_MINOR)).as("%s == 0", VERSION_MINOR).isEqualTo("0");
+            softly.assertThat(properties.getProperty(VERSION_PATCH)).as("%s == 0", VERSION_PATCH).isEqualTo("0");
+            softly.assertThat(properties.getProperty(BUILD_DATE)).as("%s == now", BUILD_DATE)
                     .isEqualTo(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
         }
     }
@@ -164,19 +164,19 @@ class PropertyFileOperationTest {
         @Test
         void shouldHandleFile() {
             var op = new PropertyFileOperation().file(FOO_FILE);
-            assertThat(op.file()).as("as file").isEqualTo(FOO_FILE);
+            assertThat(op.file()).isEqualTo(FOO_FILE);
         }
 
         @Test
         void shouldHandlePath() {
             var op = new PropertyFileOperation().file(FOO_FILE.toPath());
-            assertThat(op.file()).as("as path").isEqualTo(FOO_FILE);
+            assertThat(op.file()).isEqualTo(FOO_FILE);
         }
 
         @Test
         void shouldHandleString() {
             var op = new PropertyFileOperation().file(FOO);
-            assertThat(op.file()).as("as string").isEqualTo(FOO_FILE);
+            assertThat(op.file()).isEqualTo(FOO_FILE);
         }
     }
 }

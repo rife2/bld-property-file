@@ -55,11 +55,11 @@ class PropertyFileUtilsTest {
     void shouldHandleWarnings() {
         assertThatCode(() ->
                 PropertyFileUtils.warn("command", "message", true, false))
-                .isInstanceOf(ExitStatusException.class);
+                .as("should fail on warning").isInstanceOf(ExitStatusException.class);
 
         assertThatCode(() ->
                 PropertyFileUtils.warn("command", TEST_VALUE, false, false))
-                .doesNotThrowAnyException();
+                .as("should not fail on warning").doesNotThrowAnyException();
     }
 
     @Test
@@ -70,10 +70,11 @@ class PropertyFileUtilsTest {
 
         assertThatCode(() ->
                 PropertyFileUtils.saveProperties(tempFile, "Generated file - do not modify!", properties))
-                .doesNotThrowAnyException();
+                .as("save properties").doesNotThrowAnyException();
 
-        assertThat(PropertyFileUtils.loadProperties(TEST_VALUE, tempFile, properties, false)).isTrue();
-        assertThat(properties.getProperty(TEST_VALUE)).isEqualTo(TEST_VALUE);
+        assertThat(PropertyFileUtils.loadProperties(TEST_VALUE, tempFile, properties, false))
+                .as("load properties").isTrue();
+        assertThat(properties.getProperty(TEST_VALUE)).as("%s property", TEST_VALUE).isEqualTo(TEST_VALUE);
 
         tempFile.deleteOnExit();
     }
@@ -86,26 +87,12 @@ class PropertyFileUtilsTest {
             var entryDate = createDateEntry().calc(SUB);
 
             PropertyFileUtils.processDate(PROPERTIES, entryDate.now());
-            assertThat(PROPERTIES.getProperty(entryDate.key())).as("-1 day")
+            assertThat(PROPERTIES.getProperty(entryDate.key())).as("%s - 1 day", entryDate.key())
                     .isEqualTo(String.valueOf(LocalDateTime.now().minusDays(1).getDayOfYear()));
 
             PropertyFileUtils.processDate(PROPERTIES, entryDate.now().calc(v -> v - 3));
-            assertThat(PROPERTIES.getProperty(entryDate.key())).as("-3 days")
+            assertThat(PROPERTIES.getProperty(entryDate.key())).as("%s - 3 days", entryDate.key())
                     .isEqualTo(String.valueOf(LocalDateTime.now().minusDays(3).getDayOfYear()));
-        }
-
-        @Test
-        void shouldIncrementDate() {
-            var entryDate = createDateEntry();
-            entryDate.calc(ADD);
-
-            PropertyFileUtils.processDate(PROPERTIES, entryDate.now());
-            assertThat(PROPERTIES.getProperty(entryDate.key())).as("+1 day")
-                    .isEqualTo(String.valueOf(LocalDateTime.now().plusDays(1).getDayOfYear()));
-
-            PropertyFileUtils.processDate(PROPERTIES, entryDate.now().calc(v -> v + 3));
-            assertThat(PROPERTIES.getProperty(entryDate.key())).as("+3 days")
-                    .isEqualTo(String.valueOf(LocalDateTime.now().plusDays(3).getDayOfYear()));
         }
 
         @Test
@@ -114,8 +101,22 @@ class PropertyFileUtilsTest {
             var entryDate = createDateEntry().defaultValue(now);
 
             PropertyFileUtils.processDate(PROPERTIES, entryDate.now());
-            assertThat(PROPERTIES.getProperty(entryDate.key())).as("day of year")
+            assertThat(PROPERTIES.getProperty(entryDate.key())).as("%s == day of year", entryDate.key())
                     .isEqualTo(String.valueOf(now.getDayOfYear()));
+        }
+
+        @Test
+        void shouldIncrementDate() {
+            var entryDate = createDateEntry();
+            entryDate.calc(ADD);
+
+            PropertyFileUtils.processDate(PROPERTIES, entryDate.now());
+            assertThat(PROPERTIES.getProperty(entryDate.key())).as("%s + 1 day", entryDate.key())
+                    .isEqualTo(String.valueOf(LocalDateTime.now().plusDays(1).getDayOfYear()));
+
+            PropertyFileUtils.processDate(PROPERTIES, entryDate.now().calc(v -> v + 3));
+            assertThat(PROPERTIES.getProperty(entryDate.key())).as("%s + 3 days", entryDate.key())
+                    .isEqualTo(String.valueOf(LocalDateTime.now().plusDays(3).getDayOfYear()));
         }
     }
 
@@ -130,10 +131,10 @@ class PropertyFileUtilsTest {
                     .defaultValue("0017");
 
             PropertyFileUtils.processInt(PROPERTIES, entryInt);
-            assertThat(PROPERTIES.getProperty(entryInt.key())).as("00016").isEqualTo("0016");
+            assertThat(PROPERTIES.getProperty(entryInt.key())).as("%s == 00016", entryInt.key()).isEqualTo("0016");
 
             PropertyFileUtils.processInt(PROPERTIES, entryInt);
-            assertThat(PROPERTIES.getProperty(entryInt.key())).as("00015").isEqualTo("0015");
+            assertThat(PROPERTIES.getProperty(entryInt.key())).as("%s == 00015", entryInt.key()).isEqualTo("0015");
         }
 
         @Test
@@ -143,7 +144,8 @@ class PropertyFileUtilsTest {
                     .pattern(DEFAULT_INT_PATTERN);
 
             PropertyFileUtils.processInt(PROPERTIES, entryInt);
-            assertThat(PROPERTIES.getProperty(entryInt.key())).isEqualTo("0000");
+            assertThat(PROPERTIES.getProperty(entryInt.key())).as("%s == 0000", entryInt.key())
+                    .isEqualTo("0000");
         }
 
         @Test
@@ -154,10 +156,10 @@ class PropertyFileUtilsTest {
                     .pattern(DEFAULT_INT_PATTERN);
 
             PropertyFileUtils.processInt(PROPERTIES, entryInt);
-            assertThat(PROPERTIES.getProperty(entryInt.key())).as("0001").isEqualTo("0001");
+            assertThat(PROPERTIES.getProperty(entryInt.key())).as("%s == 0001", entryInt.key()).isEqualTo("0001");
 
             PropertyFileUtils.processInt(PROPERTIES, entryInt);
-            assertThat(PROPERTIES.getProperty(entryInt.key())).as("0002").isEqualTo("0002");
+            assertThat(PROPERTIES.getProperty(entryInt.key())).as("%s == 0002", entryInt.key()).isEqualTo("0002");
         }
     }
 
