@@ -20,7 +20,6 @@ import rife.bld.BuildCommand;
 import rife.bld.Project;
 import rife.bld.extension.ExecOperation;
 import rife.bld.extension.PmdOperation;
-import rife.bld.operations.JUnitOperation;
 import rife.bld.publish.PublishDeveloper;
 import rife.bld.publish.PublishLicense;
 import rife.bld.publish.PublishScm;
@@ -52,7 +51,7 @@ public class PropertyFileBuild extends Project {
         repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_RELEASES, RIFE2_SNAPSHOTS);
 
         scope(compile)
-                .include(dependency("com.uwyn.rife2", "bld", version(2, 2, 1)));
+                .include(dependency("com.uwyn.rife2", "bld", version(2, 3, 0)));
         scope(test)
                 .include(dependency("org.jsoup", "jsoup", version(1, 20, 1)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 13, 2)))
@@ -117,11 +116,15 @@ public class PropertyFileBuild extends Project {
     @Override
     public void test() throws Exception {
         var testResultsDir = "build/test-results/test/";
+        var op = testOperation().fromProject(this);
+        op.testToolOptions().reportsDir(new File(testResultsDir));
 
-        new JUnitOperation()
-                .fromProject(this)
-                .testToolOptions("--reports-dir=" + testResultsDir)
-                .execute();
+        Exception ex = null;
+        try {
+            op.execute();
+        } catch (Exception e) {
+            ex = e;
+        }
 
         var xunitViewer = new File("/usr/bin/xunit-viewer");
         if (xunitViewer.exists() && xunitViewer.canExecute()) {
@@ -133,6 +136,10 @@ public class PropertyFileBuild extends Project {
                     .fromProject(this)
                     .command(xunitViewer.getPath(), "-r", testResultsDir, "-o", reportsDir + "index.html")
                     .execute();
+        }
+
+        if (ex != null) {
+            throw ex;
         }
     }
 }
