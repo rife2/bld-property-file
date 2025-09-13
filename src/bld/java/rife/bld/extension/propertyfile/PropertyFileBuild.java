@@ -53,9 +53,9 @@ public class PropertyFileBuild extends Project {
         scope(compile)
                 .include(dependency("com.uwyn.rife2", "bld", version(2, 3, 0)));
         scope(test)
-                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 13, 3)))
-                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 13, 3)))
                 .include(dependency("org.jsoup", "jsoup", version(1, 21, 2)))
+                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 13, 4)))
+                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 13, 4)))
                 .include(dependency("org.assertj:assertj-joda-time:2.2.0"));
 
         javadocOperation()
@@ -71,7 +71,7 @@ public class PropertyFileBuild extends Project {
                 .info()
                 .groupId("com.uwyn.rife2")
                 .artifactId("bld-property-file")
-                .description("bld Extension to Create or Modify Properties Files")
+                .description("Properties Files Extension for bld")
                 .url("https://github.com/rife2/bld-property-file")
                 .developer(
                         new PublishDeveloper().id("ethauvin")
@@ -126,16 +126,19 @@ public class PropertyFileBuild extends Project {
             ex = e;
         }
 
-        var xunitViewer = new File("/usr/bin/xunit-viewer");
-        if (xunitViewer.exists() && xunitViewer.canExecute()) {
-            var reportsDir = "build/reports/tests/test/";
+        var npmPackagesEnv = System.getenv("NPM_PACKAGES");
+        if (npmPackagesEnv != null && !npmPackagesEnv.isEmpty()) {
+            var xunitViewer = Path.of(npmPackagesEnv, "bin", "xunit-viewer").toFile();
+            if (xunitViewer.exists() && xunitViewer.canExecute()) {
+                var reportsDir = "build/reports/tests/test/";
 
-            Files.createDirectories(Path.of(reportsDir));
+                Files.createDirectories(Path.of(reportsDir));
 
-            new ExecOperation()
-                    .fromProject(this)
-                    .command(xunitViewer.getPath(), "-r", testResultsDir, "-o", reportsDir + "index.html")
-                    .execute();
+                new ExecOperation()
+                        .fromProject(this)
+                        .command(xunitViewer.getPath(), "-r", testResultsDir, "-o", reportsDir + "index.html")
+                        .execute();
+            }
         }
 
         if (ex != null) {
