@@ -19,6 +19,7 @@ package rife.bld.extension.propertyfile;
 import rife.bld.BuildCommand;
 import rife.bld.Project;
 import rife.bld.extension.ExecOperation;
+import rife.bld.extension.JUnitReporterOperation;
 import rife.bld.extension.PmdOperation;
 import rife.bld.publish.PublishDeveloper;
 import rife.bld.publish.PublishLicense;
@@ -111,6 +112,14 @@ public class PropertyFileBuild extends Project {
     @BuildCommand(value = "pmd-cli", summary = "Runs PMD analysis (CLI)")
     public void pmdCli() throws Exception {
         pmdOp.includeLineNumber(false).execute();
+    }
+
+    @BuildCommand(summary = "Runs the JUnit reporter")
+    public void reporter() throws Exception {
+        new JUnitReporterOperation()
+                .fromProject(this)
+                .failOnSummary(true)
+                .execute();
     }
 
     @Override

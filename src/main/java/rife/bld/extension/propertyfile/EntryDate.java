@@ -119,6 +119,7 @@ public class EntryDate extends EntryBase<EntryDate> {
      * @param cal the {@link Calendar} to set the value to
      * @return this instance
      */
+    @SuppressWarnings("PMD.ReplaceJavaUtilCalendar")
     public EntryDate set(Calendar cal) {
         newValue(cal);
         return this;
@@ -130,6 +131,7 @@ public class EntryDate extends EntryBase<EntryDate> {
      * @param date the {@link Date} to set the value to
      * @return this instance
      */
+    @SuppressWarnings("PMD.ReplaceJavaUtilDate")
     public EntryDate set(Date date) {
         newValue(date);
         return this;

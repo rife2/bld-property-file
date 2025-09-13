@@ -17,6 +17,38 @@
     <pattern value="rife.bld.extension.propertyfile.PropertyFileOperation" method="fromProject" />
     <pattern value="rife.bld.extension.propertyfile.PropertyFileOperation" />
     <pattern value="rife.bld.extension.propertyfile.PropertyFileBuild" method="pmdCli" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileUtilsTest.DateOperationsTest" />
+    <pattern value="rife.bld.extension.propertyfile.EntryBase" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileOperationTest.FileInputTests" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileUtilsTest.IntegerOperationsTest" />
+    <pattern value="rife.bld.extension.propertyfile.EntryBase" method="key" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileBuild" method="main" />
+    <pattern value="rife.bld.extension.propertyfile.Entry" method="modify" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileBuild" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileOperationTest" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileUtilsTest" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileBuild" method="reporter" />
+    <pattern value="rife.bld.extension.propertyfile.EntryDate" method="set" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileOperationTest" method="setUp" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileOperationTest" method="shouldClear" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileUtilsTest.DateOperationsTest" method="shouldDecrementDate" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileUtilsTest.IntegerOperationsTest" method="shouldDecrementInteger" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileOperationTest" method="shouldDeleteBuildDateProperty" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileOperationTest.FileInputTests" method="shouldHandleFile" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileOperationTest.FileInputTests" method="shouldHandlePath" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileOperationTest.FileInputTests" method="shouldHandleString" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileUtilsTest" method="shouldHandleWarnings" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileUtilsTest.DateOperationsTest" method="shouldHaveDefaultDateValue" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileUtilsTest.IntegerOperationsTest" method="shouldHaveDefaultIntValue" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileUtilsTest.DateOperationsTest" method="shouldIncrementDate" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileUtilsTest.IntegerOperationsTest" method="shouldIncrementInteger" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileOperationTest" method="shouldIncrementMajorVersionByTwo" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileOperationTest" method="shouldInitializeVersionProperties" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileUtilsTest.StringOperationsTest" method="shouldManipulateStrings" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileUtilsTest" method="shouldSaveAndLoadProperties" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileOperationTest" method="shouldThrowExceptionWhenNoProject" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileUtilsTest.StringOperationsTest" />
+    <pattern value="rife.bld.extension.propertyfile.EntryDate" method="unit" />
   </component>
   <component name="PDMPlugin">
     <option name="skipTestSources" value="false" />
