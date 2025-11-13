@@ -23,15 +23,19 @@ jobs:
           distribution: "zulu"
           java-version: ${{ matrix.java-version }}
 
-      - name: Download dependencies [examples]
+      - name: Download examples dependencies
         working-directory: examples
         run: ./bld download
 
-      - name: Compile run [examples]
+      - name: Compile examples
         working-directory: examples
-        run: ./bld compile run
+        run: ./bld compile
 
-      - name: Update version properties and run [examples]
+      - name: Run examples
+        working-directory: examples
+        run: ./bld run
+
+      - name: Update version properties and run examples
         working-directory: examples
         run: |
           ./bld update-major run
@@ -39,7 +43,7 @@ jobs:
           ./bld update-patch run
           ./bld update-release run
 
-      - name: Delete version properties and run [examples]
+      - name: Delete version properties and run examples
         working-directory: examples
         run: ./bld delete-version run
 
@@ -50,9 +54,9 @@ jobs:
         run: ./bld compile
 
       - name: Run tests
-        continue-on-error: true
+        id: tests
         run: ./bld test
 
       - name: Run reporter
-        if: ${{ failure() }}
+        if: always() && steps.tests.outcome == 'failure'
         run: ./bld reporter --all
