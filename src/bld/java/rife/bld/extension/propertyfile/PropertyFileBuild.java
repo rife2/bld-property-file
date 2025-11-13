@@ -51,12 +51,13 @@ public class PropertyFileBuild extends Project {
         autoDownloadPurge = true;
         repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_RELEASES, RIFE2_SNAPSHOTS);
 
+        var junit = version(6, 0, 1);
         scope(compile)
                 .include(dependency("com.uwyn.rife2", "bld", version(2, 3, 0)));
         scope(test)
                 .include(dependency("org.jsoup", "jsoup", version(1, 21, 2)))
-                .include(dependency("org.junit.jupiter", "junit-jupiter", version(5, 13, 4)))
-                .include(dependency("org.junit.platform", "junit-platform-console-standalone", version(1, 13, 4)))
+                .include(dependency("org.junit.jupiter", "junit-jupiter", junit))
+                .include(dependency("org.junit.platform", "junit-platform-console-standalone", junit))
                 .include(dependency("org.assertj:assertj-joda-time:2.2.0"));
 
         javadocOperation()
