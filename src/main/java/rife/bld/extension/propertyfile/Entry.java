@@ -39,15 +39,6 @@ public class Entry extends EntryBase<Entry> {
     }
 
     /**
-     * Returns the modify function.
-     *
-     * @return the modify function
-     */
-    protected BiFunction<String, String, String> modify() {
-        return modify_;
-    }
-
-    /**
      * Sets the modify function.
      *
      * @param modify the modify function
@@ -70,15 +61,6 @@ public class Entry extends EntryBase<Entry> {
     }
 
     /**
-     * Returns the value to be used in the {@link #modify_} function.
-     *
-     * @return the modify value
-     */
-    protected String modifyValue() {
-        return modifyValue_;
-    }
-
-    /**
      * Sets the new {@link java.util.Properties property} value.
      *
      * @param s The new value
@@ -87,5 +69,23 @@ public class Entry extends EntryBase<Entry> {
     public Entry set(Object s) {
         newValue(s);
         return this;
+    }
+
+    /**
+     * Returns the modify function.
+     *
+     * @return the modify function
+     */
+    protected BiFunction<String, String, String> modify() {
+        return modify_;
+    }
+
+    /**
+     * Returns the value to be used in the {@link #modify_} function.
+     *
+     * @return the modify value
+     */
+    protected String modifyValue() {
+        return modifyValue_;
     }
 }

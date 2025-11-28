@@ -16,6 +16,7 @@
 
 package rife.bld.extension.propertyfile;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
@@ -107,6 +108,7 @@ public final class PropertyFileUtils {
      * @throws DateTimeException if a parsing error occurs
      */
     @SuppressWarnings("PMD.ExceptionAsFlowControl")
+    @SuppressFBWarnings({"DRE_DECLARED_RUNTIME_EXCEPTION", "ITC_INHERITANCE_TYPE_CHECKING"})
     public static void processDate(Properties p, EntryDate entry) throws IllegalArgumentException {
         var currentValue = currentValue(null, entry.defaultValue(), entry.newValue());
         var pattern = objectToString(entry.pattern());
@@ -198,6 +200,7 @@ public final class PropertyFileUtils {
      * @param entry the {@link Entry} containing the {@link Properties property} edits
      * @throws NumberFormatException if a parsing error occurs
      */
+    @SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
     public static void processInt(Properties p, EntryInt entry) throws IllegalArgumentException {
         int intValue = 0;
         try {
@@ -225,6 +228,7 @@ public final class PropertyFileUtils {
      * @param p     the {@link Properties property}
      * @param entry the {@link Entry} containing the {@link Properties property} edits
      */
+    @SuppressFBWarnings("FORMAT_STRING_MANIPULATION")
     public static void processString(Properties p, Entry entry) {
         var currentValue = currentValue(p.getProperty(entry.key()), entry.defaultValue(), entry.newValue());
 

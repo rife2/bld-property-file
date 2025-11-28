@@ -20,6 +20,7 @@ import rife.bld.BuildCommand;
 import rife.bld.Project;
 import rife.bld.extension.JUnitReporterOperation;
 import rife.bld.extension.PmdOperation;
+import rife.bld.extension.SpotBugsOperation;
 import rife.bld.publish.PublishDeveloper;
 import rife.bld.publish.PublishLicense;
 import rife.bld.publish.PublishScm;
@@ -28,8 +29,7 @@ import java.io.File;
 import java.util.List;
 
 import static rife.bld.dependencies.Repository.*;
-import static rife.bld.dependencies.Scope.compile;
-import static rife.bld.dependencies.Scope.test;
+import static rife.bld.dependencies.Scope.*;
 import static rife.bld.operations.JavadocOptions.DocLinkOption.NO_MISSING;
 
 public class PropertyFileBuild extends Project {
@@ -51,6 +51,9 @@ public class PropertyFileBuild extends Project {
         var junit = version(6, 0, 1);
         scope(compile)
                 .include(dependency("com.uwyn.rife2", "bld", version(2, 3, 0)));
+        scope(provided)
+                .include(dependency("com.github.spotbugs", "spotbugs-annotations",
+                        version(4, 9, 8)));
         scope(test)
                 .include(dependency("org.jsoup", "jsoup", version(1, 21, 2)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", junit))
@@ -128,4 +131,11 @@ public class PropertyFileBuild extends Project {
                 .execute();
     }
 
+    @BuildCommand(summary = "Runs SpotBugs on this project")
+    public void spotbugs() throws Exception {
+        new SpotBugsOperation()
+                .fromProject(this)
+                .home("/opt/spotbugs")
+                .execute();
+    }
 }

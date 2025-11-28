@@ -16,6 +16,7 @@
 
 package rife.bld.extension.propertyfile;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rife.bld.BaseProject;
 import rife.bld.operations.AbstractOperation;
 import rife.bld.operations.exceptions.ExitStatusException;
@@ -42,40 +43,6 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
     private boolean failOnWarning_;
     private File file_;
     private BaseProject project_;
-
-    /**
-     * Marks the operation to clear all existing entries in the target properties file
-     * before applying further modifications.
-     *
-     * @return this instance
-     */
-    public PropertyFileOperation clear() {
-        clear_ = true;
-        return this;
-    }
-
-    /**
-     * Sets the comment to be inserted at the top of the {@link java.util.Properties} file.
-     *
-     * @param comment the header comment
-     * @return this instance
-     */
-    public PropertyFileOperation comment(String comment) {
-        comment_ = comment;
-        return this;
-    }
-
-    /**
-     * Adds an {@link Entry entry} to specify modifications to the {@link java.util.Properties properties}
-     * file.
-     *
-     * @param entry the {@link Entry entry}
-     * @return this instance
-     */
-    public PropertyFileOperation entry(EntryBase<?> entry) {
-        entries_.add(entry);
-        return this;
-    }
 
     /**
      * Performs the modification(s) to the {@link java.util.Properties properties} file.
@@ -143,6 +110,40 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
     }
 
     /**
+     * Marks the operation to clear all existing entries in the target properties file
+     * before applying further modifications.
+     *
+     * @return this instance
+     */
+    public PropertyFileOperation clear() {
+        clear_ = true;
+        return this;
+    }
+
+    /**
+     * Sets the comment to be inserted at the top of the {@link java.util.Properties} file.
+     *
+     * @param comment the header comment
+     * @return this instance
+     */
+    public PropertyFileOperation comment(String comment) {
+        comment_ = comment;
+        return this;
+    }
+
+    /**
+     * Adds an {@link Entry entry} to specify modifications to the {@link java.util.Properties properties}
+     * file.
+     *
+     * @param entry the {@link Entry entry}
+     * @return this instance
+     */
+    public PropertyFileOperation entry(EntryBase<?> entry) {
+        entries_.add(entry);
+        return this;
+    }
+
+    /**
      * Sets the {@link #execute() execution} to return a failure on any warnings.
      *
      * @param failOnWarning if set to {@code true}, the execution will fail on any warnings.
@@ -170,6 +171,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @param file the file to be edited
      * @return this instance
      */
+    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     public PropertyFileOperation file(String file) {
         return file(new File(file));
     }
@@ -199,6 +201,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @param project the project
      * @return this instance
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public PropertyFileOperation fromProject(BaseProject project) {
         project_ = project;
         return this;

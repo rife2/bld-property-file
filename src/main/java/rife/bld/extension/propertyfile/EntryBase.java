@@ -44,15 +44,6 @@ public abstract class EntryBase<T> {
     }
 
     /**
-     * Returns the calculation function.
-     *
-     * @return the calc function
-     */
-    protected IntFunction<Integer> calc() {
-        return calc_;
-    }
-
-    /**
      * Sets the calculation function.
      *
      * @param calc the calc function
@@ -60,15 +51,6 @@ public abstract class EntryBase<T> {
     public T calc(IntFunction<Integer> calc) {
         calc_ = calc;
         return (T) this;
-    }
-
-    /**
-     * Returns the default value.
-     *
-     * @return the default value
-     */
-    protected Object defaultValue() {
-        return defaultValue_;
     }
 
     /**
@@ -90,6 +72,45 @@ public abstract class EntryBase<T> {
     }
 
     /**
+     * Sets the key of the {@link java.util.Properties property}.
+     *
+     * @param key the {@link java.util.Properties property} key
+     * @return this instance
+     */
+    public T key(String key) {
+        key_ = key;
+        return (T) this;
+    }
+
+    /**
+     * Sets the {@link java.util.Formatter} pattern.
+     *
+     * @param pattern the pattern
+     */
+    public T pattern(Object pattern) {
+        pattern_ = pattern;
+        return (T) this;
+    }
+
+    /**
+     * Returns the calculation function.
+     *
+     * @return the calc function
+     */
+    protected IntFunction<Integer> calc() {
+        return calc_;
+    }
+
+    /**
+     * Returns the default value.
+     *
+     * @return the default value
+     */
+    protected Object defaultValue() {
+        return defaultValue_;
+    }
+
+    /**
      * Returns {@code true} if the {@link java.util.Properties property} is to be deleted.
      *
      * @return {@code true} or {@code false}
@@ -105,17 +126,6 @@ public abstract class EntryBase<T> {
      */
     protected String key() {
         return key_;
-    }
-
-    /**
-     * Sets the key of the {@link java.util.Properties property}.
-     *
-     * @param key the {@link java.util.Properties property} key
-     * @return this instance
-     */
-    public T key(String key) {
-        key_ = key;
-        return (T) this;
     }
 
     /**
@@ -143,15 +153,5 @@ public abstract class EntryBase<T> {
      */
     protected Object pattern() {
         return pattern_;
-    }
-
-    /**
-     * Sets the {@link java.util.Formatter} pattern.
-     *
-     * @param pattern the pattern
-     */
-    public T pattern(Object pattern) {
-        pattern_ = pattern;
-        return (T) this;
     }
 }
