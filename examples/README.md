@@ -18,3 +18,8 @@
 ```console
 ./bld delete-version run
 ```
+
+# Explore
+
+- [View Build File](https://github.com/rife2/bld-property-file/blob/master/examples/src/bld/java/com/example/PropertyFileExampleBuild.java)
+- [View Wrapper Properties](https://github.com/rife2/bld-property-file/blob/master/examples/lib/bld/bld-wrapper.properties)
