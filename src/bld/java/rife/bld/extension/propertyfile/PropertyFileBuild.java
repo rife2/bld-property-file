@@ -55,7 +55,7 @@ public class PropertyFileBuild extends Project {
                 .include(dependency("com.github.spotbugs", "spotbugs-annotations",
                         version(4, 9, 8)));
         scope(test)
-                .include(dependency("org.jsoup", "jsoup", version(1, 21, 2)))
+                .include(dependency("org.jsoup", "jsoup", version(1, 22, 1)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", junit))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", junit))
                 .include(dependency("org.assertj:assertj-joda-time:2.2.0"));
