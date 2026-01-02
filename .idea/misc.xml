@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
     <pattern value="rife.bld.extension.propertyFile.Entry" method="defaultValue" />
@@ -48,6 +49,7 @@
     <pattern value="rife.bld.extension.propertyfile.PropertyFileOperationTest" method="shouldThrowExceptionWhenNoProject" />
     <pattern value="rife.bld.extension.propertyfile.PropertyFileUtilsTest.StringOperationsTest" />
     <pattern value="rife.bld.extension.propertyfile.EntryDate" method="unit" />
+    <pattern value="rife.bld.extension.propertyfile.PropertyFileBuild" method="spotbugs" />
   </component>
   <component name="PDMPlugin">
     <option name="skipTestSources" value="false" />
