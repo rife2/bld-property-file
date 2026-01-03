@@ -17,6 +17,7 @@
 package rife.bld.extension.propertyfile;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import rife.bld.extension.tools.TextUtils;
 import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
@@ -114,7 +115,7 @@ public final class PropertyFileUtils {
         var pattern = objectToString(entry.pattern());
 
         var dateValue = String.valueOf(currentValue);
-        if (pattern != null && !pattern.isBlank()) {
+        if (TextUtils.isNotBlank(pattern)) {
             var offset = 0;
 
             if (entry.calc() != null) {

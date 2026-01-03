@@ -18,6 +18,7 @@ package rife.bld.extension.propertyfile;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rife.bld.BaseProject;
+import rife.bld.extension.tools.TextUtils;
 import rife.bld.operations.AbstractOperation;
 import rife.bld.operations.exceptions.ExitStatusException;
 
@@ -83,9 +84,9 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
                     var p = properties.getProperty(key);
                     if (entry.isDelete()) {
                         properties.remove(key);
-                    } else if ((value == null || String.valueOf(value).isBlank())
-                            && (defaultValue == null || String.valueOf(defaultValue).isBlank())
-                            && (p == null || p.isBlank())) {
+                    } else if (TextUtils.isBlank(value)
+                            && (TextUtils.isBlank(defaultValue))
+                            && (TextUtils.isBlank(p))) {
                         warn(commandName, "An entry must be set or have a default value: " + key);
                     } else {
                         try {
