@@ -17,6 +17,7 @@
 package rife.bld.extension.propertyfile;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import rife.bld.extension.tools.ObjectsUtils;
 import rife.bld.extension.tools.TextUtils;
 import rife.bld.operations.exceptions.ExitStatusException;
 
@@ -235,7 +236,7 @@ public final class PropertyFileUtils {
 
         p.setProperty(entry.key(), String.format(String.valueOf(currentValue), entry.pattern()));
 
-        if (entry.modify() != null && entry.modifyValue() != null) {
+        if (ObjectsUtils.isNotNull(entry.modify(), entry.modifyValue())) {
             var modify = entry.modify().apply(p.getProperty(entry.key()), entry.modifyValue());
             p.setProperty(entry.key(), String.format(modify, entry.pattern()));
         }
