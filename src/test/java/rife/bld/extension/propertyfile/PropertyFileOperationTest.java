@@ -21,7 +21,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import rife.bld.Project;
+import rife.bld.extension.testing.LoggingExtension;
+import rife.bld.extension.testing.TestLogHandler;
 import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
@@ -30,16 +34,33 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static rife.bld.extension.propertyfile.Calc.ADD;
 
 @DisplayName("PropertyFile Operation Tests")
+@ExtendWith(LoggingExtension.class)
 class PropertyFileOperationTest {
+
     private static final String BUILD_DATE = "build.date";
     private static final String COMMENT = "This is a comment";
     private static final String FOO = "foo";
+
+    @SuppressWarnings("LoggerInitializedWithForeignClass")
+    private static final Logger LOGGER = Logger.getLogger(PropertyFileOperation.class.getName());
+    private static final TestLogHandler TEST_LOG_HANDLER = new TestLogHandler();
+
+    @RegisterExtension
+    @SuppressWarnings("unused")
+    private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(
+            LOGGER,
+            TEST_LOG_HANDLER,
+            Level.ALL
+    );
+
     private static final String VERSION_MAJOR = "version.major";
     private static final String VERSION_MINOR = "version.minor";
     private static final String VERSION_PATCH = "version.patch";
@@ -68,6 +89,8 @@ class PropertyFileOperationTest {
                 .clear()
                 .entry(new Entry(FOO).set(bar))
                 .execute();
+
+        assertThat(TEST_LOG_HANDLER.containsMessage("All entries will be cleared first."));
 
         loadProperties();
         assertThat(properties).as("properties should only contain %s", FOO).containsOnlyKeys(FOO);
@@ -109,6 +132,23 @@ class PropertyFileOperationTest {
         loadProperties();
         assertThat(properties.getProperty(BUILD_DATE)).as("%s should be deleted", BUILD_DATE).isNull();
         assertThat(properties).containsOnlyKeys(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+    }
+
+    @Test
+    void shouldHaveDefaultValue() throws Exception {
+        new PropertyFileOperation()
+                .fromProject(new Project())
+                .file(tmpFile)
+                .entry(new EntryInt(VERSION_MAJOR))
+                .execute();
+        assertThat(TEST_LOG_HANDLER.containsMessage("An entry must be set or have a default value: version.major"));
+    }
+
+    @Test
+    void shouldHavePropertiesFile() {
+        var op = new PropertyFileOperation().fromProject(new Project());
+        assertThatCode(op::execute).isInstanceOf(NullPointerException.class);
+        assertThat(TEST_LOG_HANDLER.containsMessage("A properties file must be specified."));
     }
 
     @Test
@@ -159,6 +199,7 @@ class PropertyFileOperationTest {
     @Nested
     @DisplayName("File Input Tests")
     class FileInputTests {
+
         private static final File FOO_FILE = new File(FOO);
 
         @Test

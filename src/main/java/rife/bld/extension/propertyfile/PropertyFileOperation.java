@@ -216,12 +216,12 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
     private void warn(String command, String message) throws ExitStatusException {
         if (failOnWarning_) {
             if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
-                LOGGER.log(Level.SEVERE, "[{0}] {1}", new String[]{command, message});
+                LOGGER.log(Level.WARNING, "[" + command + "] " + message);
                 throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
             }
         } else {
             if (LOGGER.isLoggable(Level.WARNING) && !silent()) {
-                LOGGER.log(Level.WARNING, "[{0}] {1}", new String[]{command, message});
+                LOGGER.log(Level.WARNING, "[" + command + "] " + message);
             }
         }
     }
