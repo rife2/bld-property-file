@@ -84,9 +84,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
                     var p = properties.getProperty(key);
                     if (entry.isDelete()) {
                         properties.remove(key);
-                    } else if (TextUtils.isBlank(value)
-                            && (TextUtils.isBlank(defaultValue))
-                            && (TextUtils.isBlank(p))) {
+                    } else if (TextUtils.isBlank(value, defaultValue, p)) {
                         warn(commandName, "An entry must be set or have a default value: " + key);
                     } else {
                         try {
