@@ -234,7 +234,9 @@ public final class PropertyFileUtils {
     public static void processString(Properties p, Entry entry) {
         var currentValue = currentValue(p.getProperty(entry.key()), entry.defaultValue(), entry.newValue());
 
-        p.setProperty(entry.key(), String.format(String.valueOf(currentValue), entry.pattern()));
+        p.setProperty(entry.key(), entry.pattern() != null
+                ? String.format(String.valueOf(entry.pattern()), currentValue)
+                : String.valueOf(currentValue));
 
         if (ObjectsUtils.isNotNull(entry.modify(), entry.modifyValue())) {
             var modify = entry.modify().apply(p.getProperty(entry.key()), entry.modifyValue());
