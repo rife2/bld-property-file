@@ -154,4 +154,16 @@ public abstract class EntryBase<T> {
     protected Object pattern() {
         return pattern_;
     }
+
+    @Override
+    public String toString() {
+        return "EntryBase{" +
+                "key='" + key_ + '\'' +
+                ", newValue=" + newValue_ +
+                ", defaultValue=" + defaultValue_ +
+                ", pattern=" + pattern_ +
+                ", calc=" + calc_ +
+                ", isDelete=" + isDelete_ +
+                '}';
+    }
 }
