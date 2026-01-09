@@ -37,6 +37,7 @@ import java.util.logging.Logger;
  * @since 1.0
  */
 public class PropertyFileOperation extends AbstractOperation<PropertyFileOperation> {
+
     private static final Logger LOGGER = Logger.getLogger(PropertyFileOperation.class.getName());
     private final List<EntryBase<?>> entries_ = new ArrayList<>();
     private boolean clear_;
@@ -64,7 +65,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
         if (file_ == null) {
             warn(commandName, "A properties file must be specified.");
         } else {
-            success = PropertyFileUtils.loadProperties(commandName, file_, properties, silent());
+            success = PropertyFileUtils.loadProperties(commandName, file_, properties, failOnWarning_, silent());
         }
 
         if (success) {
@@ -214,15 +215,6 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @throws ExitStatusException if a {@link Level#SEVERE} exception occurs
      */
     private void warn(String command, String message) throws ExitStatusException {
-        if (failOnWarning_) {
-            if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
-                LOGGER.log(Level.WARNING, "[" + command + "] " + message);
-                throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
-            }
-        } else {
-            if (LOGGER.isLoggable(Level.WARNING) && !silent()) {
-                LOGGER.log(Level.WARNING, "[" + command + "] " + message);
-            }
-        }
+        PropertyFileUtils.warn(LOGGER, command, message, failOnWarning_, silent());
     }
 }

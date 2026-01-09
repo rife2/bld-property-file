@@ -42,6 +42,7 @@ import java.util.logging.Logger;
  * @since 1.0
  */
 public final class PropertyFileUtils {
+
     private static final Logger LOGGER = Logger.getLogger(PropertyFileUtils.class.getName());
 
     private PropertyFileUtils() {
@@ -49,7 +50,7 @@ public final class PropertyFileUtils {
     }
 
     /**
-     * Returns the new value, value or default value depending on which is specified.
+     * Returns the new value, value, or default value depending on which is specified.
      *
      * @param value        the value
      * @param defaultValue the default value
@@ -75,7 +76,7 @@ public final class PropertyFileUtils {
      * @return the boolean
      * @throws ExitStatusException if an error occurred
      */
-    public static boolean loadProperties(String command, File file, Properties p, boolean silent)
+    public static boolean loadProperties(String command, File file, Properties p, boolean failOnWarning, boolean silent)
             throws ExitStatusException {
         boolean success = true;
         if (file != null) {
@@ -83,12 +84,17 @@ public final class PropertyFileUtils {
                 try (var propStream = Files.newInputStream(file.toPath(), StandardOpenOption.READ)) {
                     p.load(propStream);
                 } catch (IOException ioe) {
-                    warn(command, "Could not load properties file: " + ioe.getMessage(), true, silent);
+                    warn(LOGGER, command,
+                            "Could not load properties file: " + ioe.getMessage(), failOnWarning, silent);
                     success = false;
                 }
+            } else {
+                warn(LOGGER, command, "Properties file does not exist: " + file.getAbsolutePath(),
+                        failOnWarning, silent);
+                success = false;
             }
         } else {
-            warn(command, "Please specify the properties file location.", true, silent);
+            warn(LOGGER, command, "Please specify the properties file location.", failOnWarning, silent);
             success = false;
         }
         return success;
@@ -263,21 +269,22 @@ public final class PropertyFileUtils {
     /**
      * Logs a warning.
      *
+     * @param logger        the logger
      * @param command       The command name
      * @param message       the message log
      * @param failOnWarning logs and throws exception if set to {@code true}
      * @throws ExitStatusException if a {@link Level#SEVERE} exception occurs
      */
-    static void warn(String command, String message, boolean failOnWarning, boolean silent)
+    static void warn(Logger logger, String command, String message, boolean failOnWarning, boolean silent)
             throws ExitStatusException {
         if (failOnWarning) {
-            if (LOGGER.isLoggable(Level.SEVERE) && !silent) {
-                LOGGER.log(Level.SEVERE, "[{0}] {1}", new String[]{command, message});
+            if (logger.isLoggable(Level.SEVERE) && !silent) {
+                logger.log(Level.SEVERE, "[" + command + "] " + message);
             }
             throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
         } else {
-            if (LOGGER.isLoggable(Level.WARNING) && !silent) {
-                LOGGER.log(Level.WARNING, "[{0}] {1}", new String[]{command, message});
+            if (logger.isLoggable(Level.WARNING) && !silent) {
+                logger.log(Level.WARNING, "[" + command + "] " + message);
             }
         }
     }
