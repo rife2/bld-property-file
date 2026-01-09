@@ -33,6 +33,7 @@ import static rife.bld.dependencies.Scope.*;
 import static rife.bld.operations.JavadocOptions.DocLinkOption.NO_MISSING;
 
 public class PropertyFileBuild extends Project {
+
     final PmdOperation pmdOp = new PmdOperation()
             .fromProject(this)
             .failOnViolation(true)
