@@ -17,8 +17,9 @@
 package rife.bld.extension.propertyfile;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import rife.bld.extension.tools.ObjectsUtils;
-import rife.bld.extension.tools.TextUtils;
+import rife.bld.extension.tools.IOTools;
+import rife.bld.extension.tools.ObjectTools;
+import rife.bld.extension.tools.TextTools;
 import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
@@ -79,22 +80,16 @@ public final class PropertyFileUtils {
     public static boolean loadProperties(String command, File file, Properties p, boolean failOnWarning, boolean silent)
             throws ExitStatusException {
         boolean success = true;
-        if (file != null) {
-            if (file.exists()) {
-                try (var propStream = Files.newInputStream(file.toPath(), StandardOpenOption.READ)) {
-                    p.load(propStream);
-                } catch (IOException ioe) {
-                    warn(LOGGER, command,
-                            "Could not load properties file: " + ioe.getMessage(), failOnWarning, silent);
-                    success = false;
-                }
-            } else {
-                warn(LOGGER, command, "Properties file does not exist: " + file.getAbsolutePath(),
-                        failOnWarning, silent);
+        if (IOTools.exists(file)) {
+            try (var propStream = Files.newInputStream(file.toPath(), StandardOpenOption.READ)) {
+                p.load(propStream);
+            } catch (IOException ioe) {
+                warn(LOGGER, command,
+                        "Could not load properties file: " + ioe.getMessage(), failOnWarning, silent);
                 success = false;
             }
         } else {
-            warn(LOGGER, command, "Please specify the properties file location.", failOnWarning, silent);
+            warn(LOGGER, command, "Please specify a valid properties file location.", failOnWarning, silent);
             success = false;
         }
         return success;
@@ -122,7 +117,7 @@ public final class PropertyFileUtils {
         var pattern = objectToString(entry.pattern());
 
         var dateValue = String.valueOf(currentValue);
-        if (TextUtils.isNotBlank(pattern)) {
+        if (TextTools.isNotBlank(pattern)) {
             var offset = 0;
 
             if (entry.calc() != null) {
@@ -244,7 +239,7 @@ public final class PropertyFileUtils {
                 ? String.format(String.valueOf(entry.pattern()), currentValue)
                 : String.valueOf(currentValue));
 
-        if (ObjectsUtils.isNotNull(entry.modify(), entry.modifyValue())) {
+        if (ObjectTools.isNotNull(entry.modify(), entry.modifyValue())) {
             var modify = entry.modify().apply(p.getProperty(entry.key()), entry.modifyValue());
             p.setProperty(entry.key(), String.format(modify, entry.pattern()));
         }

@@ -23,6 +23,7 @@ package rife.bld.extension.propertyfile;
  * @since 1.0
  */
 public class EntryInt extends EntryBase<EntryInt> {
+
     /**
      * Creates a new {@link EntryInt entry}.
      *

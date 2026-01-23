@@ -27,6 +27,7 @@ import java.util.Date;
  * @since 1.0
  */
 public class EntryDate extends EntryBase<EntryDate> {
+
     private EntryDate.Units unit_ = EntryDate.Units.DAY;
 
     /**

@@ -213,52 +213,24 @@ class PropertyFileUtilsTest {
     class LoadPropertiesErrorTest {
 
         @Test
-        void shouldFailWhenFileIsNull() {
-            var properties = new Properties();
-
-            assertThatThrownBy(() ->
-                    PropertyFileUtils.loadProperties("test", null, properties, true, false))
-                    .isInstanceOf(ExitStatusException.class);
-            assertThat(TEST_LOG_HANDLER.containsMessage("Please specify the properties file location.")).isTrue();
-        }
-
-        @Test
-        void shouldFailWithSilentMode() {
-            var properties = new Properties();
-            assertThatThrownBy(() ->
-                    PropertyFileUtils.loadProperties("test", null, properties, true, true))
-                    .isInstanceOf(ExitStatusException.class);
-            assertThat(TEST_LOG_HANDLER.isEmpty()).isTrue();
-        }
-
-        @Test
         void shouldFailWhenFileDoesNotExist() {
             var properties = new Properties();
             var nonExistentFile = new File("nonexistent.properties");
             assertThatThrownBy(() ->
                     PropertyFileUtils.loadProperties("test", nonExistentFile, properties, true, false))
                     .isInstanceOf(ExitStatusException.class);
-            assertThat(TEST_LOG_HANDLER.containsMessage("Properties file does not exist:")).isTrue();
+            assertThat(TEST_LOG_HANDLER.containsMessage("Please specify a valid properties file location.")).isTrue();
         }
 
         @Test
-        void shouldNotSucceedWhenFileIsNull() throws ExitStatusException {
-            var properties = new Properties();
-            var result =
-                    PropertyFileUtils.loadProperties("test", null, properties,
-                            false, false);
-            assertThat(result).isFalse();
-            assertThat(TEST_LOG_HANDLER.containsMessage("Please specify the properties file location.")).isTrue();
-        }
-
-        @Test
-        void shouldNotSucceedWhenFileDoesNotExist() {
+        void shouldFailWhenFileDoesNotExists() throws ExitStatusException {
             var properties = new Properties();
             var nonExistentFile = new File("nonexistent.properties");
-            assertThatThrownBy(() ->
-                    PropertyFileUtils.loadProperties("test", nonExistentFile, properties, true, false))
-                    .isInstanceOf(ExitStatusException.class);
-            assertThat(TEST_LOG_HANDLER.containsMessage("Properties file does not exist:")).isTrue();
+            var result =
+                    PropertyFileUtils.loadProperties("test", nonExistentFile, properties,
+                            false, false);
+            assertThat(result).isFalse();
+            assertThat(TEST_LOG_HANDLER.containsMessage("Please specify a valid properties file location.")).isTrue();
         }
 
         @Test
@@ -273,14 +245,42 @@ class PropertyFileUtilsTest {
         }
 
         @Test
-        void shouldFailWhenFileDoesNotExists() throws ExitStatusException {
+        void shouldFailWhenFileIsNull() {
+            var properties = new Properties();
+
+            assertThatThrownBy(() ->
+                    PropertyFileUtils.loadProperties("test", null, properties, true, false))
+                    .isInstanceOf(ExitStatusException.class);
+            assertThat(TEST_LOG_HANDLER.containsMessage("Please specify a valid properties file location.")).isTrue();
+        }
+
+        @Test
+        void shouldFailWithSilentMode() {
+            var properties = new Properties();
+            assertThatThrownBy(() ->
+                    PropertyFileUtils.loadProperties("test", null, properties, true, true))
+                    .isInstanceOf(ExitStatusException.class);
+            assertThat(TEST_LOG_HANDLER.isEmpty()).isTrue();
+        }
+
+        @Test
+        void shouldNotSucceedWhenFileDoesNotExist() {
             var properties = new Properties();
             var nonExistentFile = new File("nonexistent.properties");
+            assertThatThrownBy(() ->
+                    PropertyFileUtils.loadProperties("test", nonExistentFile, properties, true, false))
+                    .isInstanceOf(ExitStatusException.class);
+            assertThat(TEST_LOG_HANDLER.containsMessage("Please specify a valid properties file location.")).isTrue();
+        }
+
+        @Test
+        void shouldNotSucceedWhenFileIsNull() throws ExitStatusException {
+            var properties = new Properties();
             var result =
-                    PropertyFileUtils.loadProperties("test", nonExistentFile, properties,
+                    PropertyFileUtils.loadProperties("test", null, properties,
                             false, false);
             assertThat(result).isFalse();
-            assertThat(TEST_LOG_HANDLER.containsMessage("Properties file does not exist:")).isTrue();
+            assertThat(TEST_LOG_HANDLER.containsMessage("Please specify a valid properties file location.")).isTrue();
         }
     }
 

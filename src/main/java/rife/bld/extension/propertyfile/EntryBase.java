@@ -27,6 +27,7 @@ import java.util.function.IntFunction;
  */
 @SuppressWarnings({"unchecked", "PMD.AbstractClassWithoutAbstractMethod"})
 public abstract class EntryBase<T> {
+
     private IntFunction<Integer> calc_;
     private Object defaultValue_;
     private boolean isDelete_;
@@ -41,6 +42,18 @@ public abstract class EntryBase<T> {
      */
     public EntryBase(String key) {
         key_ = key;
+    }
+
+    @Override
+    public String toString() {
+        return "EntryBase{" +
+                "key='" + key_ + '\'' +
+                ", newValue=" + newValue_ +
+                ", defaultValue=" + defaultValue_ +
+                ", pattern=" + pattern_ +
+                ", calc=" + calc_ +
+                ", isDelete=" + isDelete_ +
+                '}';
     }
 
     /**
@@ -153,17 +166,5 @@ public abstract class EntryBase<T> {
      */
     protected Object pattern() {
         return pattern_;
-    }
-
-    @Override
-    public String toString() {
-        return "EntryBase{" +
-                "key='" + key_ + '\'' +
-                ", newValue=" + newValue_ +
-                ", defaultValue=" + defaultValue_ +
-                ", pattern=" + pattern_ +
-                ", calc=" + calc_ +
-                ", isDelete=" + isDelete_ +
-                '}';
     }
 }

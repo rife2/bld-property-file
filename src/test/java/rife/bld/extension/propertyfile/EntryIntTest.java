@@ -23,14 +23,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EntryIntTest {
 
     @Test
-    void shouldSetPattern() {
-        var entry = new EntryInt("key").pattern("000");
-        assertThat(entry.pattern()).isEqualTo("000");
-    }
-
-    @Test
     void shouldSetInt() {
         var entry = new EntryInt("key").set(42);
         assertThat(entry.newValue()).isEqualTo(42);
+    }
+
+    @Test
+    void shouldSetPattern() {
+        var entry = new EntryInt("key").pattern("000");
+        assertThat(entry.pattern()).isEqualTo("000");
     }
 }

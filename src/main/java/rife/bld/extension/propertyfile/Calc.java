@@ -26,6 +26,7 @@ import java.util.function.IntFunction;
  * @since 1.0
  */
 public final class Calc {
+
     /**
      * The add function.
      */

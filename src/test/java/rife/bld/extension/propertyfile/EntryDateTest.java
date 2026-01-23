@@ -28,15 +28,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EntryDateTest {
 
     @Test
-    void shouldSetNow() {
-        var entry = new EntryDate("key").now();
-        assertThat(entry.newValue()).isEqualTo("now");
+    void shouldSetAndGetUnit() {
+        var entry = new EntryDate("key");
+        assertThat(entry.unit()).isEqualTo(EntryDate.Units.DAY);
+        entry.unit(EntryDate.Units.YEAR);
+        assertThat(entry.unit()).isEqualTo(EntryDate.Units.YEAR);
     }
 
     @Test
-    void shouldSetPattern() {
-        var entry = new EntryDate("key").pattern("yyyy-MM-dd");
-        assertThat(entry.pattern()).isEqualTo("yyyy-MM-dd");
+    void shouldSetCalendar() {
+        var cal = Calendar.getInstance();
+        var entry = new EntryDate("key").set(cal);
+        assertThat(entry.newValue()).isEqualTo(cal);
+    }
+
+    @Test
+    @SuppressWarnings("PMD.ReplaceJavaUtilDate")
+    void shouldSetDate() {
+        var date = new Date();
+        var entry = new EntryDate("key").set(date);
+        assertThat(entry.newValue()).isEqualTo(date);
     }
 
     @Test
@@ -61,13 +72,6 @@ class EntryDateTest {
     }
 
     @Test
-    void shouldSetZonedDateTime() {
-        var date = ZonedDateTime.now();
-        var entry = new EntryDate("key").set(date);
-        assertThat(entry.newValue()).isEqualTo(date);
-    }
-
-    @Test
     void shouldSetLocalTime() {
         var time = LocalTime.now();
         var entry = new EntryDate("key").set(time);
@@ -75,25 +79,21 @@ class EntryDateTest {
     }
 
     @Test
-    void shouldSetCalendar() {
-        var cal = Calendar.getInstance();
-        var entry = new EntryDate("key").set(cal);
-        assertThat(entry.newValue()).isEqualTo(cal);
+    void shouldSetNow() {
+        var entry = new EntryDate("key").now();
+        assertThat(entry.newValue()).isEqualTo("now");
     }
 
     @Test
-    @SuppressWarnings("PMD.ReplaceJavaUtilDate")
-    void shouldSetDate() {
-        var date = new Date();
+    void shouldSetPattern() {
+        var entry = new EntryDate("key").pattern("yyyy-MM-dd");
+        assertThat(entry.pattern()).isEqualTo("yyyy-MM-dd");
+    }
+
+    @Test
+    void shouldSetZonedDateTime() {
+        var date = ZonedDateTime.now();
         var entry = new EntryDate("key").set(date);
         assertThat(entry.newValue()).isEqualTo(date);
-    }
-
-    @Test
-    void shouldSetAndGetUnit() {
-        var entry = new EntryDate("key");
-        assertThat(entry.unit()).isEqualTo(EntryDate.Units.DAY);
-        entry.unit(EntryDate.Units.YEAR);
-        assertThat(entry.unit()).isEqualTo(EntryDate.Units.YEAR);
     }
 }

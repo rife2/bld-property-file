@@ -26,6 +26,7 @@ import java.util.function.BiFunction;
  * @since 1.0
  */
 public class Entry extends EntryBase<Entry> {
+
     private String modifyValue_ = "";
     private BiFunction<String, String, String> modify_;
 

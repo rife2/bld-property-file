@@ -26,6 +26,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EntryBaseTest {
 
     @Test
+    void shouldReturnToString() {
+        var entry = new Entry("key").set("value").defaultValue("default");
+        assertThat(entry.toString())
+                .contains("key='key'")
+                .contains("newValue=value")
+                .contains("defaultValue=default")
+                .contains("EntryBase");
+    }
+
+    @Test
     void shouldSetAndGetCalc() {
         IntFunction<Integer> calc = i -> i + 1;
         var entry = new Entry("key").calc(calc);
@@ -55,12 +65,6 @@ class EntryBaseTest {
     }
 
     @Test
-    void shouldSetAndGetPattern() {
-        var entry = new Entry("key").pattern("pattern");
-        assertThat(entry.pattern()).isEqualTo("pattern");
-    }
-
-    @Test
     void shouldSetAndGetNewValue() {
         var entry = new Entry("key");
         assertThat(entry.newValue()).isNull();
@@ -69,12 +73,8 @@ class EntryBaseTest {
     }
 
     @Test
-    void shouldReturnToString() {
-        var entry = new Entry("key").set("value").defaultValue("default");
-        assertThat(entry.toString())
-                .contains("key='key'")
-                .contains("newValue=value")
-                .contains("defaultValue=default")
-                .contains("EntryBase");
+    void shouldSetAndGetPattern() {
+        var entry = new Entry("key").pattern("pattern");
+        assertThat(entry.pattern()).isEqualTo("pattern");
     }
 }
