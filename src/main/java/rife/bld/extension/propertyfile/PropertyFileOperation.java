@@ -121,6 +121,20 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
     }
 
     /**
+     * Sets whether all existing entries in the target properties file should be cleared
+     * before applying further modifications.
+     *
+     * @param clear if set to {@code true}, all existing entries will be cleared first
+     * @return this instance
+     * @see #clear()
+     * @see #isClear()
+     */
+    public PropertyFileOperation clear(boolean clear) {
+        clear_ = clear;
+        return this;
+    }
+
+    /**
      * Sets the comment to be inserted at the top of the {@link java.util.Properties} file.
      *
      * @param comment the header comment
@@ -205,6 +219,26 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
     public PropertyFileOperation fromProject(BaseProject project) {
         project_ = project;
         return this;
+    }
+
+    /**
+     * Indicates whether all existing entries will be cleared before modifications are applied.
+     *
+     * @return {@code true} if existing entries will be cleared; {@code false} otherwise
+     * @see #clear(boolean)
+     */
+    public boolean isClear() {
+        return clear_;
+    }
+
+    /**
+     * Indicates whether the {@link #execute() execution} will return a failure on any warnings.
+     *
+     * @return {@code true} if the execution will fail on warnings; {@code false} otherwise
+     * @see #failOnWarning(boolean)
+     */
+    public boolean isFailOnWarning() {
+        return failOnWarning_;
     }
 
     /**
