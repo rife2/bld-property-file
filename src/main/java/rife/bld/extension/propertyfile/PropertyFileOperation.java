@@ -146,6 +146,15 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
     }
 
     /**
+     * Retrieves an unmodifiable view of the configured entries.
+     *
+     * @return the list of entries
+     */
+    public List<EntryBase<?>> entries() {
+        return Collections.unmodifiableList(entries_);
+    }
+
+    /**
      * Adds an {@link Entry entry} to specify modifications to the {@link java.util.Properties properties}
      * file.
      *
