@@ -16,11 +16,12 @@
 
 package rife.bld.extension.propertyfile;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rife.bld.extension.tools.IOTools;
 import rife.bld.extension.tools.ObjectTools;
 import rife.bld.extension.tools.TextTools;
-import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,11 +31,11 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Collection of common methods used in this project.
@@ -44,21 +45,67 @@ import java.util.logging.Logger;
  */
 public final class PropertyFileUtils {
 
-    private static final Logger LOGGER = Logger.getLogger(PropertyFileUtils.class.getName());
-
     private PropertyFileUtils() {
         // no-op
+    }
+
+    private static String applyOffsetAndFormat(Object value, EntryDate entry, DateTimeFormatter dtf)
+            throws DateTimeException {
+        var offset = entry.calc() != null ? entry.calc().apply(0) : 0;
+        var unit = entry.unit();
+        try {
+            final TemporalAccessor result;
+            if (value instanceof LocalDate ld) {
+                result = offset == 0 ? ld : switch (unit) {
+                    case DAY -> ld.plusDays(offset);
+                    case WEEK -> ld.plusWeeks(offset);
+                    case MONTH -> ld.plusMonths(offset);
+                    case YEAR -> ld.plusYears(offset);
+                    // HOUR, MINUTE, SECOND are not applicable to LocalDate
+                    default -> throw new IllegalArgumentException(
+                            "Unit " + unit + " is not applicable to a date-only value for \"" + entry.key() + "\"");
+                };
+            } else if (value instanceof LocalTime lt) {
+                result = offset == 0 ? lt : switch (unit) {
+                    case SECOND -> lt.plusSeconds(offset);
+                    case MINUTE -> lt.plusMinutes(offset);
+                    case HOUR -> lt.plusHours(offset);
+                    // DAY, WEEK, MONTH, YEAR are not applicable to LocalTime
+                    default -> throw new IllegalArgumentException(
+                            "Unit " + unit + " is not applicable to a time-only value for \"" + entry.key() + "\"");
+                };
+            } else {
+                var zdt = (ZonedDateTime) value;
+                result = offset == 0 ? zdt : switch (unit) {
+                    case DAY -> zdt.plusDays(offset);
+                    case WEEK -> zdt.plusWeeks(offset);
+                    case MONTH -> zdt.plusMonths(offset);
+                    case YEAR -> zdt.plusYears(offset);
+                    case SECOND -> zdt.plusSeconds(offset);
+                    case MINUTE -> zdt.plusMinutes(offset);
+                    case HOUR -> zdt.plusHours(offset);
+                };
+            }
+            return dtf.format(result);
+        } catch (DateTimeException dte) {
+            throw new DateTimeException(
+                    "Date arithmetic or formatting error for \"" + entry.key() + "\" --> " + dte.getMessage(), dte);
+        }
     }
 
     /**
      * Returns the new value, value, or default value depending on which is specified.
      *
-     * @param value        the value
-     * @param defaultValue the default value
-     * @param newValue     the new value
-     * @return the object
+     * <p>Priority order: {@code newValue} ? {@code value} ? {@code defaultValue}.
+     *
+     * @param value        the current persisted value; may be {@code null} if the key is absent
+     * @param defaultValue the fallback used when both {@code value} and {@code newValue} are {@code null}
+     * @param newValue     when non-{@code null}, always takes precedence over the other two
+     * @return the resolved object; {@code null} if all three arguments are {@code null}
      */
-    public static Object currentValue(String value, Object defaultValue, Object newValue) {
+    @Nullable
+    public static Object currentValue(@Nullable String value, @Nullable Object defaultValue,
+                                      @Nullable Object newValue) {
         if (newValue != null) {
             return newValue;
         } else if (value == null) {
@@ -71,147 +118,91 @@ public final class PropertyFileUtils {
     /**
      * Loads a {@link Properties properties} file.
      *
-     * @param command the issuing command
-     * @param file    the file location
-     * @param p       the {@link Properties properties} to load into.
-     * @return the boolean
-     * @throws ExitStatusException if an error occurred
+     * @param file the file location
+     * @param p    the {@link Properties properties} to load into
+     * @throws IOException              if an error occurred while reading the file
+     * @throws IllegalArgumentException if the file does not exist
      */
-    public static boolean loadProperties(String command, File file, Properties p, boolean failOnWarning, boolean silent)
-            throws ExitStatusException {
-        boolean success = true;
+    @SuppressFBWarnings(value = {"EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS", "LEST_LOST_EXCEPTION_STACK_TRACE"},
+    justification = "IOException is re-thrown as the same type, not softened; cause is always chained.")
+    public static void loadProperties(@NonNull File file, @NonNull Properties p) throws IOException {
         if (IOTools.exists(file)) {
             try (var propStream = Files.newInputStream(file.toPath(), StandardOpenOption.READ)) {
                 p.load(propStream);
             } catch (IOException ioe) {
-                warn(LOGGER, command,
-                        "Could not load properties file: " + ioe.getMessage(), failOnWarning, silent);
-                success = false;
+                throw new IOException("Could not load properties file: " + ioe.getMessage(), ioe);
             }
         } else {
-            warn(LOGGER, command, "Please specify a valid properties file location.", failOnWarning, silent);
-            success = false;
-        }
-        return success;
-    }
-
-    private static String objectToString(Object o) {
-        if (o == null) {
-            return "";
-        } else {
-            return String.valueOf(o);
+            throw new IllegalArgumentException("Please specify a valid properties file location.");
         }
     }
 
-    /**
-     * Processes a date {@link Properties property}.
-     *
-     * @param p     the {@link Properties property}
-     * @param entry the {@link Entry} containing the {@link Properties property} edits
-     * @throws DateTimeException if a parsing error occurs
-     */
-    @SuppressWarnings("PMD.ExceptionAsFlowControl")
-    @SuppressFBWarnings({"DRE_DECLARED_RUNTIME_EXCEPTION", "ITC_INHERITANCE_TYPE_CHECKING"})
-    public static void processDate(Properties p, EntryDate entry) throws IllegalArgumentException {
-        var currentValue = currentValue(null, entry.defaultValue(), entry.newValue());
-        var pattern = objectToString(entry.pattern());
-
-        var dateValue = String.valueOf(currentValue);
-        if (TextTools.isNotBlank(pattern)) {
-            var offset = 0;
-
-            if (entry.calc() != null) {
-                offset = entry.calc().apply(offset);
-            }
-
-            var dtf = DateTimeFormatter.ofPattern(pattern);
-            var unit = entry.unit();
-
-            try {
-                if (currentValue instanceof String) {
-                    if ("now".equalsIgnoreCase((String) currentValue)) {
-                        currentValue = ZonedDateTime.now();
-                    } else {
-                        throw new DateTimeException("Excepted: Calendar, Date or java.time.");
-                    }
-                } else if (currentValue instanceof LocalDateTime) {
-                    currentValue = ((LocalDateTime) currentValue).atZone(ZoneId.systemDefault());
-                } else if (currentValue instanceof Date) {
-                    currentValue = ((Date) currentValue).toInstant().atZone(ZoneId.systemDefault());
-                } else if (currentValue instanceof Calendar) {
-                    currentValue = ((Calendar) currentValue).toInstant().atZone(ZoneId.systemDefault());
-                } else if (currentValue instanceof Instant) {
-                    currentValue = ((Instant) currentValue).atZone(ZoneId.systemDefault());
-                }
-
-                if (currentValue instanceof LocalDate) {
-                    if (offset != 0) {
-                        if (unit == EntryDate.Units.DAY) {
-                            currentValue = ((LocalDate) currentValue).plusDays(offset);
-                        } else if (unit == EntryDate.Units.MONTH) {
-                            currentValue = ((LocalDate) currentValue).plusMonths(offset);
-                        } else if (unit == EntryDate.Units.WEEK) {
-                            currentValue = ((LocalDate) currentValue).plusWeeks(offset);
-                        } else if (unit == EntryDate.Units.YEAR) {
-                            currentValue = ((LocalDate) currentValue).plusYears(offset);
-                        }
-                    }
-                    dateValue = dtf.format((LocalDate) currentValue);
-                } else if (currentValue instanceof LocalTime) {
-                    if (offset != 0) {
-                        if (unit == EntryDate.Units.SECOND) {
-                            currentValue = ((LocalTime) currentValue).plusSeconds(offset);
-                        } else if (unit == EntryDate.Units.MINUTE) {
-                            currentValue = ((LocalTime) currentValue).plusMinutes(offset);
-                        } else if (unit == EntryDate.Units.HOUR) {
-                            currentValue = ((LocalTime) currentValue).plusHours(offset);
-                        }
-                    }
-                    dateValue = dtf.format((LocalTime) currentValue);
-                } else if (currentValue instanceof ZonedDateTime) {
-                    if (offset != 0) {
-                        if (unit == EntryDate.Units.DAY) {
-                            currentValue = ((ZonedDateTime) currentValue).plusDays(offset);
-                        } else if (unit == EntryDate.Units.MONTH) {
-                            currentValue = ((ZonedDateTime) currentValue).plusMonths(offset);
-                        } else if (unit == EntryDate.Units.WEEK) {
-                            currentValue = ((ZonedDateTime) currentValue).plusWeeks(offset);
-                        } else if (unit == EntryDate.Units.YEAR) {
-                            currentValue = ((ZonedDateTime) currentValue).plusYears(offset);
-                        } else if (unit == EntryDate.Units.SECOND) {
-                            currentValue = ((ZonedDateTime) currentValue).plusSeconds(offset);
-                        } else if (unit == EntryDate.Units.MINUTE) {
-                            currentValue = ((ZonedDateTime) currentValue).plusMinutes(offset);
-                        } else if (unit == EntryDate.Units.HOUR) {
-                            currentValue = ((ZonedDateTime) currentValue).plusHours(offset);
-                        }
-                    }
-                    dateValue = dtf.format((ZonedDateTime) currentValue);
-                }
-            } catch (DateTimeException dte) {
+    private static Object normaliseDateValue(@NonNull Object value, String key) {
+        if (value instanceof String s) {
+            if (!"now".equalsIgnoreCase(s)) {
                 throw new IllegalArgumentException(
-                        "Non-date value for \"" + entry.key() + "\" --> " + dte.getMessage(), dte);
+                        "Non-date value for \"" + key + "\": expected \"now\", Calendar, Date, or java.time type");
             }
+            return ZonedDateTime.now();
+        } else if (value instanceof LocalDateTime ldt) {
+            return ldt.atZone(ZoneId.systemDefault());
+        } else if (value instanceof Date d) {
+            return d.toInstant().atZone(ZoneId.systemDefault());
+        } else if (value instanceof Calendar c) {
+            return c.toInstant().atZone(ZoneId.systemDefault());
+        } else if (value instanceof Instant i) {
+            return i.atZone(ZoneId.systemDefault());
+        } else if (value instanceof ZonedDateTime || value instanceof LocalDate || value instanceof LocalTime) {
+            // already in a supported type — return as-is
+            return value;
+        } else {
+            throw new IllegalArgumentException(
+                    "Unsupported date type for \"" + key + "\": " + value.getClass().getName());
         }
-        p.setProperty(entry.key(), dateValue);
     }
 
     /**
-     * Processes an integer {@link Properties property}.
+     * Processes a date {@link Properties properties}.
      *
-     * @param p     the {@link Properties property}
-     * @param entry the {@link Entry} containing the {@link Properties property} edits
-     * @throws NumberFormatException if a parsing error occurs
+     * @param p     the {@link Properties properties}
+     * @param entry the {@link Entry} containing the {@link Properties properties} edits
+     * @throws DateTimeException        if a parsing or arithmetic error occurs
+     * @throws IllegalArgumentException if no value, defaultValue, or newValue is configured and no
+     *                                  pattern is set
+     */
+    public static void processDate(@NonNull Properties p, @NonNull EntryDate entry) throws DateTimeException {
+        var currentValue = currentValue(null, entry.defaultValue(), entry.newValue());
+        var pattern = Objects.toString(entry.pattern(), "");
+
+        if (TextTools.isNotBlank(pattern)) {
+            if (currentValue == null) {
+                throw new IllegalArgumentException(
+                        "No value, defaultValue, or newValue configured for date entry \"" + entry.key() + "\"");
+            }
+            var normalised = normaliseDateValue(currentValue, entry.key());
+            p.setProperty(entry.key(), applyOffsetAndFormat(normalised, entry, DateTimeFormatter.ofPattern(pattern)));
+        } else {
+            // No pattern: store the literal string representation.
+            // Callers should ensure at least a defaultValue is configured if "null" is not desired.
+            p.setProperty(entry.key(), Objects.toString(currentValue, "null"));
+        }
+    }
+
+    /**
+     * Processes an integer {@link Properties properties}.
+     *
+     * @param p     the {@link Properties properties}
+     * @param entry the {@link Entry} containing the {@link Properties properties} edits
      */
     @SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
-    public static void processInt(Properties p, EntryInt entry) throws IllegalArgumentException {
+    public static void processInt(@NonNull Properties p, @NonNull EntryInt entry) {
         int intValue = 0;
         try {
-            var fmt = new DecimalFormat(objectToString(entry.pattern()));
+            var fmt = new DecimalFormat(Objects.toString(entry.pattern(), ""));
             var currentValue = currentValue(p.getProperty(entry.key()), entry.defaultValue(), entry.newValue());
 
             if (currentValue != null) {
-                intValue = fmt.parse(String.valueOf(currentValue)).intValue();
+                intValue = fmt.parse(Objects.toString(currentValue, "")).intValue();
             }
 
             if (entry.calc() != null) {
@@ -232,14 +223,20 @@ public final class PropertyFileUtils {
      * @param entry the {@link Entry} containing the {@link Properties property} edits
      */
     @SuppressFBWarnings("FORMAT_STRING_MANIPULATION")
-    public static void processString(Properties p, Entry entry) {
+    public static void processString(@NonNull Properties p, @NonNull Entry entry) {
         var currentValue = currentValue(p.getProperty(entry.key()), entry.defaultValue(), entry.newValue());
 
+        // When all value sources are absent, currentValue is null.
+        // Objects.toString guards against String.valueOf(null) silently producing "null".
+        var resolved = Objects.toString(currentValue, "");
+
         p.setProperty(entry.key(), entry.pattern() != null
-                ? String.format(String.valueOf(entry.pattern()), currentValue)
-                : String.valueOf(currentValue));
+                ? String.format(String.valueOf(entry.pattern()), resolved)
+                : resolved);
 
         if (ObjectTools.isNotNull(entry.modify(), entry.modifyValue())) {
+            // modify() transforms the current property value; the result is then used as the format
+            // string with entry.pattern() as its argument (intentional inversion by design).
             var modify = entry.modify().apply(p.getProperty(entry.key()), entry.modifyValue());
             p.setProperty(entry.key(), String.format(modify, entry.pattern()));
         }
@@ -251,36 +248,14 @@ public final class PropertyFileUtils {
      * @param file    the file location
      * @param comment the header comment
      * @param p       the {@link Properties} to save into the file
-     * @throws IOException the io exception
+     * @throws IOException if an IO error occurs while writing the file
      */
-    public static void saveProperties(File file, String comment, Properties p) throws IOException {
+    public static void saveProperties(@NonNull File file, String comment, @NonNull Properties p) throws IOException {
         try (var output = Files.newOutputStream(file.toPath())) {
             p.store(output, comment);
         } catch (IOException ioe) {
+            // Re-wrap to include the file path in the message for easier diagnosis at the call site.
             throw new IOException("An IO error occurred while saving the Properties file: " + file, ioe);
-        }
-    }
-
-    /**
-     * Logs a warning.
-     *
-     * @param logger        the logger
-     * @param command       The command name
-     * @param message       the message log
-     * @param failOnWarning logs and throws exception if set to {@code true}
-     * @throws ExitStatusException if a {@link Level#SEVERE} exception occurs
-     */
-    static void warn(Logger logger, String command, String message, boolean failOnWarning, boolean silent)
-            throws ExitStatusException {
-        if (failOnWarning) {
-            if (logger.isLoggable(Level.SEVERE) && !silent) {
-                logger.log(Level.SEVERE, "[" + command + "] " + message);
-            }
-            throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
-        } else {
-            if (logger.isLoggable(Level.WARNING) && !silent) {
-                logger.log(Level.WARNING, "[" + command + "] " + message);
-            }
         }
     }
 }

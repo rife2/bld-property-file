@@ -23,10 +23,9 @@ import rife.bld.operations.AbstractOperation;
 import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,6 +49,8 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * Performs the modification(s) to the {@link java.util.Properties properties} file.
      */
     @Override
+    @SuppressWarnings("PMD.PreserveStackTrace")
+    @SuppressFBWarnings("LEST_LOST_EXCEPTION_STACK_TRACE")
     public void execute() throws Exception {
         if (project_ == null) {
             if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
@@ -58,55 +59,58 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
             throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
         }
 
-        var commandName = project_.getCurrentCommandName();
         var properties = new Properties();
-        var success = true;
 
         if (file_ == null) {
-            warn(commandName, "A properties file must be specified.");
-        } else {
-            success = PropertyFileUtils.loadProperties(commandName, file_, properties, failOnWarning_, silent());
+            warn("A properties file must be specified.");
         }
 
-        if (success) {
-            if (clear_) {
-                if (LOGGER.isLoggable(Level.WARNING)) {
-                    LOGGER.warning("All entries will be cleared first.");
-                }
-                properties.clear();
+        try {
+            PropertyFileUtils.loadProperties(file_, properties);
+        } catch (IOException | IllegalArgumentException e) {
+            if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
-            for (var entry : entries_) {
-                if (entry.key().isBlank()) {
-                    warn(commandName, "An entry key must specified.");
+            throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
+        }
+
+        if (clear_) {
+            if (LOGGER.isLoggable(Level.WARNING) && !silent()) {
+                LOGGER.warning("All entries will be cleared first.");
+            }
+            properties.clear();
+        }
+
+        for (var entry : entries_) {
+            if (entry.key().isBlank()) {
+                warn("An entry key must specified.");
+            } else {
+                var key = entry.key();
+                Object value = entry.newValue();
+                Object defaultValue = entry.defaultValue();
+                var p = properties.getProperty(key);
+                if (entry.isDelete()) {
+                    properties.remove(key);
+                } else if (TextTools.isBlank(value, defaultValue, p)) {
+                    warn("An entry must be set or have a default value: " + key);
                 } else {
-                    var key = entry.key();
-                    Object value = entry.newValue();
-                    Object defaultValue = entry.defaultValue();
-                    var p = properties.getProperty(key);
-                    if (entry.isDelete()) {
-                        properties.remove(key);
-                    } else if (TextTools.isBlank(value, defaultValue, p)) {
-                        warn(commandName, "An entry must be set or have a default value: " + key);
-                    } else {
-                        try {
-                            if (entry instanceof EntryDate) {
-                                PropertyFileUtils.processDate(properties, (EntryDate) entry);
-                            } else if (entry instanceof EntryInt) {
-                                PropertyFileUtils.processInt(properties, (EntryInt) entry);
-                            } else {
-                                PropertyFileUtils.processString(properties, (Entry) entry);
-                            }
-                        } catch (IllegalArgumentException e) {
-                            warn(commandName, e.getMessage());
+                    try {
+                        // Use pattern-matching instanceof (Java 16+) to avoid raw casts
+                        if (entry instanceof EntryDate ed) {
+                            PropertyFileUtils.processDate(properties, ed);
+                        } else if (entry instanceof EntryInt ei) {
+                            PropertyFileUtils.processInt(properties, ei);
+                        } else if (entry instanceof Entry e) {
+                            PropertyFileUtils.processString(properties, e);
                         }
+                    } catch (IllegalArgumentException e) {
+                        warn(e.getMessage());
                     }
                 }
             }
         }
 
-        if (success) {
-            PropertyFileUtils.saveProperties(file_, comment_, properties);
-        }
+        PropertyFileUtils.saveProperties(file_, comment_, properties);
     }
 
     /**
@@ -114,6 +118,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * before applying further modifications.
      *
      * @return this instance
+     * @see #clear(boolean)
      */
     public PropertyFileOperation clear() {
         clear_ = true;
@@ -137,11 +142,12 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
     /**
      * Sets the comment to be inserted at the top of the {@link java.util.Properties} file.
      *
-     * @param comment the header comment
+     * @param comment the header comment; must not be {@code null}
      * @return this instance
+     * @throws NullPointerException if {@code comment} is {@code null}
      */
     public PropertyFileOperation comment(String comment) {
-        comment_ = comment;
+        comment_ = Objects.requireNonNull(comment, "comment must not be null");
         return this;
     }
 
@@ -160,9 +166,10 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      *
      * @param entry the {@link Entry entry}
      * @return this instance
+     * @throws NullPointerException if {@code entry} is {@code null}
      */
     public PropertyFileOperation entry(EntryBase<?> entry) {
-        entries_.add(entry);
+        entries_.add(Objects.requireNonNull(entry, "entry must not be null"));
         return this;
     }
 
@@ -171,6 +178,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      *
      * @param failOnWarning if set to {@code true}, the execution will fail on any warnings.
      * @return this instance
+     * @see #isFailOnWarning()
      */
     public PropertyFileOperation failOnWarning(boolean failOnWarning) {
         failOnWarning_ = failOnWarning;
@@ -194,7 +202,8 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @param file the file to be edited
      * @return this instance
      */
-    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN",
+            justification = "The caller is responsible for providing a trusted file path")
     public PropertyFileOperation file(String file) {
         return file(new File(file));
     }
@@ -223,10 +232,10 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      *
      * @param project the project
      * @return this instance
+     * @throws NullPointerException if {@code project} is {@code null}
      */
-    @SuppressFBWarnings("EI_EXPOSE_REP")
     public PropertyFileOperation fromProject(BaseProject project) {
-        project_ = project;
+        project_ = Objects.requireNonNull(project, "The project must not be null");
         return this;
     }
 
@@ -253,11 +262,20 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
     /**
      * Logs a warning.
      *
-     * @param command The command name
      * @param message the message log
      * @throws ExitStatusException if a {@link Level#SEVERE} exception occurs
      */
-    private void warn(String command, String message) throws ExitStatusException {
-        PropertyFileUtils.warn(LOGGER, command, message, failOnWarning_, silent());
+    private void warn(String message)
+            throws ExitStatusException {
+        if (failOnWarning_) {
+            if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
+                LOGGER.log(Level.SEVERE, "[" + project_.getCurrentCommandName() + "] " + message);
+            }
+            throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
+        } else {
+            if (LOGGER.isLoggable(Level.WARNING) && !silent()) {
+                LOGGER.log(Level.WARNING, "[" + project_.getCurrentCommandName() + "] " + message);
+            }
+        }
     }
 }

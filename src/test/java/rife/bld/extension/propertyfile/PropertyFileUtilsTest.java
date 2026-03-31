@@ -23,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import rife.bld.extension.testing.LoggingExtension;
 import rife.bld.extension.testing.TestLogHandler;
-import rife.bld.operations.exceptions.ExitStatusException;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +35,7 @@ import java.util.logging.Logger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+
 
 @DisplayName("Property File Utils Tests")
 @ExtendWith(LoggingExtension.class)
@@ -84,8 +84,9 @@ class PropertyFileUtilsTest {
                 PropertyFileUtils.saveProperties(tempFile, "Generated file - do not modify!", properties))
                 .as("save properties").doesNotThrowAnyException();
 
-        assertThat(PropertyFileUtils.loadProperties(TEST_VALUE, tempFile, properties, false, false))
-                .as("load properties").isTrue();
+        assertThatCode(() ->
+                PropertyFileUtils.loadProperties(tempFile, properties))
+                .as("load properties").doesNotThrowAnyException();
         assertThat(properties.getProperty(TEST_VALUE)).as("%s property", TEST_VALUE).isEqualTo(TEST_VALUE);
 
         tempFile.deleteOnExit();
@@ -217,31 +218,29 @@ class PropertyFileUtilsTest {
             var properties = new Properties();
             var nonExistentFile = new File("nonexistent.properties");
             assertThatThrownBy(() ->
-                    PropertyFileUtils.loadProperties("test", nonExistentFile, properties, true, false))
-                    .isInstanceOf(ExitStatusException.class);
-            assertThat(TEST_LOG_HANDLER.containsMessage("Please specify a valid properties file location.")).isTrue();
+                    PropertyFileUtils.loadProperties(nonExistentFile, properties))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Please specify a valid properties file location.");
         }
 
         @Test
-        void shouldFailWhenFileDoesNotExists() throws ExitStatusException {
+        void shouldFailWhenFileDoesNotExists() {
             var properties = new Properties();
             var nonExistentFile = new File("nonexistent.properties");
-            var result =
-                    PropertyFileUtils.loadProperties("test", nonExistentFile, properties,
-                            false, false);
-            assertThat(result).isFalse();
-            assertThat(TEST_LOG_HANDLER.containsMessage("Please specify a valid properties file location.")).isTrue();
+            assertThatThrownBy(() ->
+                    PropertyFileUtils.loadProperties(nonExistentFile, properties))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Please specify a valid properties file location.");
         }
 
         @Test
-        void shouldFailWhenFileIsNotLoading() throws ExitStatusException {
+        void shouldFailWhenFileIsNotLoading() {
             var properties = new Properties();
             var nonExistentFile = new File("src");
-            var result =
-                    PropertyFileUtils.loadProperties("test", nonExistentFile, properties,
-                            false, false);
-            assertThat(result).isFalse();
-            assertThat(TEST_LOG_HANDLER.containsMessage("Could not load properties file:")).isTrue();
+            assertThatThrownBy(() ->
+                    PropertyFileUtils.loadProperties(nonExistentFile, properties))
+                    .isInstanceOf(IOException.class)
+                    .hasMessageContaining("Could not load properties file: Is a directory");
         }
 
         @Test
@@ -249,18 +248,9 @@ class PropertyFileUtilsTest {
             var properties = new Properties();
 
             assertThatThrownBy(() ->
-                    PropertyFileUtils.loadProperties("test", null, properties, true, false))
-                    .isInstanceOf(ExitStatusException.class);
-            assertThat(TEST_LOG_HANDLER.containsMessage("Please specify a valid properties file location.")).isTrue();
-        }
-
-        @Test
-        void shouldFailWithSilentMode() {
-            var properties = new Properties();
-            assertThatThrownBy(() ->
-                    PropertyFileUtils.loadProperties("test", null, properties, true, true))
-                    .isInstanceOf(ExitStatusException.class);
-            assertThat(TEST_LOG_HANDLER.isEmpty()).isTrue();
+                    PropertyFileUtils.loadProperties(null, properties))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Please specify a valid properties file location.");
         }
 
         @Test
@@ -268,19 +258,18 @@ class PropertyFileUtilsTest {
             var properties = new Properties();
             var nonExistentFile = new File("nonexistent.properties");
             assertThatThrownBy(() ->
-                    PropertyFileUtils.loadProperties("test", nonExistentFile, properties, true, false))
-                    .isInstanceOf(ExitStatusException.class);
-            assertThat(TEST_LOG_HANDLER.containsMessage("Please specify a valid properties file location.")).isTrue();
+                    PropertyFileUtils.loadProperties(nonExistentFile, properties))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Please specify a valid properties file location.");
         }
 
         @Test
-        void shouldNotSucceedWhenFileIsNull() throws ExitStatusException {
+        void shouldNotSucceedWhenFileIsNull() {
             var properties = new Properties();
-            var result =
-                    PropertyFileUtils.loadProperties("test", null, properties,
-                            false, false);
-            assertThat(result).isFalse();
-            assertThat(TEST_LOG_HANDLER.containsMessage("Please specify a valid properties file location.")).isTrue();
+            assertThatThrownBy(() ->
+                    PropertyFileUtils.loadProperties(null, properties))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Please specify a valid properties file location.");
         }
     }
 
@@ -806,95 +795,6 @@ class PropertyFileUtilsTest {
             entry.set(TEST_VALUE).modify("T", (v, s) -> v.replace("t", s));
             PropertyFileUtils.processString(PROPERTIES, entry);
             assertThat(PROPERTIES.getProperty(entry.key())).as("replace(t, T)").isEqualTo("TesT");
-        }
-    }
-
-    @Nested
-    @DisplayName("Warn Method Tests")
-    class WarnMethodTests {
-
-        @Test
-        void shouldFailOnWarningInSilentMode() {
-            assertThatCode(() ->
-                    PropertyFileUtils.warn(LOGGER, "command", "silent message", true, true))
-                    .as("should fail on warning even in silent mode")
-                    .isInstanceOf(ExitStatusException.class);
-        }
-
-        @Test
-        void shouldFailOnWarningWhenFlagIsTrue() {
-            assertThatCode(() ->
-                    PropertyFileUtils.warn(LOGGER, "command", "message", true, false))
-                    .as("should fail on warning when failOnWarning=true")
-                    .isInstanceOf(ExitStatusException.class);
-            assertThat(TEST_LOG_HANDLER.containsMessage("[command] message"))
-                    .as("should log SEVERE message")
-                    .isTrue();
-        }
-
-        @Test
-        void shouldFailWithInfoLogging() throws ExitStatusException {
-            TEST_LOG_HANDLER.clear();
-            LOGGER.setLevel(Level.OFF);
-            PropertyFileUtils.warn(LOGGER, "command", "message", false, true);
-            assertThat(TEST_LOG_HANDLER.isEmpty()).isTrue();
-        }
-
-        @Test
-        void shouldFailWithNoLogging() {
-            TEST_LOG_HANDLER.clear();
-            LOGGER.setLevel(Level.OFF);
-            assertThatCode(() ->
-                    PropertyFileUtils.warn(LOGGER, "command", "message", true, true))
-                    .isInstanceOf(ExitStatusException.class);
-            assertThat(TEST_LOG_HANDLER.isEmpty()).isTrue();
-        }
-
-        @Test
-        void shouldLogWithCommandPrefix() {
-            TEST_LOG_HANDLER.clear();
-            assertThatCode(() ->
-                    PropertyFileUtils.warn(LOGGER, "myCommand", "test message", false, false))
-                    .as("should not throw exception")
-                    .doesNotThrowAnyException();
-            assertThat(TEST_LOG_HANDLER.containsMessage("[myCommand] test message"))
-                    .as("should include command prefix in log")
-                    .isTrue();
-        }
-
-        @Test
-        void shouldNotFailOnWarningWhenFlagIsFalse() {
-            assertThatCode(() ->
-                    PropertyFileUtils.warn(LOGGER, "command", TEST_VALUE, false, false))
-                    .as("should not fail on warning when failOnWarning=false")
-                    .doesNotThrowAnyException();
-            assertThat(TEST_LOG_HANDLER.containsMessage("[command] " + TEST_VALUE))
-                    .as("should log WARNING message")
-                    .isTrue();
-        }
-
-        @Test
-        void shouldNotLogInSilentModeWhenFailOnWarningIsFalse() {
-            TEST_LOG_HANDLER.clear();
-            assertThatCode(() ->
-                    PropertyFileUtils.warn(LOGGER, "testCmd", "silent warning", false, true))
-                    .as("should not throw exception")
-                    .doesNotThrowAnyException();
-            assertThat(TEST_LOG_HANDLER.containsMessage("silent warning"))
-                    .as("should not log in silent mode")
-                    .isFalse();
-        }
-
-        @Test
-        void shouldNotLogInSilentModeWhenFailOnWarningIsTrue() {
-            TEST_LOG_HANDLER.clear();
-            assertThatCode(() ->
-                    PropertyFileUtils.warn(LOGGER, "testCmd", "silent severe", true, true))
-                    .as("should throw exception")
-                    .isInstanceOf(ExitStatusException.class);
-            assertThat(TEST_LOG_HANDLER.containsMessage("silent severe"))
-                    .as("should not log in silent mode")
-                    .isFalse();
         }
     }
 }

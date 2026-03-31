@@ -39,6 +39,7 @@ import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static rife.bld.extension.propertyfile.Calc.ADD;
 
 @DisplayName("PropertyFile Operation Tests")
@@ -68,6 +69,30 @@ class PropertyFileOperationTest {
     private Properties properties;
     private File tmpFile;
 
+    @Test
+    void isClearChecks() {
+        var op = new PropertyFileOperation();
+        assertThat(op.isClear()).isFalse();
+
+        op.clear();
+        assertThat(op.isClear()).isTrue();
+
+        op.clear(false);
+        assertThat(op.isClear()).isFalse();
+
+        op.clear(true);
+        assertThat(op.isClear()).isTrue();
+    }
+
+    @Test
+    void isFailOnWarningsChecks() {
+        var op = new PropertyFileOperation();
+        assertThat(op.isFailOnWarning()).isFalse();
+
+        op.failOnWarning(true);
+        assertThat(op.isFailOnWarning()).isTrue();
+    }
+
     private void loadProperties() throws IOException {
         properties.clear();
         properties.load(Files.newInputStream(tmpFile.toPath()));
@@ -83,17 +108,21 @@ class PropertyFileOperationTest {
     @Test
     void shouldClear() throws Exception {
         var bar = "bar";
+        var entry = new Entry(FOO).set(bar);
 
-        new PropertyFileOperation()
+        var op = new PropertyFileOperation()
                 .fromProject(new Project())
                 .file(tmpFile)
                 .clear()
-                .entry(new Entry(FOO).set(bar))
-                .execute();
+                .entry(entry);
 
+        assertThat(op.entries()).containsOnly(entry);
+
+        op.execute();
         assertThat(TEST_LOG_HANDLER.containsMessage("All entries will be cleared first.")).isTrue();
 
         loadProperties();
+
         assertThat(properties).as("properties should only contain %s", FOO).containsOnlyKeys(FOO);
 
         new PropertyFileOperation()
@@ -103,13 +132,14 @@ class PropertyFileOperationTest {
                 .execute();
 
         loadProperties();
+
         assertThat(properties).as("properties should be empty").isEmpty();
 
         new PropertyFileOperation()
                 .fromProject(new Project())
                 .file(tmpFile)
                 .clear()
-                .entry(new Entry(FOO).set(bar))
+                .entry(entry)
                 .execute();
 
         loadProperties();
@@ -121,29 +151,36 @@ class PropertyFileOperationTest {
     void shouldClearWithoutWarning() throws Exception {
         LOGGER.setLevel(Level.OFF);
         var bar = "bar";
+        var entry = new Entry(FOO).set(bar);
 
-        new PropertyFileOperation()
+        var op = new PropertyFileOperation()
                 .fromProject(new Project())
                 .file(tmpFile)
                 .clear()
-                .entry(new Entry(FOO).set(bar))
-                .execute();
+                .entry(entry);
+        op.execute();
+
+        assertThat(op.entries()).containsOnly(entry);
         assertThat(TEST_LOG_HANDLER.containsMessage("All entries will be cleared first.")).isFalse();
     }
 
     @Test
     void shouldDeleteBuildDateProperty() throws Exception {
-        // when
-        new PropertyFileOperation()
+        var major = new EntryInt(VERSION_MAJOR).set(1);
+        var minor = new EntryInt(VERSION_MINOR).defaultValue(0);
+        var patch = new EntryInt(VERSION_PATCH).defaultValue(0);
+        var date = new EntryInt(BUILD_DATE).delete();
+        var op = new PropertyFileOperation()
                 .fromProject(new Project())
                 .file(tmpFile)
-                .entry(new EntryInt(VERSION_MAJOR).set(1))
-                .entry(new EntryInt(VERSION_MINOR).defaultValue(0))
-                .entry(new EntryInt(VERSION_PATCH).defaultValue(0))
-                .entry(new EntryInt(BUILD_DATE).delete())
-                .execute();
+                .entry(major)
+                .entry(minor)
+                .entry(patch)
+                .entry(date);
+        op.execute();
 
-        // then
+        assertThat(op.entries()).containsOnly(major, minor, patch, date);
+
         loadProperties();
         assertThat(properties.getProperty(BUILD_DATE)).as("%s should be deleted", BUILD_DATE).isNull();
         assertThat(properties).containsOnlyKeys(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
@@ -151,11 +188,14 @@ class PropertyFileOperationTest {
 
     @Test
     void shouldHaveDefaultValue() {
+        var major = new EntryInt(VERSION_MAJOR);
         var op = new PropertyFileOperation()
                 .fromProject(new Project())
                 .file(tmpFile)
                 .failOnWarning(true)
-                .entry(new EntryInt(VERSION_MAJOR));
+                .entry(major);
+
+        assertThat(op.entries()).containsOnly(major);
         assertThatCode(op::execute).isInstanceOf(ExitStatusException.class);
         assertThat(TEST_LOG_HANDLER.containsMessage("An entry must be set or have a default value: version.major"))
                 .isTrue();
@@ -164,55 +204,67 @@ class PropertyFileOperationTest {
     @Test
     void shouldHavePropertiesFile() {
         var op = new PropertyFileOperation().fromProject(new Project()).failOnWarning(true);
+
+        assertThat(op.entries()).isEmpty();
         assertThatCode(op::execute).isInstanceOf(ExitStatusException.class);
         assertThat(TEST_LOG_HANDLER.containsMessage("Please specify the properties file location."))
                 .isFalse();
     }
 
     @Test
-    void shouldHaveValidPropertiesFile() throws Exception {
-        new PropertyFileOperation()
+    void shouldHaveValidPropertiesFile() {
+        var op = new PropertyFileOperation()
                 .fromProject(new Project())
                 .file("foo")
-                .failOnWarning(false)
-                .execute();
+                .failOnWarning(false);
+        assertThatThrownBy(op::execute).isInstanceOf(ExitStatusException.class);
+
+        assertThat(op.entries()).isEmpty();
         assertThat(TEST_LOG_HANDLER.containsMessage("Properties file does not exist: foo")).isFalse();
     }
 
     @Test
     void shouldIncrementMajorVersionByTwo() throws Exception {
-        // when
-        new PropertyFileOperation()
+        var major = new EntryInt(VERSION_MAJOR);
+        var op = new PropertyFileOperation()
                 .fromProject(new Project())
                 .file(tmpFile.getAbsolutePath())
-                .entry(new EntryInt(VERSION_MAJOR).defaultValue(1).calc(c -> c + 2))
-                .execute();
+                .entry(major.defaultValue(1).calc(c -> c + 2));
+        op.execute();
 
-        // then
+        assertThat(op.entries()).containsOnly(major);
+
         loadProperties();
         assertThat(properties.getProperty(VERSION_MAJOR)).isEqualTo("3");
     }
 
     @Test
     void shouldInitializeVersionProperties() throws Exception {
-        // when
-        new PropertyFileOperation()
+        var major = new EntryInt(VERSION_MAJOR).defaultValue(0).calc(ADD);
+        var minor = new EntryInt(VERSION_MINOR).set(0);
+        var patch = new EntryInt(VERSION_PATCH).set(0);
+        var date = new EntryDate(BUILD_DATE).now().pattern("yyyy-MM-dd");
+        var op = new PropertyFileOperation()
                 .fromProject(new Project())
                 .file(tmpFile)
                 .comment(COMMENT)
                 .failOnWarning(true)
-                .entry(new EntryInt(VERSION_MAJOR).defaultValue(0).calc(ADD))
-                .entry(new EntryInt(VERSION_MINOR).set(0))
-                .entry(new EntryInt(VERSION_PATCH).set(0))
-                .entry(new EntryDate(BUILD_DATE).now().pattern("yyyy-MM-dd"))
-                .execute();
+                .entry(major)
+                .entry(minor)
+                .entry(patch)
+                .entry(date);
+        op.execute();
 
-        // then
+        assertThat(op.entries()).containsOnly(major, minor, patch, date);
+
         loadProperties();
         try (var softly = new AutoCloseableSoftAssertions()) {
-            softly.assertThat(properties.getProperty(VERSION_MAJOR)).as("%s == 1", VERSION_MAJOR).isEqualTo("1");
-            softly.assertThat(properties.getProperty(VERSION_MINOR)).as("%s == 0", VERSION_MINOR).isEqualTo("0");
-            softly.assertThat(properties.getProperty(VERSION_PATCH)).as("%s == 0", VERSION_PATCH).isEqualTo("0");
+            softly.assertThat(properties.getProperty(VERSION_MAJOR)).as("%s == 1", VERSION_MAJOR)
+                    .isEqualTo("1");
+            softly.assertThat(properties.getProperty(VERSION_MINOR)).as("%s == 0", VERSION_MINOR)
+                    .isEqualTo("0");
+            softly.assertThat(properties.getProperty(VERSION_PATCH)).as("%s == 0", VERSION_PATCH)
+                    .isEqualTo("0");
             softly.assertThat(properties.getProperty(BUILD_DATE)).as("%s == now", BUILD_DATE)
                     .isEqualTo(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
         }
@@ -246,17 +298,15 @@ class PropertyFileOperationTest {
 
         @Test
         void shouldAllowMultipleKeyChanges() throws Exception {
-            // when
-            new PropertyFileOperation()
+            var entry = new Entry("key1").key("key2").key("key3").set("final value");
+            var op = new PropertyFileOperation()
                     .fromProject(new Project())
                     .file(tmpFile)
-                    .entry(new Entry("key1")
-                            .key("key2")
-                            .key("key3")
-                            .set("final value"))
-                    .execute();
+                    .entry(entry);
+            op.execute();
 
-            // then
+            assertThat(op.entries()).containsOnly(entry);
+
             loadProperties();
             assertThat(properties.getProperty("key3"))
                     .as("key3 should be set (final key)")
@@ -271,18 +321,19 @@ class PropertyFileOperationTest {
 
         @Test
         void shouldChainKeyWithOtherMethods() throws Exception {
-            // when
-            new PropertyFileOperation()
+            var entry = new EntryInt("counter")
+                    .defaultValue(0)
+                    .key("build.number")
+                    .calc(ADD)
+                    .pattern("0000");
+            var op = new PropertyFileOperation()
                     .fromProject(new Project())
                     .file(tmpFile)
-                    .entry(new EntryInt("counter")
-                            .defaultValue(0)
-                            .key("build.number")
-                            .calc(ADD)
-                            .pattern("0000"))
-                    .execute();
+                    .entry(entry);
+            op.execute();
 
-            // then
+            assertThat(op.entries()).containsOnly(entry);
+
             loadProperties();
             assertThat(properties.getProperty("build.number"))
                     .as("build.number should be incremented")
@@ -291,14 +342,15 @@ class PropertyFileOperationTest {
 
         @Test
         void shouldChangeKeyUsingKeyMethod() throws Exception {
-            // when
-            new PropertyFileOperation()
+            var entry = new Entry("old.key").key("new.key").set("value");
+            var op = new PropertyFileOperation()
                     .fromProject(new Project())
                     .file(tmpFile)
-                    .entry(new Entry("old.key").key("new.key").set("value"))
-                    .execute();
+                    .entry(entry);
+            op.execute();
 
-            // then
+            assertThat(op.entries()).containsOnly(entry);
+
             loadProperties();
             assertThat(properties.getProperty("new.key"))
                     .as("new.key should be set")
@@ -310,16 +362,17 @@ class PropertyFileOperationTest {
 
         @Test
         void shouldHandleKeyWithSpecialCharacters() throws Exception {
-            // when
-            new PropertyFileOperation()
+            var entry = new Entry("simple")
+                    .key("my.special-key_123")
+                    .set("test");
+            var op = new PropertyFileOperation()
                     .fromProject(new Project())
                     .file(tmpFile)
-                    .entry(new Entry("simple")
-                            .key("my.special-key_123")
-                            .set("test"))
-                    .execute();
+                    .entry(entry);
+            op.execute();
 
-            // then
+            assertThat(op.entries()).containsOnly(entry);
+
             loadProperties();
             assertThat(properties.getProperty("my.special-key_123"))
                     .as("key with special characters should be set")
@@ -338,18 +391,19 @@ class PropertyFileOperationTest {
 
         @Test
         void shouldSetKeyForEntryDate() throws Exception {
-            // when
             var testDate = LocalDate.of(2025, 1, 15);
-            new PropertyFileOperation()
+            var entry = new EntryDate("old.date")
+                    .key("new.date")
+                    .set(testDate)
+                    .pattern("yyyy-MM-dd");
+            var op = new PropertyFileOperation()
                     .fromProject(new Project())
                     .file(tmpFile)
-                    .entry(new EntryDate("old.date")
-                            .key("new.date")
-                            .set(testDate)
-                            .pattern("yyyy-MM-dd"))
-                    .execute();
+                    .entry(entry);
+            op.execute();
 
-            // then
+            assertThat(op.entries()).containsOnly(entry);
+
             loadProperties();
             assertThat(properties.getProperty("new.date"))
                     .as("new.date should be set")
@@ -361,16 +415,17 @@ class PropertyFileOperationTest {
 
         @Test
         void shouldSetKeyForEntryInt() throws Exception {
-            // when
-            new PropertyFileOperation()
+            var entry = new EntryInt("initial.counter")
+                    .key("final.counter")
+                    .set(42);
+            var op = new PropertyFileOperation()
                     .fromProject(new Project())
                     .file(tmpFile)
-                    .entry(new EntryInt("initial.counter")
-                            .key("final.counter")
-                            .set(42))
-                    .execute();
+                    .entry(entry);
+            op.execute();
 
-            // then
+            assertThat(op.entries()).containsOnly(entry);
+
             loadProperties();
             assertThat(properties.getProperty("final.counter"))
                     .as("final.counter should be set")
@@ -382,14 +437,15 @@ class PropertyFileOperationTest {
 
         @Test
         void shouldSetKeyViaConstructor() throws Exception {
-            // when
-            new PropertyFileOperation()
+            var entry = new Entry("initial.key").set("value1");
+            var op = new PropertyFileOperation()
                     .fromProject(new Project())
                     .file(tmpFile)
-                    .entry(new Entry("initial.key").set("value1"))
-                    .execute();
+                    .entry(entry);
+            op.execute();
 
-            // then
+            assertThat(op.entries()).containsOnly(entry);
+
             loadProperties();
             assertThat(properties.getProperty("initial.key"))
                     .as("initial.key should be set")
@@ -403,17 +459,18 @@ class PropertyFileOperationTest {
 
         @Test
         void shouldChainSetAndModify() throws Exception {
-            // when
-            new PropertyFileOperation()
+            var entry = new Entry(FOO)
+                    .set("initial value")
+                    .modify("VALUE", (current, modifyValue) ->
+                            current.replace("value", modifyValue));
+            var op = new PropertyFileOperation()
                     .fromProject(new Project())
                     .file(tmpFile)
-                    .entry(new Entry(FOO)
-                            .set("initial value")
-                            .modify("VALUE", (current, modifyValue) ->
-                                    current.replace("value", modifyValue)))
-                    .execute();
+                    .entry(entry);
+            op.execute();
 
-            // then
+            assertThat(op.entries()).containsOnly(entry);
+
             loadProperties();
             assertThat(properties.getProperty(FOO))
                     .as("%s should be set and modified", FOO)
@@ -422,18 +479,17 @@ class PropertyFileOperationTest {
 
         @Test
         void shouldModifyWithBiFunctionOnly() throws Exception {
-            // given
+            var entry = new Entry(FOO).modify((current, modifyValue) -> current.toUpperCase());
             properties.setProperty(FOO, "hello world");
             PropertyFileUtils.saveProperties(tmpFile, "", properties);
-
-            // when
-            new PropertyFileOperation()
+            var op = new PropertyFileOperation()
                     .fromProject(new Project())
                     .file(tmpFile)
-                    .entry(new Entry(FOO).modify((current, modifyValue) -> current.toUpperCase()))
-                    .execute();
+                    .entry(entry);
+            op.execute();
 
-            // then
+            assertThat(op.entries()).containsOnly(entry);
+
             loadProperties();
             assertThat(properties.getProperty(FOO))
                     .as("%s should be uppercase", FOO)
@@ -442,19 +498,18 @@ class PropertyFileOperationTest {
 
         @Test
         void shouldModifyWithReplacement() throws Exception {
-            // given
+            var entry = new Entry(FOO).modify("bar",
+                    (current, modifyValue) -> current.replace(modifyValue, "BAR"));
             properties.setProperty(FOO, "foo bar baz");
             PropertyFileUtils.saveProperties(tmpFile, "", properties);
-
-            // when
-            new PropertyFileOperation()
+            var op = new PropertyFileOperation()
                     .fromProject(new Project())
                     .file(tmpFile)
-                    .entry(new Entry(FOO).modify("bar", (current, modifyValue) ->
-                            current.replace(modifyValue, "BAR")))
-                    .execute();
+                    .entry(entry);
+            op.execute();
 
-            // then
+            assertThat(op.entries()).containsOnly(entry);
+
             loadProperties();
             assertThat(properties.getProperty(FOO))
                     .as("%s should have replaced text", FOO)
@@ -463,22 +518,23 @@ class PropertyFileOperationTest {
 
         @Test
         void shouldModifyWithSubstring() throws Exception {
-            // given
-            properties.setProperty(FOO, "prefix-value-suffix");
-            PropertyFileUtils.saveProperties(tmpFile, "", properties);
-
-            // when
-            new PropertyFileOperation()
-                    .fromProject(new Project())
-                    .file(tmpFile)
-                    .entry(new Entry(FOO).modify((current, modifyValue) -> {
+            var entry = new Entry(FOO).modify(
+                    (current, modifyValue) -> {
                         int start = current.indexOf("-") + 1;
                         int end = current.lastIndexOf("-");
                         return current.substring(start, end);
-                    }))
-                    .execute();
+                    }
+            );
+            properties.setProperty(FOO, "prefix-value-suffix");
+            PropertyFileUtils.saveProperties(tmpFile, "", properties);
+            var op = new PropertyFileOperation()
+                    .fromProject(new Project())
+                    .file(tmpFile)
+                    .entry(entry);
+            op.execute();
 
-            // then
+            assertThat(op.entries()).containsOnly(entry);
+
             loadProperties();
             assertThat(properties.getProperty(FOO))
                     .as("%s should contain extracted substring", FOO)
@@ -487,19 +543,18 @@ class PropertyFileOperationTest {
 
         @Test
         void shouldModifyWithTrim() throws Exception {
-            // given
+            var entry = new Entry(FOO).modify((current, modifyValue) -> current.trim());
             properties.setProperty(FOO, "  hello world  ");
             PropertyFileUtils.saveProperties(tmpFile, "", properties);
-
-            // when
-            new PropertyFileOperation()
+            var op = new PropertyFileOperation()
                     .fromProject(new Project())
                     .file(tmpFile)
-                    .entry(new Entry(FOO).modify((current, modifyValue) -> current.trim()))
-                    .execute();
-
-            // then
+                    .entry(entry);
+            op.execute();
             loadProperties();
+
+            assertThat(op.entries()).containsOnly(entry);
+
             assertThat(properties.getProperty(FOO))
                     .as("%s should be trimmed", FOO)
                     .isEqualTo("hello world");
@@ -507,18 +562,18 @@ class PropertyFileOperationTest {
 
         @Test
         void shouldModifyWithValueAndBiFunction() throws Exception {
-            // given
+            var entry = new Entry(FOO).modify(" world",
+                    (current, modifyValue) -> current + modifyValue);
             properties.setProperty(FOO, "hello");
             PropertyFileUtils.saveProperties(tmpFile, "", properties);
-
-            // when
-            new PropertyFileOperation()
+            var op = new PropertyFileOperation()
                     .fromProject(new Project())
                     .file(tmpFile)
-                    .entry(new Entry(FOO).modify(" world", (current, modifyValue) -> current + modifyValue))
-                    .execute();
+                    .entry(entry);
+            op.execute();
 
-            // then
+            assertThat(op.entries()).containsOnly(entry);
+
             loadProperties();
             assertThat(properties.getProperty(FOO))
                     .as("%s should have appended value", FOO)
