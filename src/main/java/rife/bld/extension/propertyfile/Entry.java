@@ -16,6 +16,9 @@
 
 package rife.bld.extension.propertyfile;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 import java.util.function.BiFunction;
 
 /**
@@ -34,8 +37,9 @@ public class Entry extends EntryBase<Entry> {
      * Creates a new {@link Entry entry}.
      *
      * @param key the required property key
+     * @throws NullPointerException if {@code key} is {@code null}
      */
-    public Entry(String key) {
+    public Entry(@NonNull String key) {
         super(key);
     }
 
@@ -43,19 +47,21 @@ public class Entry extends EntryBase<Entry> {
      * Sets the modify function.
      *
      * @param modify the modify function
+     * @return this instance
      */
-    public Entry modify(BiFunction<String, String, String> modify) {
+    public Entry modify(@Nullable BiFunction<String, String, String> modify) {
         modify_ = modify;
         return this;
     }
 
     /**
-     * Sets the modify function.
+     * Sets the modify function with a value parameter.
      *
      * @param value  the value to perform a modification with
      * @param modify the modify function
+     * @return this instance
      */
-    public Entry modify(String value, BiFunction<String, String, String> modify) {
+    public Entry modify(@NonNull String value, @Nullable BiFunction<String, String, String> modify) {
         modifyValue_ = value;
         modify_ = modify;
         return this;
@@ -65,9 +71,9 @@ public class Entry extends EntryBase<Entry> {
      * Sets the new {@link java.util.Properties property} value.
      *
      * @param s The new value
-     * @return the entry
+     * @return this instance
      */
-    public Entry set(Object s) {
+    public Entry set(@Nullable Object s) {
         newValue(s);
         return this;
     }
@@ -75,8 +81,9 @@ public class Entry extends EntryBase<Entry> {
     /**
      * Returns the modify function.
      *
-     * @return the modify function
+     * @return the modify function, or {@code null} if not set
      */
+    @Nullable
     protected BiFunction<String, String, String> modify() {
         return modify_;
     }
@@ -84,8 +91,9 @@ public class Entry extends EntryBase<Entry> {
     /**
      * Returns the value to be used in the {@link #modify_} function.
      *
-     * @return the modify value
+     * @return the modify value, never {@code null}
      */
+    @NonNull
     protected String modifyValue() {
         return modifyValue_;
     }

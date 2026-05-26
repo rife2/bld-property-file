@@ -16,8 +16,10 @@
 
 package rife.bld.extension.propertyfile;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rife.bld.BaseProject;
+import rife.bld.extension.tools.ObjectTools;
 import rife.bld.extension.tools.TextTools;
 import rife.bld.operations.AbstractOperation;
 import rife.bld.operations.exceptions.ExitStatusException;
@@ -25,7 +27,10 @@ import rife.bld.operations.exceptions.ExitStatusException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,7 +42,7 @@ import java.util.logging.Logger;
  */
 public class PropertyFileOperation extends AbstractOperation<PropertyFileOperation> {
 
-    private static final Logger LOGGER = Logger.getLogger(PropertyFileOperation.class.getName());
+    private static final Logger logger = Logger.getLogger(PropertyFileOperation.class.getName());
     private final List<EntryBase<?>> entries_ = new ArrayList<>();
     private boolean clear_;
     private String comment_ = "";
@@ -52,47 +57,45 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
     @SuppressWarnings("PMD.PreserveStackTrace")
     @SuppressFBWarnings("LEST_LOST_EXCEPTION_STACK_TRACE")
     public void execute() throws Exception {
-        if (project_ == null) {
-            if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
-                LOGGER.log(Level.SEVERE, "A project is required");
-            }
-            throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
-        }
+        ObjectTools.requireNonNull(project_, "project");
+        ObjectTools.requireNonNull(file_, "properties file");
 
         var properties = new Properties();
-
-        if (file_ == null) {
-            warn("A properties file must be specified.");
-        }
 
         try {
             PropertyFileUtils.loadProperties(file_, properties);
         } catch (IOException | IllegalArgumentException e) {
-            if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            if (logger.isLoggable(Level.SEVERE) && !silent()) {
+                logger.log(Level.SEVERE, e.getMessage(), e);
             }
             throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
         }
 
         if (clear_) {
-            if (LOGGER.isLoggable(Level.WARNING) && !silent()) {
-                LOGGER.warning("All entries will be cleared first.");
+            if (logger.isLoggable(Level.WARNING) && !silent()) {
+                logger.warning("All entries will be cleared first.");
             }
             properties.clear();
         }
 
         for (var entry : entries_) {
-            if (entry.key().isBlank()) {
-                warn("An entry key must specified.");
+            var key = entry.key();
+            if (TextTools.isBlank(key)) {
+                warn("An entry key must be specified.");
+            } else if (entry.isDelete()) {
+                properties.remove(key);
             } else {
-                var key = entry.key();
                 Object value = entry.newValue();
                 Object defaultValue = entry.defaultValue();
-                var p = properties.getProperty(key);
-                if (entry.isDelete()) {
-                    properties.remove(key);
-                } else if (TextTools.isBlank(value, defaultValue, p)) {
-                    warn("An entry must be set or have a default value: " + key);
+                var existing = properties.getProperty(key); // null if key not present
+
+                // Precedence: newValue -> defaultValue -> existing property -> warn
+                var effectiveValue = value != null ? value
+                        : defaultValue != null ? defaultValue
+                        : existing;
+
+                if (effectiveValue == null) {
+                    warn("No value provided for entry: " + key);
                 } else {
                     try {
                         // Use pattern-matching instanceof (Java 16+) to avoid raw casts
@@ -104,7 +107,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
                             PropertyFileUtils.processString(properties, e);
                         }
                     } catch (IllegalArgumentException e) {
-                        warn(e.getMessage());
+                        warn(e.getMessage(), e);
                     }
                 }
             }
@@ -146,8 +149,8 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @return this instance
      * @throws NullPointerException if {@code comment} is {@code null}
      */
-    public PropertyFileOperation comment(String comment) {
-        comment_ = Objects.requireNonNull(comment, "comment must not be null");
+    public PropertyFileOperation comment(@NonNull String comment) {
+        comment_ = ObjectTools.requireNonNull(comment, "comment");
         return this;
     }
 
@@ -168,8 +171,8 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @return this instance
      * @throws NullPointerException if {@code entry} is {@code null}
      */
-    public PropertyFileOperation entry(EntryBase<?> entry) {
-        entries_.add(Objects.requireNonNull(entry, "entry must not be null"));
+    public PropertyFileOperation entry(@NonNull EntryBase<?> entry) {
+        entries_.add(ObjectTools.requireNonNull(entry, "entry"));
         return this;
     }
 
@@ -190,9 +193,11 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      *
      * @param file the file to be edited
      * @return this instance
+     * @throws NullPointerException if {@code file} is {@code null}
      */
-    public PropertyFileOperation file(File file) {
-        file_ = file;
+    public PropertyFileOperation file(@NonNull File file) {
+        file_ = ObjectTools.requireNonNull(file, "file");
+
         return this;
     }
 
@@ -201,17 +206,20 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      *
      * @param file the file to be edited
      * @return this instance
+     * @throws NullPointerException     if {@code file} is {@code null}
+     * @throws IllegalArgumentException if {@code file} is empty
      */
     @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN",
             justification = "The caller is responsible for providing a trusted file path")
     public PropertyFileOperation file(String file) {
+        ObjectTools.requireNotEmpty(file, "file");
         return file(new File(file));
     }
 
     /**
      * Retrieves the location of the {@link java.util.Properties} file to be edited.
      *
-     * @return the properties file
+     * @return the properties file or {@code null} if not set
      */
     public File file() {
         return file_;
@@ -222,8 +230,10 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      *
      * @param file the file to be edited
      * @return this instance
+     * @throws NullPointerException if {@code file} is {@code null}
      */
     public PropertyFileOperation file(Path file) {
+        ObjectTools.requireNonNull(file, "file");
         return file(file.toFile());
     }
 
@@ -235,7 +245,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @throws NullPointerException if {@code project} is {@code null}
      */
     public PropertyFileOperation fromProject(BaseProject project) {
-        project_ = Objects.requireNonNull(project, "The project must not be null");
+        project_ = ObjectTools.requireNonNull(project, "fromProject");
         return this;
     }
 
@@ -259,23 +269,36 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
         return failOnWarning_;
     }
 
-    /**
-     * Logs a warning.
-     *
-     * @param message the message log
-     * @throws ExitStatusException if a {@link Level#SEVERE} exception occurs
-     */
-    private void warn(String message)
-            throws ExitStatusException {
+    private void warn(String message, Throwable cause) throws ExitStatusException {
+        String fullMessage;
+
+        if (project_.getCurrentCommandName() != null) {
+            fullMessage = "[" + project_.getCurrentCommandName() + "] " + message;
+        } else {
+            fullMessage = message;
+        }
+
         if (failOnWarning_) {
-            if (LOGGER.isLoggable(Level.SEVERE) && !silent()) {
-                LOGGER.log(Level.SEVERE, "[" + project_.getCurrentCommandName() + "] " + message);
+            if (logger.isLoggable(Level.SEVERE) && !silent()) {
+                if (cause == null) {
+                    logger.log(Level.SEVERE, fullMessage);
+                } else {
+                    logger.log(Level.SEVERE, fullMessage, cause);
+                }
             }
             throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
         } else {
-            if (LOGGER.isLoggable(Level.WARNING) && !silent()) {
-                LOGGER.log(Level.WARNING, "[" + project_.getCurrentCommandName() + "] " + message);
+            if (logger.isLoggable(Level.WARNING) && !silent()) {
+                if (cause == null) {
+                    logger.log(Level.WARNING, fullMessage);
+                } else {
+                    logger.log(Level.WARNING, fullMessage, cause);
+                }
             }
         }
+    }
+
+    private void warn(String message) throws ExitStatusException {
+        warn(message, null);
     }
 }

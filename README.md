@@ -7,6 +7,8 @@
 [![Snapshot](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Frepo.rife2.com%2Fsnapshots%2Fcom%2Fuwyn%2Frife2%2Fbld-property-file%2Fmaven-metadata.xml&label=snapshot)](https://repo.rife2.com/#/snapshots/com/uwyn/rife2/bld-property-file)
 [![GitHub CI](https://github.com/rife2/bld-property-file/actions/workflows/bld.yml/badge.svg)](https://github.com/rife2/bld-property-file/actions/workflows/bld.yml)
 
+It is inspired by the [ant PropertyFile task](https://ant.apache.org/manual/Tasks/propertyfile.html).
+
 To install the latest version, add the following to the `lib/bld/bld-wrapper.properties` file:
 
 ```properties
@@ -17,7 +19,8 @@ For more information, please refer to the [extensions](https://github.com/rife2/
 
 ## Create or Modify Property Files
 
-To create or modify [property files](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html) with [bld](https://rife2.com/bld), add the follwing to your build file:
+To create or modify [property files](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html)
+with [bld](https://rife2.com/bld), add the following to your build file:
 
 ```java
 @BuildCommand
@@ -65,7 +68,9 @@ version.patch=0
 
 ## Property File
 
-The [PropertyFileOperation](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/PropertyFileOperation.html) class is used to configure the [properties file](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html) location, etc.
+The [PropertyFileOperation](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/PropertyFileOperation.html)
+class is used to configure the
+[properties file](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html) location, etc.
 
 | Function          | Description                                                     | Required |
 |:------------------|:----------------------------------------------------------------|:---------|
@@ -75,19 +80,22 @@ The [PropertyFileOperation](https://rife2.github.io/bld-property-file/rife/bld/e
 
 ## Entry
 
-The [Entry](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.html) class is used to specify modifications to a [String property](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
+The [Entry](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/Entry.html) class is used to
+specify modifications to a [String property](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
 
 | Function         | Description/Example                                                                                                                               |
 |:-----------------|:--------------------------------------------------------------------------------------------------------------------------------------------------|
 | `defaultValue()` | The value to be used if the property doesn't exist.                                                                                               |
 | `delete()`       | Delete the property.                                                                                                                              |
-| `modify()`       | `modify("-foo", String::concat)`<br/>`modify("-foo", (v, s) -> v + s)`<br/>`modify((v, s) -> v.trim())`                                           |
+| `modify()`       | `modify("-foo", String::concat)`  `modify("-foo", (v, s) -> v + s)`  `modify((v, s) -> v.trim())`                                                 |
 | `pattern()`      | If present, will parse the value as a [Formatter](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Formatter.html) pattern. |
 | `set()`          | The value to set the property to, regardless of its previous value.                                                                               |
 
 ## EntryDate
 
-The [EntryDate](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/EntryDate.html) class is used to specify modifications to a [date property](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
+The [EntryDate](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/EntryDate.html) class is used
+to specify modifications to a
+[date property](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
 
 | Function         | Description/Example                                                                                                                                                                                                                                                                                                                                                         |
 |:-----------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -102,7 +110,8 @@ The [EntryDate](https://rife2.github.io/bld-property-file/rife/bld/extension/pro
 
 ### Units
 
-The following [Units](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/EntryDate.Units.html) are available:
+The following [Units](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/EntryDate.Units.html)
+are available:
 
 * `Units.MILLISECOND`
 * `Units.SECOND`
@@ -115,14 +124,14 @@ The following [Units](https://rife2.github.io/bld-property-file/rife/bld/extensi
 
 ## EntryInt
 
-The [EntryInt](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/EntryInt.html) class is used to specify modifications to a [integer property](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
+The [EntryInt](https://rife2.github.io/bld-property-file/rife/bld/extension/propertyfile/EntryInt.html) class is used
+to specify modifications to an
+[integer property](https://docs.oracle.com/javase/tutorial/essential/environment/properties.html).
 
 | Function         | Description/Example                                                                                                                                                |
 |:-----------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `defaultValue()` | The value to be used if the property doesn't exist.                                                                                                                |
-| `calc()`         | `calc(ADD)`<br/>`calc(v -> v + 1)`<br/>`calc(SUB)`<br/>`calc(v -> v - 1)`                                                                                          |
+| `calc()`         | `calc(ADD)`<br/>`calc(SUB)`<br/>`calc(DOUBLE)`<br/>`calc(HALF)`<br/>`calc(NEGATE)`<br/>`calc(plus(5))`<br/>`calc(times(3))`<br/>`calc(v -> v * 2 + 1)`             |
 | `delete()`       | Delete the property.                                                                                                                                               |
 | `pattern()`      | If present, will parse the value as a [DecimalFormat](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/text/DecimalFormat.html) pattern.          |
 | `set()`          | The [integer value](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html) to set the property to, regardless of its previous value. |
-
-It is inspired by the [ant PropertyFile task](https://ant.apache.org/manual/Tasks/propertyfile.html).

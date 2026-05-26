@@ -16,6 +16,9 @@
 
 package rife.bld.extension.propertyfile;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 /**
  * Declares the modifications to be made to an {@link java.util.Properties Integer-based property}.
  *
@@ -28,17 +31,19 @@ public class EntryInt extends EntryBase<EntryInt> {
      * Creates a new {@link EntryInt entry}.
      *
      * @param key the required property key
+     * @throws NullPointerException if {@code key} is {@code null}
      */
-    public EntryInt(String key) {
+    public EntryInt(@NonNull String key) {
         super(key);
     }
 
     /**
      * Sets the {@link java.text.DecimalFormat DecimalFormat} pattern.
      *
-     * @param pattern the pattern
+     * @param pattern the pattern, or {@code null} for no formatting
+     * @return this instance
      */
-    public EntryInt pattern(String pattern) {
+    public EntryInt pattern(@Nullable String pattern) {
         super.pattern(pattern);
         return this;
     }

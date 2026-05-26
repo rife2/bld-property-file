@@ -21,11 +21,14 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import rife.bld.extension.testing.LoggingExtension;
 import rife.bld.extension.testing.TestLogHandler;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.*;
 import java.util.Calendar;
 import java.util.Properties;
@@ -99,26 +102,26 @@ class PropertyFileUtilsTest {
         @Test
         @SuppressWarnings("ConstantValue")
         void shouldHandleAllNullValues() {
-            var result = PropertyFileUtils.currentValue(null, null, null);
+            var result = PropertyFileUtils.resolveValue(null, null, null);
             assertThat(result).as("all nulls returns null").isNull();
         }
 
         @Test
         void shouldReturnDefaultValueWhenValueIsNull() {
-            var result = PropertyFileUtils.currentValue(null, "default", null);
+            var result = PropertyFileUtils.resolveValue(null, "default", null);
             assertThat(result).as("default value when value is null").isEqualTo("default");
         }
 
         @Test
         @SuppressWarnings("ObviousNullCheck")
         void shouldReturnNewValueWhenProvided() {
-            var result = PropertyFileUtils.currentValue("old", "default", "new");
+            var result = PropertyFileUtils.resolveValue("old", "default", "new");
             assertThat(result).as("new value takes precedence").isEqualTo("new");
         }
 
         @Test
         void shouldReturnValueWhenNoNewValueOrDefault() {
-            var result = PropertyFileUtils.currentValue("existing", null, null);
+            var result = PropertyFileUtils.resolveValue("existing", null, null);
             assertThat(result).as("existing value when no new value").isEqualTo("existing");
         }
     }
@@ -214,62 +217,46 @@ class PropertyFileUtilsTest {
     class LoadPropertiesErrorTest {
 
         @Test
-        void shouldFailWhenFileDoesNotExist() {
+        void shouldFailWhenFileIsDirectory() {
             var properties = new Properties();
-            var nonExistentFile = new File("nonexistent.properties");
-            assertThatThrownBy(() ->
-                    PropertyFileUtils.loadProperties(nonExistentFile, properties))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Please specify a valid properties file location.");
-        }
+            var directory = new File("src"); // assuming src/ exists and is a dir
 
-        @Test
-        void shouldFailWhenFileDoesNotExists() {
-            var properties = new Properties();
-            var nonExistentFile = new File("nonexistent.properties");
-            assertThatThrownBy(() ->
-                    PropertyFileUtils.loadProperties(nonExistentFile, properties))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Please specify a valid properties file location.");
-        }
-
-        @Test
-        void shouldFailWhenFileIsNotLoading() {
-            var properties = new Properties();
-            var nonExistentFile = new File("src");
-            assertThatThrownBy(() ->
-                    PropertyFileUtils.loadProperties(nonExistentFile, properties))
+            assertThatThrownBy(() -> PropertyFileUtils.loadProperties(directory, properties))
                     .isInstanceOf(IOException.class)
-                    .hasMessageContaining("Could not load properties file: Is a directory");
+                    .hasMessage("Could not load properties file: src");
         }
 
         @Test
+        @SuppressWarnings("DataFlowIssue")
         void shouldFailWhenFileIsNull() {
             var properties = new Properties();
 
-            assertThatThrownBy(() ->
-                    PropertyFileUtils.loadProperties(null, properties))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Please specify a valid properties file location.");
+            assertThatThrownBy(() -> PropertyFileUtils.loadProperties(null, properties))
+                    .isInstanceOf(NullPointerException.class);
         }
 
         @Test
-        void shouldNotSucceedWhenFileDoesNotExist() {
+        void shouldLoadEmptyWhenFileDoesNotExist() {
             var properties = new Properties();
             var nonExistentFile = new File("nonexistent.properties");
-            assertThatThrownBy(() ->
-                    PropertyFileUtils.loadProperties(nonExistentFile, properties))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Please specify a valid properties file location.");
+
+            assertThatCode(() -> PropertyFileUtils.loadProperties(nonExistentFile, properties))
+                    .doesNotThrowAnyException();
+            assertThat(properties).isEmpty();
         }
 
         @Test
-        void shouldNotSucceedWhenFileIsNull() {
+        void shouldLoadExistingPropertiesFile(@TempDir Path tempDir) throws IOException {
+            var propsFile = tempDir.resolve("test.properties");
+            Files.writeString(propsFile, "key1=value1\nkey2=value2");
+
             var properties = new Properties();
-            assertThatThrownBy(() ->
-                    PropertyFileUtils.loadProperties(null, properties))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Please specify a valid properties file location.");
+            PropertyFileUtils.loadProperties(propsFile.toFile(), properties);
+
+            assertThat(properties)
+                    .containsEntry("key1", "value1")
+                    .containsEntry("key2", "value2")
+                    .hasSize(2);
         }
     }
 
@@ -777,7 +764,7 @@ class PropertyFileUtilsTest {
             assertThatCode(() ->
                     PropertyFileUtils.saveProperties(invalidFile, "comment", properties))
                     .as("invalid file path").isInstanceOf(IOException.class)
-                    .hasMessageContaining("An IO error occurred");
+                    .hasMessageContaining("Could not save properties file: ");
         }
     }
 

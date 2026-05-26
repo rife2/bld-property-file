@@ -16,6 +16,9 @@
 
 package rife.bld.extension.propertyfile;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 import java.time.*;
 import java.util.Calendar;
 import java.util.Date;
@@ -28,14 +31,15 @@ import java.util.Date;
  */
 public class EntryDate extends EntryBase<EntryDate> {
 
-    private EntryDate.Units unit_ = EntryDate.Units.DAY;
+    private Units unit_ = Units.DAY;
 
     /**
      * Creates a new {@link EntryDate entry}.
      *
      * @param key the required property key
+     * @throws NullPointerException if {@code key} is {@code null}
      */
-    public EntryDate(String key) {
+    public EntryDate(@NonNull String key) {
         super(key);
     }
 
@@ -53,8 +57,9 @@ public class EntryDate extends EntryBase<EntryDate> {
      * Sets the {@link java.time.format.DateTimeFormatter DateTimeFormatter} pattern.
      *
      * @param pattern the pattern
+     * @return this instance
      */
-    public EntryDate pattern(String pattern) {
+    public EntryDate pattern(@Nullable String pattern) {
         super.pattern(pattern);
         return this;
     }
@@ -65,7 +70,7 @@ public class EntryDate extends EntryBase<EntryDate> {
      * @param instant the {@link Instant} to set the value to
      * @return this instance
      */
-    public EntryDate set(Instant instant) {
+    public EntryDate set(@Nullable Instant instant) {
         newValue(instant);
         return this;
     }
@@ -76,7 +81,7 @@ public class EntryDate extends EntryBase<EntryDate> {
      * @param date the {@link LocalDate} to set the value to
      * @return this instance
      */
-    public EntryDate set(LocalDate date) {
+    public EntryDate set(@Nullable LocalDate date) {
         newValue(date);
         return this;
     }
@@ -87,7 +92,7 @@ public class EntryDate extends EntryBase<EntryDate> {
      * @param date the {@link LocalDateTime} to set the value to
      * @return this instance
      */
-    public EntryDate set(LocalDateTime date) {
+    public EntryDate set(@Nullable LocalDateTime date) {
         newValue(date);
         return this;
     }
@@ -98,7 +103,7 @@ public class EntryDate extends EntryBase<EntryDate> {
      * @param date the {@link ZonedDateTime} to set the value to
      * @return this instance
      */
-    public EntryDate set(ZonedDateTime date) {
+    public EntryDate set(@Nullable ZonedDateTime date) {
         newValue(date);
         return this;
     }
@@ -109,7 +114,7 @@ public class EntryDate extends EntryBase<EntryDate> {
      * @param time the {@link LocalTime} to set the value to
      * @return this instance
      */
-    public EntryDate set(LocalTime time) {
+    public EntryDate set(@Nullable LocalTime time) {
         newValue(time);
         return this;
     }
@@ -121,7 +126,7 @@ public class EntryDate extends EntryBase<EntryDate> {
      * @return this instance
      */
     @SuppressWarnings("PMD.ReplaceJavaUtilCalendar")
-    public EntryDate set(Calendar cal) {
+    public EntryDate set(@Nullable Calendar cal) {
         newValue(cal);
         return this;
     }
@@ -133,17 +138,18 @@ public class EntryDate extends EntryBase<EntryDate> {
      * @return this instance
      */
     @SuppressWarnings("PMD.ReplaceJavaUtilDate")
-    public EntryDate set(Date date) {
+    public EntryDate set(@Nullable Date date) {
         newValue(date);
         return this;
     }
 
     /**
-     * Returns the {@link EntryDate.Units unit}.
+     * Returns the {@link Units unit}.
      *
-     * @return the unit
+     * @return the unit, never {@code null}
      */
-    public EntryDate.Units unit() {
+    @NonNull
+    public Units unit() {
         return unit_;
     }
 
@@ -152,24 +158,15 @@ public class EntryDate extends EntryBase<EntryDate> {
      *
      * @param unit the {@link Units unit}
      * @return this instance
+     * @throws NullPointerException if {@code unit} is {@code null}
      */
-    public EntryDate unit(Units unit) {
+    public EntryDate unit(@NonNull Units unit) {
         unit_ = unit;
         return this;
     }
 
     /**
      * The units available for {@link EntryDate} calculations.
-     *
-     * <uL>
-     * <li>{@link Units#SECOND SECOND}</li>
-     * <li>{@link Units#MINUTE MINUTE}</li>
-     * <li>{@link Units#HOUR HOUR}</li>
-     * <li>{@link Units#DAY DAY}</li>
-     * <li>{@link Units#WEEK WEEK}</li>
-     * <li>{@link Units#MONTH MONTH}</li>
-     * <li>{@link Units#YEAR YEAR}</li>
-     * </uL>
      */
     public enum Units {
         /**

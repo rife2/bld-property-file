@@ -35,14 +35,14 @@ import static rife.bld.operations.JavadocOptions.DocLinkOption.NO_MISSING;
 public class PropertyFileBuild extends Project {
 
     final PmdOperation pmdOp = new PmdOperation()
-            .fromProject(this)
             .failOnViolation(true)
-            .ruleSets("config/pmd.xml");
+            .ruleSets("config/pmd.xml")
+            .fromProject(this);
 
     public PropertyFileBuild() {
         pkg = "rife.bld.extension";
         name = "bld-property-file";
-        version = version(0, 9, 10, "SNAPSHOT");
+        version = version(1, 0, 0, "SNAPSHOT");
 
         javaRelease = 17;
         downloadSources = true;
@@ -52,7 +52,7 @@ public class PropertyFileBuild extends Project {
         var junit = version(6, 1, 0);
         scope(compile)
                 .include(dependency("com.uwyn.rife2", "bld-extensions-tools",
-                        version(1, 0, 1)))
+                        version(1, 3, 0, "SNAPSHOT")))
                 .include(dependency("com.uwyn.rife2", "bld",
                         version(2, 3, 1, "SNAPSHOT")));
         scope(provided)
@@ -60,8 +60,8 @@ public class PropertyFileBuild extends Project {
                         version(4, 9, 8)));
         scope(test)
                 .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
-                        version(1, 0, 0)))
-                .include(dependency("org.jsoup", "jsoup", version(1, 22, 1)))
+                        version(1, 0, 1)))
+                .include(dependency("org.jsoup", "jsoup", version(1, 22, 2)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", junit))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", junit))
                 .include(dependency("org.assertj:assertj-joda-time:2.2.0"));

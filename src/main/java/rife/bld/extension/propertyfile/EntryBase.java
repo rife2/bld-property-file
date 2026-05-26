@@ -16,6 +16,9 @@
 
 package rife.bld.extension.propertyfile;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import rife.bld.extension.tools.ObjectTools;
+
 import java.util.function.IntFunction;
 
 /**
@@ -39,8 +42,10 @@ public abstract class EntryBase<T> {
      * Creates a new {@link EntryBase entry}.
      *
      * @param key the required property key
+     * @throws NullPointerException if {@code key} is {@code null}
      */
-    public EntryBase(String key) {
+    public EntryBase(@NonNull String key) {
+        ObjectTools.requireNonNull(key, "entry key");
         key_ = key;
     }
 
@@ -89,9 +94,10 @@ public abstract class EntryBase<T> {
      *
      * @param key the {@link java.util.Properties property} key
      * @return this instance
+     * @throws NullPointerException if {@code key} is {@code null}
      */
-    public T key(String key) {
-        key_ = key;
+    public T key(@NonNull String key) {
+        key_ = ObjectTools.requireNonNull(key, "entry key");
         return (T) this;
     }
 

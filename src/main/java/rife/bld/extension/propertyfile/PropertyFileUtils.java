@@ -21,12 +21,10 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rife.bld.extension.tools.IOTools;
 import rife.bld.extension.tools.ObjectTools;
-import rife.bld.extension.tools.TextTools;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.time.*;
@@ -38,7 +36,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 /**
- * Collection of common methods used in this project.
+ * Utility methods for {@link PropertyFileOperation}.
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
@@ -61,7 +59,6 @@ public final class PropertyFileUtils {
                     case WEEK -> ld.plusWeeks(offset);
                     case MONTH -> ld.plusMonths(offset);
                     case YEAR -> ld.plusYears(offset);
-                    // HOUR, MINUTE, SECOND are not applicable to LocalDate
                     default -> throw new IllegalArgumentException(
                             "Unit " + unit + " is not applicable to a date-only value for \"" + entry.key() + "\"");
                 };
@@ -70,7 +67,6 @@ public final class PropertyFileUtils {
                     case SECOND -> lt.plusSeconds(offset);
                     case MINUTE -> lt.plusMinutes(offset);
                     case HOUR -> lt.plusHours(offset);
-                    // DAY, WEEK, MONTH, YEAR are not applicable to LocalTime
                     default -> throw new IllegalArgumentException(
                             "Unit " + unit + " is not applicable to a time-only value for \"" + entry.key() + "\"");
                 };
@@ -94,46 +90,26 @@ public final class PropertyFileUtils {
     }
 
     /**
-     * Returns the new value, value, or default value depending on which is specified.
-     *
-     * <p>Priority order: {@code newValue} ? {@code value} ? {@code defaultValue}.
-     *
-     * @param value        the current persisted value; may be {@code null} if the key is absent
-     * @param defaultValue the fallback used when both {@code value} and {@code newValue} are {@code null}
-     * @param newValue     when non-{@code null}, always takes precedence over the other two
-     * @return the resolved object; {@code null} if all three arguments are {@code null}
-     */
-    @Nullable
-    public static Object currentValue(@Nullable String value, @Nullable Object defaultValue,
-                                      @Nullable Object newValue) {
-        if (newValue != null) {
-            return newValue;
-        } else if (value == null) {
-            return defaultValue;
-        } else {
-            return value;
-        }
-    }
-
-    /**
      * Loads a {@link Properties properties} file.
+     * <p>
+     * If the file does not exist, no properties are loaded. The file will be created when
+     * {@link #saveProperties(File, String, Properties)} is called.
      *
      * @param file the file location
      * @param p    the {@link Properties properties} to load into
-     * @throws IOException              if an error occurred while reading the file
-     * @throws IllegalArgumentException if the file does not exist
+     * @throws IOException          if an error occurred while reading the file
+     * @throws NullPointerException if {@code file} or {@code p} is {@code null}
      */
-    @SuppressFBWarnings(value = {"EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS", "LEST_LOST_EXCEPTION_STACK_TRACE"},
-    justification = "IOException is re-thrown as the same type, not softened; cause is always chained.")
     public static void loadProperties(@NonNull File file, @NonNull Properties p) throws IOException {
+        ObjectTools.requireNonNull(file, "properties file");
+        ObjectTools.requireNonNull(p, "properties");
+
         if (IOTools.exists(file)) {
-            try (var propStream = Files.newInputStream(file.toPath(), StandardOpenOption.READ)) {
-                p.load(propStream);
+            try (var in = Files.newInputStream(file.toPath(), StandardOpenOption.READ)) {
+                p.load(in);
             } catch (IOException ioe) {
-                throw new IOException("Could not load properties file: " + ioe.getMessage(), ioe);
+                throw new IOException("Could not load properties file: " + file, ioe);
             }
-        } else {
-            throw new IllegalArgumentException("Please specify a valid properties file location.");
         }
     }
 
@@ -153,7 +129,6 @@ public final class PropertyFileUtils {
         } else if (value instanceof Instant i) {
             return i.atZone(ZoneId.systemDefault());
         } else if (value instanceof ZonedDateTime || value instanceof LocalDate || value instanceof LocalTime) {
-            // already in a supported type — return as-is
             return value;
         } else {
             throw new IllegalArgumentException(
@@ -163,56 +138,72 @@ public final class PropertyFileUtils {
 
     /**
      * Processes a date {@link Properties properties}.
+     * <p>
+     * If no value is present and {@code calc} is defined, the calculation starts from {@code ZonedDateTime.now()}.
+     * This matches Ant {@code <propertyfile>} behavior. To fail on missing values, do not use {@code calc}
+     * without also setting {@code defaultValue} or {@code newValue}.
      *
      * @param p     the {@link Properties properties}
-     * @param entry the {@link Entry} containing the {@link Properties properties} edits
+     * @param entry the {@link EntryDate} containing the {@link Properties properties} edits
      * @throws DateTimeException        if a parsing or arithmetic error occurs
-     * @throws IllegalArgumentException if no value, defaultValue, or newValue is configured and no
-     *                                  pattern is set
+     * @throws IllegalArgumentException if no value is configured and no {@code calc} is set
      */
     public static void processDate(@NonNull Properties p, @NonNull EntryDate entry) throws DateTimeException {
-        var currentValue = currentValue(null, entry.defaultValue(), entry.newValue());
-        var pattern = Objects.toString(entry.pattern(), "");
+        var key = entry.key();
+        var effective = resolveValue(p.getProperty(key), entry.defaultValue(), entry.newValue());
 
-        if (TextTools.isNotBlank(pattern)) {
-            if (currentValue == null) {
-                throw new IllegalArgumentException(
-                        "No value, defaultValue, or newValue configured for date entry \"" + entry.key() + "\"");
+        if (effective == null) {
+            if (entry.calc() == null) {
+                throw new IllegalArgumentException("No value provided for entry: " + key);
             }
-            var normalised = normaliseDateValue(currentValue, entry.key());
-            p.setProperty(entry.key(), applyOffsetAndFormat(normalised, entry, DateTimeFormatter.ofPattern(pattern)));
+            effective = ZonedDateTime.now();
+        }
+
+        var patternObj = entry.pattern();
+        if (patternObj instanceof String pattern && !pattern.isBlank()) {
+            var normalised = normaliseDateValue(effective, key);
+            p.setProperty(key, applyOffsetAndFormat(normalised, entry, DateTimeFormatter.ofPattern(pattern)));
         } else {
-            // No pattern: store the literal string representation.
-            // Callers should ensure at least a defaultValue is configured if "null" is not desired.
-            p.setProperty(entry.key(), Objects.toString(currentValue, "null"));
+            p.setProperty(key, String.valueOf(effective));
         }
     }
 
     /**
      * Processes an integer {@link Properties properties}.
+     * <p>
+     * If no value is present and {@code calc} is defined, the calculation starts from {@code 0}.
+     * This matches Ant {@code <propertyfile>} behavior. To fail on missing values, do not use {@code calc}
+     * without also setting {@code defaultValue} or {@code newValue}.
      *
      * @param p     the {@link Properties properties}
-     * @param entry the {@link Entry} containing the {@link Properties properties} edits
+     * @param entry the {@link EntryInt} containing the {@link Properties properties} edits
+     * @throws IllegalArgumentException if no value is configured and no {@code calc} is set,
+     *                                  or the value cannot be parsed as an integer
      */
     @SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
     public static void processInt(@NonNull Properties p, @NonNull EntryInt entry) {
-        int intValue = 0;
+        var key = entry.key();
+        var effective = resolveValue(p.getProperty(key), entry.defaultValue(), entry.newValue());
+
+        if (effective == null) {
+            if (entry.calc() == null) {
+                throw new IllegalArgumentException("No value provided for entry: " + key);
+            }
+            effective = 0;
+        }
+
         try {
             var fmt = new DecimalFormat(Objects.toString(entry.pattern(), ""));
-            var currentValue = currentValue(p.getProperty(entry.key()), entry.defaultValue(), entry.newValue());
-
-            if (currentValue != null) {
-                intValue = fmt.parse(Objects.toString(currentValue, "")).intValue();
-            }
+            var intValue = fmt.parse(String.valueOf(effective)).intValue();
 
             if (entry.calc() != null) {
                 intValue = entry.calc().apply(intValue);
             }
 
-            p.setProperty(entry.key(), fmt.format(intValue));
+            p.setProperty(key, fmt.format(intValue));
         } catch (NumberFormatException | ParseException e) {
             throw new IllegalArgumentException(
-                    "Non-integer value for \"" + entry.key() + "\" --> " + e.getMessage(), e);
+                    "Non-integer value for \"" + key + "\" --> " + e.getMessage(), e);
         }
     }
 
@@ -221,41 +212,91 @@ public final class PropertyFileUtils {
      *
      * @param p     the {@link Properties property}
      * @param entry the {@link Entry} containing the {@link Properties property} edits
+     * @throws IllegalArgumentException if no value is configured or the modify function fails/returns {@code null}
      */
-    @SuppressFBWarnings("FORMAT_STRING_MANIPULATION")
     public static void processString(@NonNull Properties p, @NonNull Entry entry) {
-        var currentValue = currentValue(p.getProperty(entry.key()), entry.defaultValue(), entry.newValue());
+        var key = entry.key();
+        var effective = resolveValue(p.getProperty(key), entry.defaultValue(), entry.newValue());
+        if (effective == null) {
+            throw new IllegalArgumentException("No value provided for entry: " + key);
+        }
 
-        // When all value sources are absent, currentValue is null.
-        // Objects.toString guards against String.valueOf(null) silently producing "null".
-        var resolved = Objects.toString(currentValue, "");
+        var result = String.valueOf(effective);
+        if (entry.pattern() != null) {
+            result = String.format(String.valueOf(entry.pattern()), result);
+        }
 
-        p.setProperty(entry.key(), entry.pattern() != null
-                ? String.format(String.valueOf(entry.pattern()), resolved)
-                : resolved);
+        var modify = entry.modify(); // assign to local
+        if (modify != null) {
+            result = modify.apply(result, entry.modifyValue());
+            if (result == null) {
+                throw new IllegalArgumentException(
+                        "Modify function returned null for key: " + key);
+            }
+        }
+        p.setProperty(key, result);
+    }
 
-        if (ObjectTools.isNotNull(entry.modify(), entry.modifyValue())) {
-            // modify() transforms the current property value; the result is then used as the format
-            // string with entry.pattern() as its argument (intentional inversion by design).
-            var modify = entry.modify().apply(p.getProperty(entry.key()), entry.modifyValue());
-            p.setProperty(entry.key(), String.format(modify, entry.pattern()));
+    /**
+     * Resolves the effective value using precedence: {@code newValue} → existing → {@code defaultValue}.
+     * {@code null} means the value is missing. Empty string {@code ""} is considered a valid value.
+     *
+     * @param existing     the current persisted value; may be {@code null} if the key is absent
+     * @param defaultValue the fallback used when both {@code existing} and {@code newValue} are {@code null}
+     * @param newValue     when non-{@code null}, always takes precedence
+     * @return the resolved object; {@code null} if all three arguments are {@code null}
+     */
+    @Nullable
+    public static Object resolveValue(@Nullable String existing, @Nullable Object defaultValue,
+                                      @Nullable Object newValue) {
+        if (newValue != null) {
+            return newValue;
+        } else if (existing != null) {
+            return existing;
+        } else {
+            return defaultValue;
         }
     }
 
     /**
-     * Saves a {@link Properties properties} file.
+     * Saves a {@link Properties properties} file atomically when possible.
+     * <p>
+     * The method writes to a temporary file in the same directory, calls {@code fsync}, then performs
+     * an atomic move to replace the target. If the filesystem does not support atomic move or the
+     * directory does not allow renames, it falls back to a non-atomic overwrite.
      *
      * @param file    the file location
      * @param comment the header comment
-     * @param p       the {@link Properties} to save into the file
+     * @param props   the {@link Properties} to save into the file
      * @throws IOException if an IO error occurs while writing the file
      */
-    public static void saveProperties(@NonNull File file, String comment, @NonNull Properties p) throws IOException {
-        try (var output = Files.newOutputStream(file.toPath())) {
-            p.store(output, comment);
+    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
+    public static void saveProperties(@NonNull File file, String comment, @NonNull Properties props)
+            throws IOException {
+        ObjectTools.requireNonNull(file, "file");
+        ObjectTools.requireNonNull(props, "props");
+
+        try {
+            var parent = file.getParentFile();
+            var dir = parent != null ? parent.toPath() : Path.of(".");
+            Files.createDirectories(dir);
+
+            var tmp = Files.createTempFile(dir, file.getName(), ".tmp");
+            try {
+                try (var out =
+                             Files.newOutputStream(tmp, StandardOpenOption.WRITE, StandardOpenOption.DSYNC)) {
+                    props.store(out, comment);
+                }
+                try {
+                    Files.move(tmp, file.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+                } catch (AtomicMoveNotSupportedException e) {
+                    Files.move(tmp, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                }
+            } finally {
+                Files.deleteIfExists(tmp);
+            }
         } catch (IOException ioe) {
-            // Re-wrap to include the file path in the message for easier diagnosis at the call site.
-            throw new IOException("An IO error occurred while saving the Properties file: " + file, ioe);
+            throw new IOException("Could not save properties file: " + file, ioe);
         }
     }
 }

@@ -39,7 +39,6 @@ import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static rife.bld.extension.propertyfile.Calc.ADD;
 
 @DisplayName("PropertyFile Operation Tests")
@@ -50,24 +49,26 @@ class PropertyFileOperationTest {
     private static final String BUILD_DATE = "build.date";
     private static final String COMMENT = "This is a comment";
     private static final String FOO = "foo";
-
-    @SuppressWarnings("LoggerInitializedWithForeignClass")
-    private static final Logger LOGGER = Logger.getLogger(PropertyFileOperation.class.getName());
-    private static final TestLogHandler TEST_LOG_HANDLER = new TestLogHandler();
-
-    @RegisterExtension
-    @SuppressWarnings("unused")
-    private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(
-            LOGGER,
-            TEST_LOG_HANDLER,
-            Level.ALL
-    );
-
     private static final String VERSION_MAJOR = "version.major";
     private static final String VERSION_MINOR = "version.minor";
     private static final String VERSION_PATCH = "version.patch";
+    @SuppressWarnings("LoggerInitializedWithForeignClass")
+    private static final Logger logger = Logger.getLogger(PropertyFileOperation.class.getName());
+    private static final TestLogHandler testLogHandler = new TestLogHandler();
+    @RegisterExtension
+    @SuppressWarnings("unused")
+    private static final LoggingExtension loggingExtension = new LoggingExtension(
+            logger,
+            testLogHandler,
+            Level.ALL
+    );
     private Properties properties;
     private File tmpFile;
+
+    @BeforeEach
+    void beforeEach() {
+        testLogHandler.clear();
+    }
 
     @Test
     void isClearChecks() {
@@ -119,7 +120,7 @@ class PropertyFileOperationTest {
         assertThat(op.entries()).containsOnly(entry);
 
         op.execute();
-        assertThat(TEST_LOG_HANDLER.containsMessage("All entries will be cleared first.")).isTrue();
+        assertThat(testLogHandler.containsMessage("All entries will be cleared first.")).isTrue();
 
         loadProperties();
 
@@ -149,7 +150,7 @@ class PropertyFileOperationTest {
 
     @Test
     void shouldClearWithoutWarning() throws Exception {
-        LOGGER.setLevel(Level.OFF);
+        logger.setLevel(Level.OFF);
         var bar = "bar";
         var entry = new Entry(FOO).set(bar);
 
@@ -161,7 +162,7 @@ class PropertyFileOperationTest {
         op.execute();
 
         assertThat(op.entries()).containsOnly(entry);
-        assertThat(TEST_LOG_HANDLER.containsMessage("All entries will be cleared first.")).isFalse();
+        assertThat(testLogHandler.containsMessage("All entries will be cleared first.")).isFalse();
     }
 
     @Test
@@ -197,8 +198,8 @@ class PropertyFileOperationTest {
 
         assertThat(op.entries()).containsOnly(major);
         assertThatCode(op::execute).isInstanceOf(ExitStatusException.class);
-        assertThat(TEST_LOG_HANDLER.containsMessage("An entry must be set or have a default value: version.major"))
-                .isTrue();
+        testLogHandler.printLogMessages();
+        assertThat(testLogHandler.containsMessage("No value provided for entry: version.major")).isTrue();
     }
 
     @Test
@@ -206,21 +207,8 @@ class PropertyFileOperationTest {
         var op = new PropertyFileOperation().fromProject(new Project()).failOnWarning(true);
 
         assertThat(op.entries()).isEmpty();
-        assertThatCode(op::execute).isInstanceOf(ExitStatusException.class);
-        assertThat(TEST_LOG_HANDLER.containsMessage("Please specify the properties file location."))
-                .isFalse();
-    }
-
-    @Test
-    void shouldHaveValidPropertiesFile() {
-        var op = new PropertyFileOperation()
-                .fromProject(new Project())
-                .file("foo")
-                .failOnWarning(false);
-        assertThatThrownBy(op::execute).isInstanceOf(ExitStatusException.class);
-
-        assertThat(op.entries()).isEmpty();
-        assertThat(TEST_LOG_HANDLER.containsMessage("Properties file does not exist: foo")).isFalse();
+        assertThatCode(op::execute).isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("properties file must not be null");
     }
 
     @Test
@@ -273,23 +261,25 @@ class PropertyFileOperationTest {
     @Test
     void shouldThrowExceptionWhenNoProject() {
         var op = new PropertyFileOperation();
-        assertThatCode(op::execute).isInstanceOf(ExitStatusException.class);
-        assertThat(TEST_LOG_HANDLER.containsMessage("A project is required")).isTrue();
+        assertThatCode(op::execute).isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("project must not be null");
     }
 
     @Test
     void shouldThrowExceptionWhenNoProjectAndNoLogging() {
-        LOGGER.setLevel(Level.OFF);
+        logger.setLevel(Level.OFF);
         var op = new PropertyFileOperation().silent(true);
-        assertThatCode(op::execute).isInstanceOf(ExitStatusException.class);
-        assertThat(TEST_LOG_HANDLER.isEmpty()).isTrue();
+        assertThatCode(op::execute).isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("project must not be null");
+        assertThat(testLogHandler.isEmpty()).isTrue();
     }
 
     @Test
     void shouldThrowExceptionWhenNoProjectAndSilent() {
         var op = new PropertyFileOperation().silent(true);
-        assertThatCode(op::execute).isInstanceOf(ExitStatusException.class);
-        assertThat(TEST_LOG_HANDLER.isEmpty()).isTrue();
+        assertThatCode(op::execute).isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("project must not be null");
+        assertThat(testLogHandler.isEmpty()).isTrue();
     }
 
     @Nested
