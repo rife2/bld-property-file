@@ -35,6 +35,7 @@
         <exclude name="ShortClassName"/>
         <exclude name="ShortMethodName"/>
         <exclude name="ShortVariable"/>
+        <exclude name="TooManyStaticImports"/>
         <exclude name="UseExplicitTypes"/>
         <exclude name="UseUnderscoresInNumericLiterals"/>
         <exclude name="UselessParentheses"/>

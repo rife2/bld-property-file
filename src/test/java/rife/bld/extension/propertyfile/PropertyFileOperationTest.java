@@ -23,6 +23,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import rife.bld.BaseProject;
 import rife.bld.Project;
 import rife.bld.extension.testing.LoggingExtension;
 import rife.bld.extension.testing.TestLogHandler;
@@ -31,6 +34,7 @@ import rife.bld.operations.exceptions.ExitStatusException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
@@ -39,11 +43,13 @@ import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 import static rife.bld.extension.propertyfile.Calc.ADD;
 
 @DisplayName("PropertyFile Operation Tests")
 @ExtendWith(LoggingExtension.class)
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 class PropertyFileOperationTest {
 
     private static final String BUILD_DATE = "build.date";
@@ -593,6 +599,97 @@ class PropertyFileOperationTest {
         void shouldHandleString() {
             var op = new PropertyFileOperation().file(FOO);
             assertThat(op.file()).isEqualTo(FOO_FILE);
+        }
+    }
+
+    @Nested
+    @DisplayName("Validation Tests")
+    @SuppressWarnings("DataFlowIssue")
+    class ValidationTests {
+
+        @Test
+        void clearFlagsWork() {
+            var op = new PropertyFileOperation();
+            assertThat(op.isClear()).as("default clear").isFalse();
+
+            op.clear();
+            assertThat(op.isClear()).as("clear() sets flag").isTrue();
+
+            op.clear(false);
+            assertThat(op.isClear()).as("clear(false) unsets flag").isFalse();
+        }
+
+        @Test
+        void commentWithNull() {
+            assertThatThrownBy(() -> new PropertyFileOperation().comment(null))
+                    .as("comment null").isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        void entriesListIsUnmodifiable() {
+            var op = new PropertyFileOperation();
+            var entries = op.entries();
+            assertThatThrownBy(() -> entries.add(mock(EntryBase.class)))
+                    .as("entries() returns unmodifiable list")
+                    .isInstanceOf(UnsupportedOperationException.class);
+        }
+
+        @Test
+        void entryWithNull() {
+            assertThatThrownBy(() -> new PropertyFileOperation().entry(null))
+                    .as("entry null").isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        void executeRequiresFile() {
+            var op = new PropertyFileOperation().fromProject(mock(BaseProject.class));
+            assertThatThrownBy(op::execute)
+                    .as("execute without file").isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("properties file");
+        }
+
+        @Test
+        void executeRequiresProject() {
+            var op = new PropertyFileOperation().file("test.properties");
+            assertThatThrownBy(op::execute)
+                    .as("execute without project").isInstanceOf(NullPointerException.class)
+                    .hasMessageContaining("project");
+        }
+
+        @Test
+        void failOnWarningFlagsWork() {
+            var op = new PropertyFileOperation();
+            assertThat(op.isFailOnWarning()).as("default failOnWarning").isFalse();
+
+            op.failOnWarning(true);
+            assertThat(op.isFailOnWarning()).as("failOnWarning(true) sets flag").isTrue();
+        }
+
+        @ParameterizedTest
+        @EmptySource
+        void fileWithEmpty(String arg) {
+            assertThatThrownBy(() -> new PropertyFileOperation().file(arg))
+                    .as("file String empty").isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        void fileWithNull() {
+            assertThatThrownBy(() -> new PropertyFileOperation().file((File) null))
+                    .as("file File null").isInstanceOf(NullPointerException.class);
+            assertThatThrownBy(() -> new PropertyFileOperation().file((Path) null))
+                    .as("file Path null").isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        void fileWithNullString() {
+            assertThatThrownBy(() -> new PropertyFileOperation().file((String) null))
+                    .as("file String null").isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        void fromProjectWithNull() {
+            assertThatThrownBy(() -> new PropertyFileOperation().fromProject(null))
+                    .as("project null").isInstanceOf(NullPointerException.class);
         }
     }
 }
