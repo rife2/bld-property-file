@@ -16,8 +16,9 @@
 
 package rife.bld.extension.propertyfile;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import rife.bld.BaseProject;
 import rife.bld.extension.tools.ObjectTools;
 import rife.bld.extension.tools.TextTools;
@@ -40,6 +41,7 @@ import java.util.logging.Logger;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
+@NullMarked
 public class PropertyFileOperation extends AbstractOperation<PropertyFileOperation> {
 
     private static final Logger logger = Logger.getLogger(PropertyFileOperation.class.getName());
@@ -47,8 +49,8 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
     private boolean clear_;
     private String comment_ = "";
     private boolean failOnWarning_;
-    private File file_;
-    private BaseProject project_;
+    private @Nullable File file_;
+    private @Nullable BaseProject project_;
 
     /**
      * Performs the modification(s) to the {@link java.util.Properties properties} file.
@@ -66,7 +68,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
             PropertyFileUtils.loadProperties(file_, properties);
         } catch (IOException | IllegalArgumentException e) {
             if (logger.isLoggable(Level.SEVERE) && !silent()) {
-                logger.log(Level.SEVERE, e.getMessage(), e);
+                logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
             }
             throw new ExitStatusException(ExitStatusException.EXIT_FAILURE);
         }
@@ -107,7 +109,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
                             PropertyFileUtils.processString(properties, e);
                         }
                     } catch (IllegalArgumentException e) {
-                        warn(e.getMessage(), e);
+                        warn(e.getLocalizedMessage(), e);
                     }
                 }
             }
@@ -149,7 +151,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @return this instance
      * @throws NullPointerException if {@code comment} is {@code null}
      */
-    public PropertyFileOperation comment(@NonNull String comment) {
+    public PropertyFileOperation comment(String comment) {
         comment_ = ObjectTools.requireNonNull(comment, "comment");
         return this;
     }
@@ -171,7 +173,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @return this instance
      * @throws NullPointerException if {@code entry} is {@code null}
      */
-    public PropertyFileOperation entry(@NonNull EntryBase<?> entry) {
+    public PropertyFileOperation entry(EntryBase<?> entry) {
         entries_.add(ObjectTools.requireNonNull(entry, "entry"));
         return this;
     }
@@ -195,7 +197,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @return this instance
      * @throws NullPointerException if {@code file} is {@code null}
      */
-    public PropertyFileOperation file(@NonNull File file) {
+    public PropertyFileOperation file(File file) {
         file_ = ObjectTools.requireNonNull(file, "file");
 
         return this;
@@ -221,6 +223,7 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      *
      * @return the properties file or {@code null} if not set
      */
+    @Nullable
     public File file() {
         return file_;
     }
@@ -269,10 +272,10 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
         return failOnWarning_;
     }
 
-    private void warn(String message, Throwable cause) throws ExitStatusException {
+    private void warn(String message, @Nullable Throwable cause) throws ExitStatusException {
         String fullMessage;
 
-        if (project_.getCurrentCommandName() != null) {
+        if (project_ != null && project_.getCurrentCommandName() != null) {
             fullMessage = "[" + project_.getCurrentCommandName() + "] " + message;
         } else {
             fullMessage = message;

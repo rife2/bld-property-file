@@ -16,9 +16,9 @@
 
 package rife.bld.extension.propertyfile;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.NullUnmarked;
 import rife.bld.extension.tools.IOTools;
 import rife.bld.extension.tools.ObjectTools;
 
@@ -41,6 +41,7 @@ import java.util.Properties;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
+@NullMarked
 public final class PropertyFileUtils {
 
     private PropertyFileUtils() {
@@ -85,7 +86,7 @@ public final class PropertyFileUtils {
             return dtf.format(result);
         } catch (DateTimeException dte) {
             throw new DateTimeException(
-                    "Date arithmetic or formatting error for \"" + entry.key() + "\" --> " + dte.getMessage(), dte);
+                    "Date arithmetic or formatting error for \"" + entry.key() + "\" --> " + dte.getLocalizedMessage(), dte);
         }
     }
 
@@ -100,7 +101,7 @@ public final class PropertyFileUtils {
      * @throws IOException          if an error occurred while reading the file
      * @throws NullPointerException if {@code file} or {@code p} is {@code null}
      */
-    public static void loadProperties(@NonNull File file, @NonNull Properties p) throws IOException {
+    public static void loadProperties(File file, Properties p) throws IOException {
         ObjectTools.requireNonNull(file, "properties file");
         ObjectTools.requireNonNull(p, "properties");
 
@@ -113,7 +114,7 @@ public final class PropertyFileUtils {
         }
     }
 
-    private static Object normaliseDateValue(@NonNull Object value, String key) {
+    private static Object normaliseDateValue(Object value, String key) {
         if (value instanceof String s) {
             if (!"now".equalsIgnoreCase(s)) {
                 throw new IllegalArgumentException(
@@ -148,7 +149,7 @@ public final class PropertyFileUtils {
      * @throws DateTimeException        if a parsing or arithmetic error occurs
      * @throws IllegalArgumentException if no value is configured and no {@code calc} is set
      */
-    public static void processDate(@NonNull Properties p, @NonNull EntryDate entry) throws DateTimeException {
+    public static void processDate(Properties p, EntryDate entry) throws DateTimeException {
         var key = entry.key();
         var effective = resolveValue(p.getProperty(key), entry.defaultValue(), entry.newValue());
 
@@ -181,7 +182,7 @@ public final class PropertyFileUtils {
      *                                  or the value cannot be parsed as an integer
      */
     @SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
-    public static void processInt(@NonNull Properties p, @NonNull EntryInt entry) {
+    public static void processInt(Properties p, EntryInt entry) {
         var key = entry.key();
         var effective = resolveValue(p.getProperty(key), entry.defaultValue(), entry.newValue());
 
@@ -203,7 +204,7 @@ public final class PropertyFileUtils {
             p.setProperty(key, fmt.format(intValue));
         } catch (NumberFormatException | ParseException e) {
             throw new IllegalArgumentException(
-                    "Non-integer value for \"" + key + "\" --> " + e.getMessage(), e);
+                    "Non-integer value for \"" + key + "\" --> " + e.getLocalizedMessage(), e);
         }
     }
 
@@ -214,7 +215,7 @@ public final class PropertyFileUtils {
      * @param entry the {@link Entry} containing the {@link Properties property} edits
      * @throws IllegalArgumentException if no value is configured or the modify function fails/returns {@code null}
      */
-    public static void processString(@NonNull Properties p, @NonNull Entry entry) {
+    public static void processString(Properties p, Entry entry) {
         var key = entry.key();
         var effective = resolveValue(p.getProperty(key), entry.defaultValue(), entry.newValue());
         if (effective == null) {
@@ -246,9 +247,9 @@ public final class PropertyFileUtils {
      * @param newValue     when non-{@code null}, always takes precedence
      * @return the resolved object; {@code null} if all three arguments are {@code null}
      */
-    @Nullable
-    public static Object resolveValue(@Nullable String existing, @Nullable Object defaultValue,
-                                      @Nullable Object newValue) {
+    @NullUnmarked
+    public static Object resolveValue(String existing, Object defaultValue,
+                                      Object newValue) {
         if (newValue != null) {
             return newValue;
         } else if (existing != null) {
@@ -271,7 +272,7 @@ public final class PropertyFileUtils {
      * @throws IOException if an IO error occurs while writing the file
      */
     @SuppressFBWarnings("PATH_TRAVERSAL_IN")
-    public static void saveProperties(@NonNull File file, String comment, @NonNull Properties props)
+    public static void saveProperties(File file, String comment, Properties props)
             throws IOException {
         ObjectTools.requireNonNull(file, "file");
         ObjectTools.requireNonNull(props, "props");
