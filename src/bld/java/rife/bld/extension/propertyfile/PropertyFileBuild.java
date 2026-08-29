@@ -62,7 +62,7 @@ public class PropertyFileBuild extends Project {
         scope(test)
                 .include(dependency("com.uwyn.rife2", "bld-testing-helpers",
                         version(1, 1, 0, "SNAPSHOT")))
-                .include(dependency("org.jsoup", "jsoup", version(1, 23, 1)))
+                .include(dependency("org.jsoup", "jsoup", version(1, 23, 2)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", junit))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", junit))
                 .include(dependency("org.mockito", "mockito-core", version(5, 23, 0)))
