@@ -211,8 +211,6 @@ public class PropertyFileOperation extends AbstractOperation<PropertyFileOperati
      * @throws NullPointerException     if {@code file} is {@code null}
      * @throws IllegalArgumentException if {@code file} is empty
      */
-    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN",
-            justification = "The caller is responsible for providing a trusted file path")
     public PropertyFileOperation file(String file) {
         ObjectTools.requireNotEmpty(file, "file");
         return file(new File(file));

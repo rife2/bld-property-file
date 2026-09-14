@@ -24,7 +24,10 @@ import rife.bld.extension.tools.ObjectTools;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.time.*;
@@ -271,7 +274,6 @@ public final class PropertyFileUtils {
      * @param props   the {@link Properties} to save into the file
      * @throws IOException if an IO error occurs while writing the file
      */
-    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     public static void saveProperties(File file, String comment, Properties props)
             throws IOException {
         ObjectTools.requireNonNull(file, "file");
@@ -282,16 +284,25 @@ public final class PropertyFileUtils {
             var dir = parent != null ? parent.toPath() : Path.of(".");
             Files.createDirectories(dir);
 
-            var tmp = Files.createTempFile(dir, file.getName(), ".tmp");
+            var tmp = Files.createTempFile(dir, file.getName() + "-", ".tmp");
             try {
-                try (var out =
-                             Files.newOutputStream(tmp, StandardOpenOption.WRITE, StandardOpenOption.DSYNC)) {
+                try (var out = Files.newOutputStream(tmp,
+                        StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
                     props.store(out, comment);
                 }
                 try {
-                    Files.move(tmp, file.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-                } catch (AtomicMoveNotSupportedException e) {
-                    Files.move(tmp, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    Files.move(tmp, file.toPath(),
+                            StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    // Windows: ATOMIC_MOVE fails if file is open, or filesystem doesn't support it
+                    // Fallback to non-atomic replace
+                    try {
+                        Files.move(tmp, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException e2) {
+                        // Last resort on Windows: copy + delete, works even with REPLACE_EXISTING quirks
+                        Files.copy(tmp, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        Files.deleteIfExists(tmp);
+                    }
                 }
             } finally {
                 Files.deleteIfExists(tmp);

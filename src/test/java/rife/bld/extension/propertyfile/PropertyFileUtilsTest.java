@@ -757,14 +757,17 @@ class PropertyFileUtilsTest {
         }
 
         @Test
-        void shouldThrowExceptionForInvalidPath() {
+        void shouldThrowExceptionForInvalidPath(@TempDir Path tempDir) throws IOException {
             var properties = new Properties();
             properties.put("key", "value");
-            var invalidFile = new File("/invalid/path/that/does/not/exist/file.properties");
 
-            assertThatCode(() ->
-                    PropertyFileUtils.saveProperties(invalidFile, "comment", properties))
-                    .as("invalid file path").isInstanceOf(IOException.class)
+            // Make parent a file, not a directory -> cannot create child
+            var notADir = tempDir.resolve("notADir");
+            Files.createFile(notADir);
+            var invalidFile = notADir.resolve("file.properties").toFile();
+
+            assertThatCode(() -> PropertyFileUtils.saveProperties(invalidFile, "comment", properties))
+                    .isInstanceOf(IOException.class)
                     .hasMessageContaining("Could not save properties file: ");
         }
     }
